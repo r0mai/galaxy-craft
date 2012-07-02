@@ -1,6 +1,8 @@
 
-#include <SFML/Graphics.hpp>
+#include "gamemanager.hpp"
 
 int main() {
-	test();
+	gc::gamemanager game(800, 600);
+
+	game.run();
 }
