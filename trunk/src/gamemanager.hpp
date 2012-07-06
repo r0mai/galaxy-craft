@@ -19,8 +19,8 @@ private:
 	sf::RenderWindow window;
 	sf::View mapview;
 
-	unsigned window_width, window_height;
-	unsigned map_width, map_height;
+	vector2di window_size;
+	vector2df map_size;
 
 	std::vector<polygonf> obstacles;
 
