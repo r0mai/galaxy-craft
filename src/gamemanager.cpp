@@ -1,15 +1,21 @@
 
 #include "gamemanager.hpp"
 
+#include <fstream>
+#include <sstream>
+
 #include <boost/lexical_cast.hpp>
 
 namespace gc {
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
-	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
-	view(sf::Vector2f(200, 300), sf::Vector2f(width/2.f, height/2.f)),
+	window(sf::VideoMode(width, height, 32), "Galaxy Craft"), window_width(width), window_height(height),
+	/*view(sf::Vector2f(width/2.f, height/2.f), sf::Vector2f(width/2.f, height/2.f)),*/
 	frame_rate_str("unknown")
 {
+	init();
+
+/*
 	polygonf poly1;
 	poly1.add_point( vector2df(300, 200) );
 	poly1.add_point( vector2df(200, 300) );
@@ -19,6 +25,40 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 	poly1.set_color( sf::Color::Red );
 
 	obstacles.push_back(poly1);
+*/
+}
+
+void gamemanager::init() {
+	readmap("test.map");
+}
+
+void gamemanager::readmap(const std::string& mapfile) {
+	std::ifstream in(mapfile.c_str());
+
+	std::string line;
+
+	std::getline( in, line );
+	std::stringstream ss(line);
+	//TODO syntax checking or xml parsing
+	ss >> map_width >> map_height;
+
+	while ( std::getline( in, line ) ) {
+		std::stringstream ss2(line);
+
+		polygonf poly;
+		float x, y;
+		while ( ss2 >> x && ss2 >> y ) {
+			poly.add_point( vector2df(x, y) );
+		}
+		poly.set_color( sf::Color::Red );
+
+		if ( poly.get_points().size() >= 3 ) {
+			obstacles.push_back( poly );
+		}
+
+	}
+
+
 }
 
 void gamemanager::run() {
@@ -55,16 +95,19 @@ void gamemanager::process_events() {
 		}
 	}
 
+	const int mousex = window.GetInput().GetMouseX();
+	const int mousey = window.GetInput().GetMouseY();
+
     // Move the view using arrow keys
     float Offset = 200.f * window.GetFrameTime();
-    if (window.GetInput().IsKeyDown(sf::Key::Up))    view.Move( 0,      -Offset);
-    if (window.GetInput().IsKeyDown(sf::Key::Down))  view.Move( 0,       Offset);
-    if (window.GetInput().IsKeyDown(sf::Key::Left))  view.Move(-Offset,  0);
-    if (window.GetInput().IsKeyDown(sf::Key::Right)) view.Move( Offset,  0);
+    if (window.GetInput().IsKeyDown(sf::Key::Up))    mapview.Move( 0,      -Offset);
+    if (window.GetInput().IsKeyDown(sf::Key::Down))  mapview.Move( 0,       Offset);
+    if (window.GetInput().IsKeyDown(sf::Key::Left))  mapview.Move(-Offset,  0);
+    if (window.GetInput().IsKeyDown(sf::Key::Right)) mapview.Move( Offset,  0);
 
     // Zoom and unzoom using + and - keys
-    if (window.GetInput().IsKeyDown(sf::Key::Add))      view.Zoom(1.001f);
-    if (window.GetInput().IsKeyDown(sf::Key::Subtract)) view.Zoom(0.999f);
+    if (window.GetInput().IsKeyDown(sf::Key::Add))      mapview.Zoom(1.001f);
+    if (window.GetInput().IsKeyDown(sf::Key::Subtract)) mapview.Zoom(0.999f);
 
 }
 
@@ -76,7 +119,7 @@ void gamemanager::advance(const float frame_rate) {
 void gamemanager::draw() {
 	window.Clear();
 
-	window.SetView(view);
+	window.SetView(mapview);
 
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);

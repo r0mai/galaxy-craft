@@ -23,6 +23,9 @@ public:
 
 	virtual void draw(sf::RenderWindow& window) const;
 
+	std::vector< vector2d<T> >& get_points();
+	const std::vector< vector2d<T> >& get_points() const;
+
 private:
 	std::vector< vector2d<T> > points;
 };
@@ -49,10 +52,20 @@ void polygon<T>::draw(sf::RenderWindow& window) const {
 	}
 	//size 2 will draw a line
 	for ( unsigned i = 0; i < points.size() - 1; ++i ) {
-		window.Draw( sf::Shape::Line( points[i].to_sfml_vector(), points[i+1].to_sfml_vector(), 1.f, color ) );
+		window.Draw( sf::Shape::Line( points[i].to_sfml_vector(), points[i+1].to_sfml_vector(), 4.f, color ) );
 	}
 
-	window.Draw( sf::Shape::Line( points.back().to_sfml_vector(), points.front().to_sfml_vector(), 1.f, color ) );
+	window.Draw( sf::Shape::Line( points.back().to_sfml_vector(), points.front().to_sfml_vector(), 4.f, color ) );
+}
+
+template<class T>
+std::vector< vector2d<T> >& polygon<T>::get_points() {
+	return points;
+}
+
+template<class T>
+const std::vector< vector2d<T> >& polygon<T>::get_points() const {
+	return points;
 }
 
 } //namespace gc
