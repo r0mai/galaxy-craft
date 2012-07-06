@@ -43,6 +43,7 @@ public:
 	T x, y;
 };
 
+typedef vector2d<int> vector2di;
 typedef vector2d<float> vector2df;
 
 } //namespace gc

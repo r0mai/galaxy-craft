@@ -9,7 +9,7 @@
 namespace gc {
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
-	window(sf::VideoMode(width, height, 32), "Galaxy Craft"), window_width(width), window_height(height),
+	window(sf::VideoMode(width, height, 32), "Galaxy Craft"), window_size(width, height),
 	/*view(sf::Vector2f(width/2.f, height/2.f), sf::Vector2f(width/2.f, height/2.f)),*/
 	frame_rate_str("unknown")
 {
@@ -40,7 +40,9 @@ void gamemanager::readmap(const std::string& mapfile) {
 	std::getline( in, line );
 	std::stringstream ss(line);
 	//TODO syntax checking or xml parsing
-	ss >> map_width >> map_height;
+	ss >> map_size.x >> map_size.y;
+
+	mapview = sf::View(sf::Vector2f(map_size.x/2.f, map_size.y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f));
 
 	while ( std::getline( in, line ) ) {
 		std::stringstream ss2(line);
@@ -119,12 +121,16 @@ void gamemanager::advance(const float frame_rate) {
 void gamemanager::draw() {
 	window.Clear();
 
+	//Draw map related after this
 	window.SetView(mapview);
+
+	window.Draw( sf::Shape::Rectangle( sf::Vector2f(0.f,0.f), map_size.to_sfml_vector(), sf::Color(20, 20, 20) ) );
 
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
 
+	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
 
 	window.Draw( sf::String(frame_rate_str) );
