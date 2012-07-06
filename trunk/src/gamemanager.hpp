@@ -17,12 +17,17 @@ public:
 
 private:
 	sf::RenderWindow window;
-	sf::View view;
+	sf::View mapview;
+
+	unsigned window_width, window_height;
+	unsigned map_width, map_height;
 
 	std::vector<polygonf> obstacles;
 
 	std::string frame_rate_str;
 
+	void init();
+	void readmap(const std::string& mapfile);
 
 	void process_events();
     void advance(const float frame_rate);
