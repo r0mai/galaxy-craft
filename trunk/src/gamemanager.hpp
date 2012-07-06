@@ -5,6 +5,8 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
+#include "polygon.hpp"
+
 namespace gc {
 
 class gamemanager {
@@ -15,8 +17,12 @@ public:
 
 private:
 	sf::RenderWindow window;
+	sf::View view;
+
+	std::vector<polygonf> obstacles;
 
 	std::string frame_rate_str;
+
 
 	void process_events();
     void advance(const float frame_rate);
