@@ -7,7 +7,7 @@
 namespace gc {
 
 //abstract base class for drawables.
-//sf::Drawable is little too complex and doesn't have features we need
+//sf::Drawable is little too complex and doesn't have some features we need
 class drawable {
 public:
 	drawable(const sf::Color& color = sf::Color::Black);

@@ -9,27 +9,17 @@
 namespace gc {
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
-	window(sf::VideoMode(width, height, 32), "Galaxy Craft"), window_size(width, height),
-	/*view(sf::Vector2f(width/2.f, height/2.f), sf::Vector2f(width/2.f, height/2.f)),*/
+	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
+	window_size(width, height),
 	frame_rate_str("unknown")
 {
 	init();
-
-/*
-	polygonf poly1;
-	poly1.add_point( vector2df(300, 200) );
-	poly1.add_point( vector2df(200, 300) );
-	poly1.add_point( vector2df(400, 400) );
-	poly1.add_point( vector2df(500, 350) );
-
-	poly1.set_color( sf::Color::Red );
-
-	obstacles.push_back(poly1);
-*/
 }
 
 void gamemanager::init() {
 	readmap("test.map");
+
+	test_path = path::search_path( vector2df(250, 150), vector2df(650, 650), obstacles );
 }
 
 void gamemanager::readmap(const std::string& mapfile) {
@@ -92,13 +82,32 @@ void gamemanager::process_events() {
 				break;
 			}
 			break;
+		case sf::Event::MouseButtonPressed :
+			switch ( event.MouseButton.Button ) {
+			case sf::Mouse::Left :
+
+				test_path = path::search_path(
+						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
+						test_path.get_end(),
+						obstacles );
+				break;
+			case sf::Mouse::Right :
+				test_path = path::search_path(
+						test_path.get_start(),
+						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
+						obstacles );
+				break;
+			default:
+				break;
+			}
+			break;
 		default:
 			break;
 		}
 	}
 
-	const int mousex = window.GetInput().GetMouseX();
-	const int mousey = window.GetInput().GetMouseY();
+	//const int mousex = window.GetInput().GetMouseX();
+	//const int mousey = window.GetInput().GetMouseY();
 
     // Move the view using arrow keys
     float Offset = 200.f * window.GetFrameTime();
@@ -129,6 +138,8 @@ void gamemanager::draw() {
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
+
+	test_path.draw(window);
 
 	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
