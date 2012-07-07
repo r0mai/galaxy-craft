@@ -29,6 +29,11 @@ public:
 	const vector2d<T> centroid() const;
 	const T area() const;
 
+	void rotate(const T angle);
+//	void rotate(const T angle, const vector2d<T>& center);
+	
+	void move(const vector2d<T>& direction);
+
 private:
 	std::vector< vector2d<T> > points;
 };
@@ -104,8 +109,23 @@ const vector2d<T> polygon<T>::centroid() const {
 	T y = sum_y / (T(6) * area );
 	return vector2d(x,y);
 
-};
+}
 
+template<class T>
+void polygon<T>::rotate(const T angle){
+	// Rotate all points around centroid.
+
+	T center = centroid();
+	std::for_each( points.begin(), points.end(), [angle&, center&](vector2d<T>& p){ p.rotate(angle, center); } );
+
+}
+
+template<class T>
+void move(const vector2d<T>& direction){
+	// Add direction to all points.
+
+	std::for_each( points.begin(), points.end() [direction&](vector2d<T>& p){ p += direction; } );
+}
 
 } //namespace gc
 
