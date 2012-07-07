@@ -39,6 +39,9 @@ public:
 	const vector2d& operator+=(const vector2d& rhs);
 	const vector2d& operator-=(const vector2d& rhs);
 
+	void rotate(const T angle, const vector2d& center);
+	vector2d& rotate_copy(const T angle, const vector2d& center) const;
+
 	T x, y;
 };
 
@@ -89,6 +92,21 @@ const vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 	x -= rhs.x;
 	y -= rhs.y;
 	return *this;
+}
+
+template<class T>
+void vector2d<T>::rotate(const T angle, const vector2d<T>& center) {
+	T tmp_x = center.x + ((x - center.x) * cos(angle)) - ((center.y - y) * sin(angle));
+	T tmp_y = center.y + ((center.y - y) * cos(angle)) - ((x - center.x) * sin(angle));
+	x = tmp_x;
+	y = tmp_y;
+}
+
+template<class T>
+vector2d<T>& vector2d<T>::rotate_copy(const T angle, const vector2d<T>& center) const{
+	vector2d<T> tmp = *this;
+	tmp.rotate(angle, center);
+	return tmp;
 }
 
 } //namespace gc
