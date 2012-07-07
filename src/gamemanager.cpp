@@ -57,7 +57,7 @@ void gamemanager::run() {
 
 	while(window.IsOpened()) {
 		const float frame_rate = window.GetFrameTime();
-		frame_rate_str = boost::lexical_cast<std::string>(1.f/frame_rate);
+		frame_rate_str = boost::lexical_cast<std::string>( static_cast<int>(1.f/frame_rate) );
 
         process_events();
         advance(frame_rate);
@@ -144,7 +144,11 @@ void gamemanager::draw() {
 	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
 
-	window.Draw( sf::String(frame_rate_str) );
+	sf::String sfframestr(frame_rate_str);
+
+	sfframestr.SetPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
+
+	window.Draw( sfframestr );
 
 	window.Display();
 }

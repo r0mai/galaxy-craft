@@ -19,9 +19,15 @@ class vector2d :
 	> > {
 public:
 	vector2d();
+
 	vector2d(const T& x, const T& y);
+
 	vector2d(const sf::Vector2<T>&);
 
+	//construct from arbitrary vector with x and y components
+	//works for sf::Vector2<X> and other vector2d<X>
+	template<class U>
+	vector2d(const U& v);
 
 	sf::Vector2<T> to_sfml_vector() const;
 
@@ -51,6 +57,10 @@ vector2d<T>::vector2d(const T& x, const T& y) : x(x), y(y) {}
 
 template<class T>
 vector2d<T>::vector2d(const sf::Vector2<T>& v) : x(v.x), y(v.y) {}
+
+template<class T>
+template<class U>
+vector2d<T>::vector2d(const U& v) : x(v.x), y(v.y) {}
 
 template<class T>
 sf::Vector2<T> vector2d<T>::to_sfml_vector() const {
