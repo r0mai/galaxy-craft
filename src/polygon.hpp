@@ -82,7 +82,7 @@ const T polygon<T>::area() const {
 	// http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 	
 	T area_twice = T(0);
-	for (unsigned i=0; i < points.size() - 1; ++i){
+	for (unsigned i=0; i < points.size() - 1; ++i) {
 		area_twice += points[i].x * points[i+1].y - points[i+1].x * points[i].y;
 	}
 	return area_twice/T(2);
@@ -97,7 +97,7 @@ const vector2d<T> polygon<T>::centroid() const {
 	T sum_x = T(0);
 	T sum_y = T(0);
 
-	for (unsigned i = 0; i <= points.size() - 1; ++i){
+	for (unsigned i = 0; i < points.size() - 1; ++i) {
 		T commonVal = (points[i].x * points[i+1].y - points[i+1].x * points[i].y);
 		sum_x += (points[i].x + points[i+1].x) * commonVal;
 		sum_y += (points[i].y + points[i+1].y) * commonVal;
