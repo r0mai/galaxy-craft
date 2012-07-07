@@ -76,7 +76,7 @@ const T polygon<T>::area() const {
 
 	// http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
 	
-	T area_twice;
+	T area_twice = T(0);
 	for (unsigned i=0; i < points.size() - 1; ++i){
 		area_twice += points[i].x * points[i+1].y - points[i+1].x * points[i].y;
 	}
