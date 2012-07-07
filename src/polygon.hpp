@@ -107,7 +107,7 @@ const vector2d<T> polygon<T>::centroid() const {
 	T area = area();
 	T x = sum_x / (T(6) * area );
 	T y = sum_y / (T(6) * area );
-	return vector2d(x,y);
+	return vector2d<T>(x,y);
 
 }
 

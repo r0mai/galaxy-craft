@@ -39,7 +39,7 @@ public:
 	const vector2d& operator+=(const vector2d& rhs);
 	const vector2d& operator-=(const vector2d& rhs);
 
-	void rotate(const T angle, const vector2d& center);
+	void rotate(const T& angle, const vector2d& center);
 	vector2d& rotate_copy(const T angle, const vector2d& center) const;
 
 	T x, y;
@@ -95,11 +95,11 @@ const vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 }
 
 template<class T>
-void vector2d<T>::rotate(const T angle, const vector2d<T>& center) {
-	T tmp_x = center.x + ((x - center.x) * cos(angle)) - ((center.y - y) * sin(angle));
-	T tmp_y = center.y + ((center.y - y) * cos(angle)) - ((x - center.x) * sin(angle));
-	x = tmp_x;
-	y = tmp_y;
+void vector2d<T>::rotate(const T& angle, const vector2d<T>& center) {
+	const T dx = x - center.x;
+	const T dy = center.y - y;
+	x = center.x + (dx * std::cos(angle)) - (dy * std::sin(angle));
+	y = center.y + (dy * std::cos(angle)) - (dx * std::sin(angle));
 }
 
 template<class T>
