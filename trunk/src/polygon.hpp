@@ -116,15 +116,15 @@ void polygon<T>::rotate(const T angle){
 	// Rotate all points around centroid.
 
 	T center = centroid();
-	std::for_each( points.begin(), points.end(), [angle&, center&](vector2d<T>& p){ p.rotate(angle, center); } );
+	std::for_each( points.begin(), points.end(), [&angle, &center](&vector2d<T> p){ p.rotate(angle, center); } );
 
 }
 
 template<class T>
-void move(const vector2d<T>& direction){
+void polygon<T>::move(const vector2d<T>& direction){
 	// Add direction to all points.
 
-	std::for_each( points.begin(), points.end() [direction&](vector2d<T>& p){ p += direction; } );
+	std::for_each( points.begin(), points.end() [&direction](&vector2d<T> p){ p += direction; } );
 }
 
 } //namespace gc
