@@ -1,6 +1,6 @@
 
 #if 1
-
+//r0maikx02b modification
 #include "gamemanager.hpp"
 
 #include "vector2d.hpp"
