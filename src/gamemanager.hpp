@@ -5,6 +5,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 
+#include "path.hpp"
 #include "polygon.hpp"
 
 namespace gc {
@@ -23,6 +24,8 @@ private:
 	vector2df map_size;
 
 	std::vector<polygonf> obstacles;
+
+	path test_path;
 
 	std::string frame_rate_str;
 
