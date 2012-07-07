@@ -106,11 +106,11 @@ void gamemanager::process_events() {
 		}
 	}
 
-	//const int mousex = window.GetInput().GetMouseX();
-	//const int mousey = window.GetInput().GetMouseY();
+	float Offset = 400.f * window.GetFrameTime();
+
+	if (window.GetInput().IsKeyDown(sf::Key::W)) obstacles[0].rotate( 0.5f );
 
     // Move the view using arrow keys
-    float Offset = 200.f * window.GetFrameTime();
     if (window.GetInput().IsKeyDown(sf::Key::Up))    mapview.Move( 0,      -Offset);
     if (window.GetInput().IsKeyDown(sf::Key::Down))  mapview.Move( 0,       Offset);
     if (window.GetInput().IsKeyDown(sf::Key::Left))  mapview.Move(-Offset,  0);
