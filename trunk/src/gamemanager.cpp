@@ -1,6 +1,6 @@
 
 #include "gamemanager.hpp"
-
+#include "vector2d.hpp"
 #include <fstream>
 #include <sstream>
 
@@ -15,6 +15,8 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 {
 	init();
 }
+
+
 
 void gamemanager::init() {
 	readmap("test.map");
@@ -108,7 +110,7 @@ void gamemanager::process_events() {
 
 	float Offset = 400.f * window.GetFrameTime();
 
-	if (window.GetInput().IsKeyDown(sf::Key::W)) obstacles[0].rotate( 0.5f );
+	if (window.GetInput().IsKeyDown(sf::Key::W)) obstacles[0].rotate(0.5f);
 
     // Move the view using arrow keys
     if (window.GetInput().IsKeyDown(sf::Key::Up))    mapview.Move( 0,      -Offset);

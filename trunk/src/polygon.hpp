@@ -4,11 +4,13 @@
 #define POLYGON_HPP_
 
 #include <vector>
-
+#include <iostream>
 #include <SFML/Graphics.hpp>
 #include <algorithm>
+#include <numeric>
 #include "drawable.hpp"
 #include "vector2d.hpp"
+
 
 namespace gc {
 
@@ -59,6 +61,9 @@ void polygon<T>::draw(sf::RenderWindow& window) const {
 		return;
 	}
 	//size 2 will draw a line
+	window.Draw( sf::Shape::Circle(centroid().to_sfml_vector(), 2.f, sf::Color::Green) );
+
+
 	for ( unsigned i = 0; i < points.size() - 1; ++i ) { // Connect all adjacent points.
 		window.Draw( sf::Shape::Line( points[i].to_sfml_vector(), points[i+1].to_sfml_vector(), 4.f, color ) );
 	}
@@ -85,30 +90,29 @@ const T polygon<T>::area() const {
 	for (unsigned i=0; i < points.size() - 1; ++i) {
 		area_twice += points[i].x * points[i+1].y - points[i+1].x * points[i].y;
 	}
+
+	area_twice = area_twice>T(0) ? area_twice : area_twice*T(-1); // abs.
+
 	return area_twice/T(2);
 
 }
 
 template<class T>
 const vector2d<T> polygon<T>::centroid() const {
-	
-	// http://en.wikipedia.org/wiki/Centroid#Centroid_of_polygon
-	
-	T sum_x = T(0);
-	T sum_y = T(0);
-
-	for (unsigned i = 0; i < points.size() - 1; ++i) {
-		T commonVal = (points[i].x * points[i+1].y - points[i+1].x * points[i].y);
-		sum_x += (points[i].x + points[i+1].x) * commonVal;
-		sum_y += (points[i].y + points[i+1].y) * commonVal;
+	// http://www.wolframalpha.com/input/?i=centroid+of+polygon+with+vertices+%28300%2C+200%29%2C+%28200%2C+300%29%2C+%28405%2C+403%29%2C+%28500%2C+320%29
+	// based on this, it's safe to say average works best.
+	// also checked for 5-gons. Also fixes the glitch we've been having thus far. 
+	// Introduces new one though, rotation doesn't seem to do much, apart from shrinking the polygon.
+	//
+	T x_num = T(0);
+	T y_num = T(0);
+	T x_den = T(points.size());
+	T y_den = T(points.size());
+	for(unsigned i=0; i < points.size(); ++i){
+		x_num += points[i].x;
+		y_num += points[i].y;
 	}
-
-
-	T area_val = area();
-	T x = sum_x / (T(6) * area_val );
-	T y = sum_y / (T(6) * area_val );
-	return vector2d<T>(x,y);
-
+	return vector2d<T>(x_num/x_den, y_num/y_den);
 }
 
 template<class T>
@@ -117,6 +121,7 @@ void polygon<T>::rotate(const T angle){
 
 	const vector2d<T> center = centroid();
 	std::for_each( points.begin(), points.end(), [&angle, &center](vector2d<T>& p){ p.rotate(angle, center); } );
+	
 
 }
 
