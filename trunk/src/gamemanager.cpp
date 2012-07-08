@@ -4,8 +4,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include <SFML/Audio.hpp>
 #include <boost/lexical_cast.hpp>
+
 
 namespace gc {
 
@@ -23,6 +24,7 @@ void gamemanager::init() {
 	readmap("test.map");
 
 	test_path = path::search_path( vector2df(250, 150), vector2df(650, 650), map_size, obstacles );
+	
 }
 
 void gamemanager::readmap(const std::string& mapfile) {
@@ -57,6 +59,12 @@ void gamemanager::readmap(const std::string& mapfile) {
 }
 
 void gamemanager::run() {
+	sf::Music bg;
+	if(!bg.OpenFromFile("gc.ogg")){
+		std::cout<<"error with file!\n";
+	}
+	bg.SetLoop(true);
+	bg.Play();
 
 	while(window.IsOpened()) {
 		const float frame_rate = window.GetFrameTime();
