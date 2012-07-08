@@ -6,6 +6,7 @@
 #include <SFML/Graphics.hpp>
 
 #include "path.hpp"
+#include "gamemap.hpp"
 #include "polygon.hpp"
 
 namespace gc {
@@ -18,19 +19,17 @@ public:
 
 private:
 	sf::RenderWindow window;
-	sf::View mapview;
-
 	vector2di window_size;
-	vector2df map_size;
 
-	std::vector<polygonf> obstacles;
+	gamemap map;
+
+	sf::View mapview;
 
 	path test_path;
 
 	std::string frame_rate_str;
 
 	void init();
-	void readmap(const std::string& mapfile);
 
 	void process_events();
     void advance(const float frame_rate);
