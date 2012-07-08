@@ -5,12 +5,15 @@
 
 #include <vector>
 #include <iostream>
-#include <SFML/Graphics.hpp>
 #include <algorithm>
 #include <numeric>
+#include <iterator>
+
+#include <SFML/Graphics.hpp>
+
 #include "drawable.hpp"
 #include "vector2d.hpp"
-
+#include "visilibity.hpp"
 
 namespace gc {
 
@@ -20,6 +23,8 @@ class polygon : public drawable {
 public:
 	polygon();
 	polygon(const std::vector< vector2d<T> >& points);
+
+	VisiLibity::Polygon to_visilibity_polygon() const;
 
 	void add_point(const vector2d<T>& p);
 
@@ -49,6 +54,21 @@ polygon<T>::polygon() : points() {}
 
 template<class T>
 polygon<T>::polygon(const std::vector< vector2d<T> >& points) : points(points) {}
+
+template<class T>
+VisiLibity::Polygon polygon<T>::to_visilibity_polygon() const {
+	std::vector<VisiLibity::Point> vispoints;
+	vispoints.reserve( points.size() );
+
+	std::transform( points.begin(), points.end(), std::back_inserter( vispoints ),
+		[](const vector2d<T>& p) {
+			return p.to_visilibity_point();
+		}
+	);
+
+	return VisiLibity::Polygon(vispoints);
+
+}
 
 template<class T>
 void polygon<T>::add_point(const vector2d<T>& p) {

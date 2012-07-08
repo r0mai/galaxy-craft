@@ -1,16 +1,32 @@
 
 #include "path.hpp"
 
+#include <algorithm>
+#include <iterator>
+
+#include "visilibity.hpp"
+
 namespace gc {
 
-path::path() : drawable(sf::Color::Yellow) {
+path::path() : drawable(sf::Color::Yellow) {}
 
-}
-
-path path::search_path(const vector2df& start, const vector2df& end, const std::vector<polygonf>& obstacles) {
+path path::search_path(const vector2df& start, const vector2df& end, const vector2df& map_size, const std::vector<polygonf>& obstacles) {
 	path result;
 	result.add_point( start );
-	//calculate
+
+	//Transform obstacles to a vector which Vislibity::enviroment can accept
+	std::vector<VisiLibity::Polygon> vis_enviroment_polygons; //will be <=> obstacles
+	vis_enviroment_polygons.reserve( obstacles.size() + 1 );
+
+	std::transform( obstacles.begin(), obstacles.end(), std::back_inserter( vis_enviroment_polygons ),
+		[](const polygonf& p){
+			return p.to_visilibity_polygon();
+		}
+	);
+
+	VisiLibity::Environment enviroment(vis_enviroment_polygons);
+
+
 	result.add_point( end );
 
 	return result;

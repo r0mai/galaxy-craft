@@ -613,6 +613,7 @@ namespace VisiLibity
       endpoints_[0] = line_segment_temp.endpoints_[0];
       endpoints_[1] = line_segment_temp.endpoints_[1];
       size_ = 2;
+      break;
     }
   }
 
@@ -708,6 +709,7 @@ namespace VisiLibity
       endpoints_[0] = line_segment_temp.endpoints_[0];
       endpoints_[1] = line_segment_temp.endpoints_[1];
       size_ = 2;
+      break;
     }
     return *this;
   }
@@ -739,6 +741,7 @@ namespace VisiLibity
       endpoints_ = new Point[1];
       endpoints_[0] = point_temp;
       size_ = 1;
+      break;
     }
   }
 
@@ -769,6 +772,7 @@ namespace VisiLibity
       endpoints_ = new Point[1];
       endpoints_[0] = point_temp;
       size_ = 1;
+      break;
     }
   }
 
