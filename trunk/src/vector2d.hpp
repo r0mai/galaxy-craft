@@ -9,6 +9,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "visilibity.hpp"
+
 namespace gc {
 
 //vector2d can be used for positions as well
@@ -22,12 +24,15 @@ public:
 
 	vector2d(const T& x, const T& y);
 
+	vector2d(const VisiLibity::Point& p);
+
 	//construct from arbitrary vector with x and y components
 	//works for sf::Vector2<X> and other vector2d<X>
 	template<class U> //Copy constructor and conversion construtor all in one
 	vector2d(const U& v);
 
 	sf::Vector2<T> to_sfml_vector() const;
+	VisiLibity::Point to_visilibity_point() const;
 
 	T length_squared() const;
 
@@ -57,12 +62,20 @@ template<class T>
 vector2d<T>::vector2d(const T& x, const T& y) : x(static_cast<T>(x)), y(static_cast<T>(y)) {}
 
 template<class T>
+vector2d<T>::vector2d(const VisiLibity::Point& p) : x(static_cast<T>(p.x())), y(static_cast<T>(p.y())) {}
+
+template<class T>
 template<class U>
 vector2d<T>::vector2d(const U& v) : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
 
 template<class T>
 sf::Vector2<T> vector2d<T>::to_sfml_vector() const {
 	return sf::Vector2<T>(x, y);
+}
+
+template<class T>
+VisiLibity::Point vector2d<T>::to_visilibity_point() const {
+	return VisiLibity::Point( x, y );
 }
 
 template<class T>

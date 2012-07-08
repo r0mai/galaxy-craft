@@ -22,7 +22,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 void gamemanager::init() {
 	readmap("test.map");
 
-	test_path = path::search_path( vector2df(250, 150), vector2df(650, 650), obstacles );
+	test_path = path::search_path( vector2df(250, 150), vector2df(650, 650), map_size, obstacles );
 }
 
 void gamemanager::readmap(const std::string& mapfile) {
@@ -95,12 +95,14 @@ void gamemanager::process_events() {
 				test_path = path::search_path(
 						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
 						test_path.get_end(),
+						map_size,
 						obstacles );
 				break;
 			case sf::Mouse::Right :
 				test_path = path::search_path(
 						test_path.get_start(),
 						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
+						map_size,
 						obstacles );
 				break;
 			default:
