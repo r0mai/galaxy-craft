@@ -100,7 +100,7 @@ template<class T>
 void vector2d<T>::rotate(const T& angle, const vector2d<T>& center) {
 	std::cout<<"DEBUG: x:"<<x<<" y:"<<y<<" Angle to rotate: "<<angle<<" center: "<<center.x<<" "<<center.y;
 	const T dx = x - center.x;
-	const T dy = y - center.y;
+	const T dy = center.y - y;
 	x = center.x + (dx * std::cos(angle)) - (dy * std::sin(angle));
 	y = center.y + (dy * std::cos(angle)) - (dx * std::sin(angle));
 	std::cout<<" New value: x:"<<x<<" y:"<<y<<std::endl;
