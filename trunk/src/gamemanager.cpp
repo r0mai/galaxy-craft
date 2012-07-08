@@ -13,6 +13,8 @@ namespace gc {
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
 	window_size(width, height),
+	map(gamemap::from_file( "test.map" )),
+	mapview(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f)),
 	frame_rate_str("unknown")
 {
 	init();
@@ -21,41 +23,9 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 
 
 void gamemanager::init() {
-	readmap("test.map");
 
-	test_path = path::search_path( vector2df(250, 150), vector2df(650, 650), map_size, obstacles );
+	test_path = map.search_path( vector2df(250, 150), vector2df(650, 650) );
 	
-}
-
-void gamemanager::readmap(const std::string& mapfile) {
-	std::ifstream in(mapfile.c_str());
-
-	std::string line;
-
-	std::getline( in, line );
-	std::stringstream ss(line);
-	//TODO syntax checking or xml parsing
-	ss >> map_size.x >> map_size.y;
-
-	mapview = sf::View(sf::Vector2f(map_size.x/2.f, map_size.y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f));
-
-	while ( std::getline( in, line ) ) {
-		std::stringstream ss2(line);
-
-		polygonf poly;
-		float x, y;
-		while ( ss2 >> x && ss2 >> y ) {
-			poly.add_point( vector2df(x, y) );
-		}
-		poly.set_color( sf::Color::Red );
-
-		if ( poly.get_points().size() >= 3 ) {
-			obstacles.push_back( poly );
-		}
-
-	}
-
-
 }
 
 void gamemanager::run() {
@@ -89,9 +59,6 @@ void gamemanager::process_events() {
 			case sf::Key::Escape :
 				window.Close();
 				break;
-			case sf::Key::W :
-				obstacles[0].rotate( 0.1f );
-				break;
 			default:
 				break;
 			}
@@ -100,18 +67,14 @@ void gamemanager::process_events() {
 			switch ( event.MouseButton.Button ) {
 			case sf::Mouse::Left :
 
-				test_path = path::search_path(
+				test_path = map.search_path(
 						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
-						test_path.get_end(),
-						map_size,
-						obstacles );
+						test_path.get_end() );
 				break;
 			case sf::Mouse::Right :
-				test_path = path::search_path(
+				test_path = map.search_path(
 						test_path.get_start(),
-						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
-						map_size,
-						obstacles );
+						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ) );
 				break;
 			default:
 				break;
@@ -147,10 +110,10 @@ void gamemanager::draw() {
 	//Draw map related after this
 	window.SetView(mapview);
 
-	window.Draw( sf::Shape::Rectangle( sf::Vector2f(0.f,0.f), map_size.to_sfml_vector(), sf::Color(20, 20, 20) ) );
+	window.Draw( sf::Shape::Rectangle( sf::Vector2f(0.f,0.f), map.get_dimension().to_sfml_vector(), sf::Color(20, 20, 20) ) );
 
-	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
-		obstacles[i].draw(window);
+	for ( unsigned i = 0; i < map.get_obstacles().size(); ++i ) {
+		map.get_obstacles()[i].draw(window);
 	}
 
 	test_path.draw(window);

@@ -18,9 +18,6 @@ public:
 	path();
 	path(const VisiLibity::Polyline& polyline);
 
-
-	static path search_path(const vector2df& start, const vector2df& end, const vector2df& map_size, const std::vector<polygonf>& obstacles);
-
 	void add_point(const vector2df& p);
 
 	const vector2df& get_start() const;
@@ -29,8 +26,6 @@ public:
 	virtual void draw(sf::RenderWindow& window) const;
 
 private:
-	static VisiLibity::Environment make_enviroment( const vector2df& map_size, const std::vector<polygonf>& obstacles );
-
 	std::vector<vector2df> path_points;
 };
 
