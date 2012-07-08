@@ -94,16 +94,19 @@ const vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 	return *this;
 }
 
-#include <iostream>
 
 template<class T>
 void vector2d<T>::rotate(const T& angle, const vector2d<T>& center) {
-	std::cout<<"DEBUG: x:"<<x<<" y:"<<y<<" Angle to rotate: "<<angle<<" center: "<<center.x<<" "<<center.y;
-	const T dx = x - center.x;
-	const T dy = center.y - y;
-	x = center.x + (dx * std::cos(angle)) - (dy * std::sin(angle));
-	y = center.y + (dy * std::cos(angle)) - (dx * std::sin(angle));
-	std::cout<<" New value: x:"<<x<<" y:"<<y<<std::endl;
+	// Finally fracking works! 
+	// Source: http://content.gpwiki.org/index.php/Rotating_A_Point_In_2D_In_Lua
+
+	T sine = std::sin(angle);
+	T cosine = std::cos(angle);
+	T distance_x = (x - center.x);
+	T distance_y = (y - center.y);
+
+	x = center.x + cosine * distance_x - sine * distance_y;
+	y = center.y + sine * distance_x + cosine * distance_y;
 }
 
 template<class T>
