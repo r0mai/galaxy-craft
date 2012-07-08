@@ -69,6 +69,8 @@ void polygon<T>::draw(sf::RenderWindow& window) const {
 	}
 	// Connect last to first, to complete polygon.
 	window.Draw( sf::Shape::Line( points.back().to_sfml_vector(), points.front().to_sfml_vector(), 4.f, color ) );
+
+	window.Draw( sf::Shape::Circle( centroid().to_sfml_vector(), 2.f, sf::Color::Green ) );
 }
 
 template<class T>
