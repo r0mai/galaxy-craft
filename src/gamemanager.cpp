@@ -1,6 +1,7 @@
 
 #include "gamemanager.hpp"
 #include "vector2d.hpp"
+#include <iostream>
 #include <fstream>
 #include <sstream>
 
@@ -80,6 +81,9 @@ void gamemanager::process_events() {
 			case sf::Key::Escape :
 				window.Close();
 				break;
+			case sf::Key::W :
+				obstacles[0].rotate( 0.1f );
+				break;
 			default:
 				break;
 			}
@@ -109,8 +113,6 @@ void gamemanager::process_events() {
 	}
 
 	float Offset = 400.f * window.GetFrameTime();
-
-	if (window.GetInput().IsKeyDown(sf::Key::W)) obstacles[0].rotate(0.5f);
 
     // Move the view using arrow keys
     if (window.GetInput().IsKeyDown(sf::Key::Up))    mapview.Move( 0,      -Offset);
