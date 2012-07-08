@@ -1,9 +1,11 @@
 
 #include "gamemanager.hpp"
 #include "vector2d.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
+
 #include <SFML/Audio.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -110,12 +112,7 @@ void gamemanager::draw() {
 	//Draw map related after this
 	window.SetView(mapview);
 
-	window.Draw( sf::Shape::Rectangle( sf::Vector2f(0.f,0.f), map.get_dimension().to_sfml_vector(), sf::Color(20, 20, 20) ) );
-
-	for ( unsigned i = 0; i < map.get_obstacles().size(); ++i ) {
-		map.get_obstacles()[i].draw(window);
-	}
-
+	map.draw(window);
 	test_path.draw(window);
 
 	//Draw GUI after this
