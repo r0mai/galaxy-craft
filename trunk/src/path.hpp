@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include "visilibity.hpp"
+
 #include "polygon.hpp"
 #include "vector2d.hpp"
 #include "drawable.hpp"
@@ -14,6 +16,8 @@ class path : public drawable {
 public:
 
 	path();
+	path(const VisiLibity::Polyline& polyline);
+
 
 	static path search_path(const vector2df& start, const vector2df& end, const vector2df& map_size, const std::vector<polygonf>& obstacles);
 
@@ -25,6 +29,8 @@ public:
 	virtual void draw(sf::RenderWindow& window) const;
 
 private:
+	static VisiLibity::Environment make_enviroment( const vector2df& map_size, const std::vector<polygonf>& obstacles );
+
 	std::vector<vector2df> path_points;
 };
 
