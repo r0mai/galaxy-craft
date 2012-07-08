@@ -8,7 +8,9 @@
 int main() {
 	gc::gamemanager game(800, 600);
 
-	game.run();
+	game.run(); // never returns, do not put functions after this point! 
+	
+	
 }
 #else //View tutorial example
 
