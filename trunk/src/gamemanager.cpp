@@ -8,9 +8,13 @@
 
 #include <SFML/Audio.hpp>
 #include <boost/lexical_cast.hpp>
-
+#include "object.hpp"
 
 namespace gc {
+
+
+	// Object testing here! Yes I know, no global var usage..
+	object<float> obj("obj.png", vector2d<float>(150.0,250.0), 25.0);
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
@@ -31,12 +35,6 @@ void gamemanager::init() {
 }
 
 void gamemanager::run() {
-	sf::Music bg;
-	if(!bg.OpenFromFile("gc.ogg")){
-		std::cout<<"error with file!\n";
-	}
-	bg.SetLoop(true);
-	bg.Play();
 
 	while(window.IsOpened()) {
 		const float frame_rate = window.GetFrameTime();
@@ -123,6 +121,8 @@ void gamemanager::draw() {
 	sfframestr.SetPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 
 	window.Draw( sfframestr );
+
+	obj.draw(window);
 
 	window.Display();
 }

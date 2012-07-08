@@ -94,7 +94,7 @@ namespace VisiLibity
 	      -line_segment_temp.first().x(),2)
 	  + pow(line_segment_temp.second().y()
 		-line_segment_temp.first().y(),2) );
-    //std::cout << "\E[1;37;40m" << "Theta is: " << theta << "\x1b[0m"
+    //std::cout << "[1;37;40m" << "Theta is: " << theta << "\x1b[0m"
     //<< std::endl;
     if( (0.0<=theta) and (theta<=1.0) )
       return theta*line_segment_temp.first() 
@@ -2442,10 +2442,7 @@ namespace VisiLibity
 				      const Point& finish,
 				      double epsilon)
   {
-    return shortest_path( start,
-			  finish,
-			  Visibility_Graph(*this, epsilon),
-			  epsilon );
+    return shortest_path( start,  finish,  Visibility_Graph(*this, epsilon),  epsilon );
   }
 
 
@@ -3082,13 +3079,13 @@ namespace VisiLibity
 
     if(PRINTING_DEBUG_DATA){
       std::cout << std::endl 
-		<< "\E[1;37;40m" 
+		<< "[1;37;40m" 
 		<< "COMPUTING VISIBILITY POLYGON " << std::endl
 		<<  "for an observer located at [x y] = [" 
 		<< observer << "]" 
 		<< "\x1b[0m" 
 		<< std::endl << std::endl
-		<< "\E[1;37;40m" <<"PREPROCESSING" << "\x1b[0m" 
+		<< "[1;37;40m" <<"PREPROCESSING" << "\x1b[0m" 
 		<< std::endl << std::endl 
 		<< "q1 is" << std::endl;
       std::list<Polar_Point_With_Edge_Info>::iterator q1_itr;
@@ -3133,7 +3130,7 @@ namespace VisiLibity
 
     if(PRINTING_DEBUG_DATA){
       std::cout << std::endl
-		<< "\E[1;37;40m" 
+		<< "[1;37;40m" 
 		<< "INITIALIZATION" 
 		<< "\x1b[0m" 
 		<< std::endl << std::endl
@@ -3163,11 +3160,11 @@ namespace VisiLibity
 
     if(PRINTING_DEBUG_DATA){
       std::cout << std::endl
-		<< "\E[32m" 
+		<< "[32m" 
 		<< "Add current_vertex to visibility polygon." 
 		<< "\x1b[0m" 
 		<< std::endl << std::endl
-		<< "\E[1;37;40m" 
+		<< "[1;37;40m" 
 		<< "MAIN LOOP" 
 		<< "\x1b[0m" 
 		<< std::endl;
@@ -3201,7 +3198,7 @@ namespace VisiLibity
 
 	if(PRINTING_DEBUG_DATA){
 	  std::cout << std::endl
-		    << "\E[36m" << "TYPE 1:" << "\x1b[0m"
+		    << "[36m" << "TYPE 1:" << "\x1b[0m"
 		    << " current_vertex is the second vertex of active_edge."
 		    << std::endl;
 	}
@@ -3223,7 +3220,7 @@ namespace VisiLibity
 
 	if(PRINTING_DEBUG_DATA){
 	  std::cout << std::endl
-		    << "\E[32m" << "Add current_vertex to visibility polygon." 
+		    << "[32m" << "Add current_vertex to visibility polygon." 
 		    << "\x1b[0m" << std::endl;
 	}
 
@@ -3284,7 +3281,7 @@ namespace VisiLibity
 
 	    if(PRINTING_DEBUG_DATA){
 	      std::cout << std::endl
-			<< "\E[32m" 
+			<< "[32m" 
 			<< "Add a type 1 k-point to visibility polygon." 
 			<< "\x1b[0m" << std::endl
 			<< std::endl
@@ -3363,7 +3360,7 @@ namespace VisiLibity
 
 	  if(PRINTING_DEBUG_DATA){
 	    std::cout << std::endl
-		      << "\E[36m" << "TYPE 2:" << "\x1b[0m"
+		      << "[36m" << "TYPE 2:" << "\x1b[0m"
 		      << " current_vertex is" << std::endl
 		      << "(1) a first vertex of some edge "
 	                 "other than active_edge, and" << std::endl
@@ -3384,7 +3381,7 @@ namespace VisiLibity
 	  
 	  if(PRINTING_DEBUG_DATA){
 	    std::cout << std::endl
-		      << "\E[36m" << "TYPE 3:" << "\x1b[0m"
+		      << "[36m" << "TYPE 3:" << "\x1b[0m"
 		      << " current_vertex is" << std::endl
 		      << "(1) the first vertex of some edge "
 	                 "other than active edge, and" << std::endl
@@ -3404,7 +3401,7 @@ namespace VisiLibity
 	   
 	    if(PRINTING_DEBUG_DATA){
 	      std::cout << std::endl
-			<< "\E[32m" 
+			<< "[32m" 
 			<< "Add type 3 k-point to visibility polygon." 
 			<< "\x1b[0m" << std::endl;
 	    }
@@ -3422,7 +3419,7 @@ namespace VisiLibity
 
 	  if(PRINTING_DEBUG_DATA){
 	    std::cout << std::endl
-		      << "\E[32m" << "Add current_vertex to visibility polygon." 
+		      << "[32m" << "Add current_vertex to visibility polygon." 
 		      << "\x1b[0m" << std::endl
 		      << std::endl
 		      << "Set active_edge to edge of current_vertex." 
@@ -3507,16 +3504,12 @@ namespace VisiLibity
     // visibility polygons
     Polygon polygon_temp;
     for(unsigned k1=0; k1<n_; k1++){
-      polygon_temp = Visibility_Polygon( environment(k1),
-					 environment,
-					 epsilon );
+      polygon_temp = Visibility_Polygon( environment(k1), environment, epsilon );
       for(unsigned k2=0; k2<n_; k2++){
-	if( k1 == k2 )
-	  adjacency_matrix_[ k1 ][ k1 ] = true;
-	else
-	  adjacency_matrix_[ k1 ][ k2 ] =
-	    adjacency_matrix_[ k2 ][ k1 ] =    
-	    environment(k2).in( polygon_temp , epsilon ); 
+		if( k1 == k2 )
+			adjacency_matrix_[ k1 ][ k1 ] = true;
+		else
+			adjacency_matrix_[ k1 ][ k2 ] = adjacency_matrix_[ k2 ][ k1 ] = environment(k2).in( polygon_temp , epsilon ); 
       }
     }
   }
