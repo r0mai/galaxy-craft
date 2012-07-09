@@ -10,7 +10,7 @@
 #include "unit.hpp"
 #include "gamemap.hpp"
 #include "polygon.hpp"
-
+#include "imanager.hpp"
 namespace gc {
 
 class gamemanager {
@@ -18,6 +18,7 @@ public:
 	gamemanager(unsigned width, unsigned height);
 
 	void run();
+	imagemanager manager;
 
 private:
 	sf::RenderWindow window;
@@ -36,6 +37,8 @@ private:
 	void process_events();
     void advance(const float frame_rate);
     void draw();
+
+	
 
 };
 
