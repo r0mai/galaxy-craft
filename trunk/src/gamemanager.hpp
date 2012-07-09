@@ -32,6 +32,9 @@ private:
 
 	sf::View mapview;
 
+	vector2df selection_start;
+	bool selection_in_progress;
+
 	std::string frame_rate_str;
 
 	void init();
