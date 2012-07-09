@@ -10,7 +10,8 @@
 #include "unit.hpp"
 #include "gamemap.hpp"
 #include "polygon.hpp"
-#include "imanager.hpp"
+#include "resourcemanager.hpp"
+
 namespace gc {
 
 class gamemanager {
@@ -23,7 +24,7 @@ private:
 	sf::RenderWindow window;
 	vector2di window_size;
 
-	imagemanager manager;
+	resourcemanager manager;
 
 	gamemap map;
 

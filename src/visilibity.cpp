@@ -2128,7 +2128,7 @@ namespace VisiLibity
   Polyline Environment::shortest_path(const Point& start,
 				      const Point& finish,
 				      const Visibility_Graph& visibility_graph,
-				      double epsilon)
+				      double epsilon) const
   {
     //true  => data printed to terminal
     //false => silent
@@ -2440,7 +2440,7 @@ namespace VisiLibity
   }
   Polyline Environment::shortest_path(const Point& start,
 				      const Point& finish,
-				      double epsilon)
+				      double epsilon) const
   {
     return shortest_path( start,  finish,  Visibility_Graph(*this, epsilon),  epsilon );
   }

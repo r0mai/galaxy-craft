@@ -60,13 +60,15 @@ void gamemanager::process_events() {
 		case sf::Event::MouseButtonPressed :
 		{
 
-			const int mousex = window.GetInput().GetMouseX();
-			const int mousey = window.GetInput().GetMouseY();
-
 			switch ( event.MouseButton.Button ) {
 
 			case sf::Mouse::Left :
-				units[0].move_on( map.search_path( units[0].get_position(), vector2df(window.ConvertCoords( mousex, mousey, &mapview ) )) );
+				std::for_each( units.begin(), units.end(),
+					[this, &event](unit& u) {
+						u.move_on( map.search_path( units[0].get_position(),
+								vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
+					}
+				);
 				break;
 			default:
 				break;
@@ -93,9 +95,11 @@ void gamemanager::process_events() {
 }
 
 void gamemanager::advance(const float frame_rate) {
-	for( unsigned i = 0; i < units.size(); ++i ) {
-		units[i].advance( frame_rate * 100.f );
-	}
+	std::for_each( units.begin(), units.end(),
+		[this, frame_rate](unit& u) {
+			u.advance( frame_rate * 400.f );
+		}
+	);
 }
 
 void gamemanager::draw() {

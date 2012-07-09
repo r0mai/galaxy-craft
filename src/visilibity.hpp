@@ -1490,7 +1490,7 @@ namespace VisiLibity
     Polyline shortest_path(const Point& start,
 			   const Point& finish,
 			   const Visibility_Graph& visibility_graph,
-			   double epsilon=0.0);
+			   double epsilon=0.0) const;
     /** \brief  compute shortest path between 2 Points
      *
      * \author  Karl J. Obermeyer
@@ -1505,7 +1505,7 @@ namespace VisiLibity
      */
     Polyline shortest_path(const Point& start,
 			   const Point& finish,
-			   double epsilon=0.0);
+			   double epsilon=0.0) const;
     /** \brief  compute the faces (partition cells) of an arrangement
      *          of Line_Segments inside the Environment
      *
