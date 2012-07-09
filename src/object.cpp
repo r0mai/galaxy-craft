@@ -30,16 +30,19 @@ object::object(const std::string& filename, const vector2df& c, const float r) :
 	*/
 	const float diameter = 2.f * radius; // diameter of coll. ring.
 	const float d = std::sqrt( x*x + y*y ); // Goal is to ensure d = diameter
-	const float lambda = diameter / d;
-
+	const float lambda = ( std::sqrt(2.f)*diameter / d ); // WTF IS THAT?
+	
 	sprite.Scale(lambda, lambda);
 	sprite.Move( (center - vector2df(radius, radius)).to_sfml_vector()); // Not quite..
 	// Work should be done!
 }
 
 
+object::~object(){
+}
+
 void object::draw(sf::RenderWindow& window) const{
-	window.Draw(sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color::Green) ); // Need ring instead! argh!
+	window.Draw(sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 2, sf::Color::Green)); // Ring now.
 	window.Draw(sprite);
 } // That should be it.
 

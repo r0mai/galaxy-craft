@@ -13,6 +13,7 @@
 #include "path.hpp"
 #include "polygon.hpp"
 
+
 namespace gc {
 
 class gamemap : public drawable {
