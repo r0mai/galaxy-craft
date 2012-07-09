@@ -17,7 +17,8 @@ namespace gc {
 template<class T>
 class vector2d :
 	boost::equality_comparable<vector2d<T>,
-	boost::additive<vector2d<T>
+	boost::additive<vector2d<T>,
+	boost::multiplicative<vector2d<T>, T>
 	> > {
 public:
 	vector2d();
@@ -35,14 +36,18 @@ public:
 	VisiLibity::Point to_visilibity_point() const;
 
 	T length_squared() const;
-
-	//auto length() const -> decltype( std::sqrt( T() ) ) {
 	float length() const;
+
+	T distance_to_squared(const vector2d<T>& other);
+	float distance_to(const vector2d<T>& other);
 
 	bool operator==(const vector2d& other) const;
 
 	const vector2d& operator+=(const vector2d& rhs);
 	const vector2d& operator-=(const vector2d& rhs);
+
+	const vector2d& operator*=(const T& rhs);
+	const vector2d& operator/=(const T& rhs);
 
 	void rotate(const T& angle, const vector2d& center);
 	vector2d& rotate_copy(const T angle, const vector2d& center) const;
@@ -89,6 +94,16 @@ float vector2d<T>::length() const {
 }
 
 template<class T>
+T vector2d<T>::distance_to_squared(const vector2d<T>& other) {
+	return (*this - other).length_squared();
+}
+
+template<class T>
+float vector2d<T>::distance_to(const vector2d<T>& other) {
+	return std::sqrt(distance_to_squared(other));
+}
+
+template<class T>
 bool vector2d<T>::operator==(const vector2d<T>& other) const {
 	return x == other.x && y == other.y;
 }
@@ -107,6 +122,19 @@ const vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 	return *this;
 }
 
+template<class T>
+const vector2d<T>& vector2d<T>::operator*=(const T& rhs) {
+	x *= rhs;
+	y *= rhs;
+	return *this;
+}
+
+template<class T>
+const vector2d<T>& vector2d<T>::operator/=(const T& rhs) {
+	x /= rhs;
+	y /= rhs;
+	return *this;
+}
 
 template<class T>
 void vector2d<T>::rotate(const T& angle, const vector2d<T>& center) {

@@ -18,11 +18,12 @@ public:
 	gamemanager(unsigned width, unsigned height);
 
 	void run();
-	imagemanager manager;
 
 private:
 	sf::RenderWindow window;
 	vector2di window_size;
+
+	imagemanager manager;
 
 	gamemap map;
 
