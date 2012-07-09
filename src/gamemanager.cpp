@@ -107,7 +107,6 @@ void gamemanager::draw() {
 		}
 	);
 
-	obj.draw(window);
 
 	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
