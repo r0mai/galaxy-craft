@@ -56,14 +56,37 @@ void path::move_forward(float distance) {
 	assert(distance >= 0.f);
 
 	if ( is_at_end() ) {
+		std::cout << "move_forward @end" << std::endl;
 		return;
 	}
 
-	const float remaining_segment =
-			path_points[position.segment].distance_to( path_points[position.segment + 1] ) *
-			( 1.f - position.advancment_ratio );
+	float current_segment_length = path_points[position.segment].distance_to( path_points[position.segment + 1] );
 
+	const float remaining_segment_length =	current_segment_length * ( 1.f - position.advancment_ratio );
 
+	if ( distance < remaining_segment_length ) {
+
+		position.advancment_ratio += distance / current_segment_length;
+
+	} else { //distance >= remaining_segment
+
+		distance -= remaining_segment_length;
+
+		while ( distance >= 0.f && position.segment < path_points.size() - 1 ) {
+			++position.segment;
+			current_segment_length = path_points[position.segment].distance_to( path_points[position.segment + 1] );
+			distance -= current_segment_length;
+		}
+
+		if ( position.segment == path_points.size() - 1 ) {
+			//We reached the end
+			return;
+		}
+
+		//distance is negative now
+		position.advancment_ratio = (current_segment_length + distance) / current_segment_length;
+
+	}
 
 }
 
