@@ -14,7 +14,7 @@ namespace gc {
 
 
 	// Object testing here! Yes I know, no global var usage..
-	object obj("obj.png", vector2df(150.0,250.0), 25.0);
+	object obj(vector2df(150.0,250.0), 25.0);
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
@@ -29,9 +29,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 
 
 void gamemanager::init() {
-
-	test_path = map.search_path( vector2df(250, 150), vector2df(650, 650) );
-	
+	units.push_back( unit( vector2df(350.0,250.0) ) );
 }
 
 void gamemanager::run() {
@@ -67,14 +65,9 @@ void gamemanager::process_events() {
 			switch ( event.MouseButton.Button ) {
 			case sf::Mouse::Left :
 
-				test_path = map.search_path(
-						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ),
-						test_path.get_end() );
 				break;
 			case sf::Mouse::Right :
-				test_path = map.search_path(
-						test_path.get_start(),
-						window.ConvertCoords( window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview ) );
+
 				break;
 			default:
 				break;
@@ -111,9 +104,13 @@ void gamemanager::draw() {
 	window.SetView(mapview);
 
 	map.draw(window);
-	test_path.draw(window);
 	
-	
+	std::for_each( units.begin(), units.end(),
+		[this](const unit& u) {
+			u.draw(window);
+		}
+	);
+
 	obj.draw(window);
 
 	//Draw GUI after this

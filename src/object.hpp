@@ -13,7 +13,7 @@ namespace gc {
 class object : public drawable { // I want to be able to draw it, duh.
 public:
 	object();
-	object(const std::string& filename, const vector2df& center, const float radius);
+	object(const vector2df& center, const float radius, const std::string& filename = "obj.png");
 	virtual void draw(sf::RenderWindow& window) const;
 	virtual ~object();
 private:
