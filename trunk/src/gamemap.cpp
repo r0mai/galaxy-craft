@@ -6,6 +6,9 @@
 
 namespace gc {
 
+
+const double gamemap::vis_epsilon = 0.0000001;
+
 gamemap gamemap::from_file(const std::string& mapfile) {
 
 	gamemap result;
@@ -35,11 +38,13 @@ gamemap gamemap::from_file(const std::string& mapfile) {
 
 	}
 
+	result.init_visilibity();
+
 	return result;
 }
 
 path gamemap::search_path(const vector2df& start, const vector2df& end) const {
-	return path(make_enviroment().shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), 0.000001 ));
+	return path(vis_enviroment.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_enviroment, vis_epsilon ));
 }
 
 void gamemap::draw(sf::RenderWindow& window) const {
@@ -58,8 +63,12 @@ const std::vector<polygonf>& gamemap::get_obstacles() const {
 	return obstacles;
 }
 
+void gamemap::init_visilibity() {
+	init_enviroment(); //These has to be called in this order
+	init_visilibity_graph(); //init_visilibity_graph() relies on init_enviroment()
+}
 
-VisiLibity::Environment gamemap::make_enviroment() const {
+void gamemap::init_enviroment() {
 
 	std::vector<VisiLibity::Point> outer_boundary_vertices; //(0,0), (map_size.x,0), (map_size.x,map_size.y), (0,map_size.y)
 	outer_boundary_vertices.push_back( VisiLibity::Point(0, 0) );
@@ -80,12 +89,13 @@ VisiLibity::Environment gamemap::make_enviroment() const {
 		}
 	);
 
-	VisiLibity::Environment result(vis_enviroment_polygons);
+	vis_enviroment = VisiLibity::Environment(vis_enviroment_polygons);
+	vis_enviroment.enforce_standard_form();
 
-	result.enforce_standard_form();
+}
 
-	return result;
-
+void gamemap::init_visilibity_graph() {
+	vis_visibility_graph = VisiLibity::Visibility_Graph( vis_enviroment, vis_epsilon );
 }
 
 } //namespace gc
