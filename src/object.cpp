@@ -43,11 +43,6 @@ void object::draw(sf::RenderWindow& window) const{
 	window.Draw(sprite);
 } // That should be it.
 
-object::object(const object& rhs){
-	std::cout<<"Copied!"<<std::endl;
-
-}
-
 
 } //namespce gc
 
