@@ -30,7 +30,7 @@ object::object(const vector2df& c, const float r, const sf::Image& img) : center
 	const float lambda = ( std::sqrt(2.f)*diameter / d ); // WTF IS THAT?
 	
 	sprite.Scale(lambda, lambda);
-	sprite.Move( (center - vector2df(radius, radius)).to_sfml_vector());
+	sprite.SetPosition( (center - vector2df(radius, radius)).to_sfml_vector());
 	// Work should be done!
 }
 
@@ -45,7 +45,7 @@ const vector2df& object::get_position() const {
 
 void object::set_position(const vector2df& p) {
 	center = p;
-	sprite.Move( (center - vector2df(radius, radius)).to_sfml_vector());
+	sprite.SetPosition( (center - vector2df(radius, radius)).to_sfml_vector());
 }
 
 float object::get_radius() const {
