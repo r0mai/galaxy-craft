@@ -14,7 +14,7 @@ namespace gc {
 
 
 	// Object testing here! Yes I know, no global var usage..
-	object<float> obj("obj.png", vector2d<float>(150.0,250.0), 25.0);
+	object obj("obj.png", vector2df(150.0,250.0), 25.0);
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
