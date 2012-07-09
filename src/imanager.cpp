@@ -18,6 +18,7 @@ const sf::Image& imagemanager::getimage(const std::string& s){
 		sf::Image img;
 		if(img.LoadFromFile(s)){ // can open!
 			storage.insert(std::pair<std::string, sf::Image>(s, img));
+			return storage.find(s)->second;
 		}
 		else{
 			std::cout<<"Image manager failed to fetch file "<<s<<std::endl;
