@@ -3,9 +3,11 @@
 #define GAMEMANAGER_HPP_
 
 #include <string>
+#include <vector>
 #include <SFML/Graphics.hpp>
 
 #include "path.hpp"
+#include "unit.hpp"
 #include "gamemap.hpp"
 #include "polygon.hpp"
 
@@ -23,9 +25,9 @@ private:
 
 	gamemap map;
 
-	sf::View mapview;
+	std::vector<unit> units;
 
-	path test_path;
+	sf::View mapview;
 
 	std::string frame_rate_str;
 

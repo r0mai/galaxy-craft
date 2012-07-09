@@ -6,11 +6,11 @@ namespace gc {
 object::object() : center(), radius(), orientation(), sprite() {}
 
 
-object::object(const std::string& filename, const vector2df& c, const float r) : center(c), radius(r), orientation() {
+object::object(const vector2df& c, const float r, const std::string& filename) : center(c), radius(r), orientation() {
 
 	// open image by filename, and then assign sprite to it. Not memory effecient!!
 	if(!img.LoadFromFile(filename)){
-		// Error handler needed soon!
+		std::cout << "Can't load from file " << filename << std::endl;
 	}
 	sprite.SetImage(img);
 
