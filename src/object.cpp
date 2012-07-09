@@ -6,12 +6,9 @@ namespace gc {
 object::object() : center(), radius(), orientation(), sprite() {}
 
 
-object::object(const vector2df& c, const float r, const std::string& filename) : center(c), radius(r), orientation() {
+object::object(const vector2df& c, const float r, const sf::Image& img) : center(c), radius(r), orientation() {
 
-	// open image by filename, and then assign sprite to it. Not memory effecient!!
-	if(!img.LoadFromFile(filename)){
-		std::cout << "Can't load from file " << filename << std::endl;
-	}
+	
 	sprite.SetImage(img);
 
 	// At this point, if image loading was successful at least, image could still be of any size/shape.
@@ -45,6 +42,11 @@ void object::draw(sf::RenderWindow& window) const{
 	window.Draw(sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 2, sf::Color::Green)); // Ring now.
 	window.Draw(sprite);
 } // That should be it.
+
+object::object(const object& rhs){
+	std::cout<<"Copied!"<<std::endl;
+
+}
 
 
 } //namespce gc
