@@ -14,10 +14,19 @@ class object : public drawable { // I want to be able to draw it, duh.
 public:
 	object();
 	object(const vector2df& c, const float r, const sf::Image& img);
+
+	//These two are the same
+	const vector2df& get_center() const;
+	const vector2df& get_position() const;
+
+	void set_position(const vector2df& p);
+
+	float get_radius() const;
+
 	virtual void draw(sf::RenderWindow& window) const;
 	virtual ~object();
 	
-private:
+protected:
 	// collision model stuff:
 	vector2df center;
 	float radius;

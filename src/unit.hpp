@@ -19,7 +19,10 @@ public:
 	unit();
 	unit(const vector2df& position, const sf::Image& texture);
 
+	void advance(float distance);
+	void move_on(const path& p);
 
+	virtual void draw(sf::RenderWindow& window) const;
 
 private:
 	state_t state;

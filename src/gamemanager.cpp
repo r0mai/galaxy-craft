@@ -58,17 +58,21 @@ void gamemanager::process_events() {
 			}
 			break;
 		case sf::Event::MouseButtonPressed :
+		{
+
+			const int mousex = window.GetInput().GetMouseX();
+			const int mousey = window.GetInput().GetMouseY();
+
 			switch ( event.MouseButton.Button ) {
+
 			case sf::Mouse::Left :
-
-				break;
-			case sf::Mouse::Right :
-
+				units[0].move_on( map.search_path( units[0].get_position(), vector2df(window.ConvertCoords( mousex, mousey, &mapview ) )) );
 				break;
 			default:
 				break;
 			}
 			break;
+		}
 		default:
 			break;
 		}
@@ -89,8 +93,9 @@ void gamemanager::process_events() {
 }
 
 void gamemanager::advance(const float frame_rate) {
-
-
+	for( unsigned i = 0; i < units.size(); ++i ) {
+		units[i].advance( frame_rate * 100.f );
+	}
 }
 
 void gamemanager::draw() {
