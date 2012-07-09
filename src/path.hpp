@@ -23,9 +23,24 @@ public:
 	const vector2df& get_start() const;
 	const vector2df& get_end() const;
 
+	bool is_at_end() const;
+	vector2df get_position() const;
+
+	void move_forward(float distance);
+
 	virtual void draw(sf::RenderWindow& window) const;
 
 private:
+	struct position_t {
+
+		position_t();
+		//in [0, path_points.size() - 2] n th segment we're on (surrounded by path_points[segment] and path_points[segment + 1]
+		//When == path_points.size() - 1, then we are at the end of the path
+		unsigned segment;
+		//in [0, 1)
+		float advancment_ratio;
+	} position;
+
 	std::vector<vector2df> path_points;
 };
 

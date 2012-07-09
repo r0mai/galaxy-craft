@@ -21,11 +21,50 @@ void path::add_point(const vector2df& p) {
 }
 
 const vector2df& path::get_start() const {
+	assert( !path_points.empty() );
+
 	return path_points.front();
 }
 
 const vector2df& path::get_end() const {
+	assert( !path_points.empty() );
+
 	return path_points.back();
+}
+
+bool path::is_at_end() const {
+	return position.segment == path_points.size() - 1;
+}
+
+vector2df path::get_position() const {
+	assert( !path_points.empty() );
+
+	//We're at the end
+	if ( is_at_end() ) {
+		return get_end();
+	}
+
+	const vector2df& segment_start = path_points[position.segment];
+	const vector2df& segment_end = path_points[position.segment + 1];
+
+	return segment_start + ( segment_end - segment_start )*position.advancment_ratio;
+
+}
+
+void path::move_forward(float distance) {
+
+	assert(distance >= 0.f);
+
+	if ( is_at_end() ) {
+		return;
+	}
+
+	const float remaining_segment =
+			path_points[position.segment].distance_to( path_points[position.segment + 1] ) *
+			( 1.f - position.advancment_ratio );
+
+
+
 }
 
 void path::draw(sf::RenderWindow& window) const {
@@ -33,5 +72,7 @@ void path::draw(sf::RenderWindow& window) const {
 		window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 4.f, color ) );
 	}
 }
+
+path::position_t::position_t() : segment(0), advancment_ratio(0.f) {}
 
 } //namespace gc
