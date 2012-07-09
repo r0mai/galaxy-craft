@@ -112,6 +112,9 @@ void gamemanager::draw() {
 
 	map.draw(window);
 	test_path.draw(window);
+	
+	
+	obj.draw(window);
 
 	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
@@ -121,8 +124,6 @@ void gamemanager::draw() {
 	sfframestr.SetPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 
 	window.Draw( sfframestr );
-
-	obj.draw(window);
 
 	window.Display();
 }

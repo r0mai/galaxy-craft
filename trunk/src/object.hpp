@@ -15,7 +15,7 @@ public:
 	object();
 	object(const std::string& filename, const vector2df& center, const float radius);
 	virtual void draw(sf::RenderWindow& window) const;
-	
+	virtual ~object();
 private:
 	// collision model stuff:
 	vector2df center;
