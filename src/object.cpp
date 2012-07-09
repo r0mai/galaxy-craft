@@ -57,7 +57,6 @@ object::~object(){
 }
 
 void object::draw(sf::RenderWindow& window) const{
-	window.Draw(sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 2, sf::Color::Green)); // Ring now.
 	window.Draw(sprite);
 } // That should be it.
 

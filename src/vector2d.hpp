@@ -41,6 +41,8 @@ public:
 	T distance_to_squared(const vector2d<T>& other);
 	float distance_to(const vector2d<T>& other);
 
+	bool is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
+
 	bool operator==(const vector2d& other) const;
 
 	const vector2d& operator+=(const vector2d& rhs);
@@ -101,6 +103,23 @@ T vector2d<T>::distance_to_squared(const vector2d<T>& other) {
 template<class T>
 float vector2d<T>::distance_to(const vector2d<T>& other) {
 	return std::sqrt(distance_to_squared(other));
+}
+
+template<class T>
+bool vector2d<T>::is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const {
+    T minx = corner1.x;
+    T miny = corner1.y;
+    T maxx = corner2.x;
+    T maxy = corner2.y;
+
+    if ( minx > maxx ) {
+        std::swap(minx, maxx);
+    }
+    if ( miny > maxy ) {
+        std::swap(miny, maxy);
+    }
+
+    return minx <= x && maxx >= x && miny <= y && maxy >= y;
 }
 
 template<class T>

@@ -22,10 +22,15 @@ public:
 	void advance(float distance);
 	void move_on(const path& p);
 
+	bool is_selected() const;
+	void set_selected(const bool val);
+
 	virtual void draw(sf::RenderWindow& window) const;
 
 private:
 	state_t state;
+
+	bool selected;
 
 	path moving_path; //used when MOVING
 };
