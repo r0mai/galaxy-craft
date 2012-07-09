@@ -25,9 +25,6 @@ private:
 	float orientation; // radians hopefully.
 	sf::Sprite sprite; 
 
-protected:
-	object(const object& rhs);
-	
 };
 
 

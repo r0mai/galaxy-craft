@@ -16,7 +16,7 @@ const sf::Image& imagemanager::getimage(const std::string& s){
 	}
 	else{ // not found, attempt to open!
 		sf::Image img;
-		if(!img.LoadFromFile(s)){ // can open!
+		if(img.LoadFromFile(s)){ // can open!
 			storage.insert(std::pair<std::string, sf::Image>(s, img));
 		}
 		else{

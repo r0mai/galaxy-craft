@@ -25,7 +25,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 
 
 void gamemanager::init() {
-	units.push_back( unit( vector2df(350.0,250.0) ) );
+	units.push_back( unit( vector2df(350.0,250.0) ) );	
 }
 
 void gamemanager::run() {
