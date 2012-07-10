@@ -44,7 +44,12 @@ License along with VisiLibity.  If not, see <http://www.gnu.org/licenses/>.
 ///Hide helping functions in unnamed namespace (local to .C file).
 namespace
 {
-  
+double counter_sqrt(const double x) {
+	static int c = 0;
+	++c;
+	//std::cout << "sqrt: " << c << std::endl;
+	return std::sqrt( x );
+}
 }
 
 
@@ -83,25 +88,26 @@ namespace VisiLibity
     //(1.0-theta)*line_segment_temp.second.  if theta is outside
     //the interval [0,1], then one of the Line_Segment's endpoints
     //must be closest to calling Point.
+
+    const double dx = line_segment_temp.second().x() - line_segment_temp.first().x();
+    const double dy = line_segment_temp.second().y() - line_segment_temp.first().y();
+
     double theta = 
       ( (line_segment_temp.second().x()-x())
 	*(line_segment_temp.second().x()
-	  -line_segment_temp.first().x()) 
+	  -line_segment_temp.first().x())
 	+ (line_segment_temp.second().y()-y())
 	*(line_segment_temp.second().y()
 	  -line_segment_temp.first().y()) ) 
-      / ( pow(line_segment_temp.second().x()
-	      -line_segment_temp.first().x(),2)
-	  + pow(line_segment_temp.second().y()
-		-line_segment_temp.first().y(),2) );
+      / ( dx*dx + dy*dy );
     //std::cout << "[1;37;40m" << "Theta is: " << theta << "\x1b[0m"
     //<< std::endl;
     if( (0.0<=theta) and (theta<=1.0) )
       return theta*line_segment_temp.first() 
 	+ (1.0-theta)*line_segment_temp.second();
     //Else pick closest endpoint.
-    if( distance(*this, line_segment_temp.first()) 
-	< distance(*this, line_segment_temp.second()) )
+    if( distance_squared(*this, line_segment_temp.first())
+	< distance_squared(*this, line_segment_temp.second()) )
       return line_segment_temp.first();
     return line_segment_temp.second();
   }
@@ -131,14 +137,16 @@ namespace VisiLibity
 	    and polyline_temp.size() > 0 );
 
     Point running_projection = polyline_temp[0];
-    double running_min = distance(*this, running_projection);    
+    double running_min_sq = distance_squared(*this, running_projection);
     Point point_temp;
     for(unsigned i=0; i<=polyline_temp.size()-1; i++){
       point_temp = projection_onto( Line_Segment(polyline_temp[i],
 						 polyline_temp[i+1]) );
-      if( distance(*this, point_temp) < running_min ){
-	running_projection = point_temp;
-	running_min = distance(*this, running_projection);
+
+      const double new_distance_tmp_sq = distance_squared(*this, point_temp);
+      if( new_distance_tmp_sq < running_min_sq ){
+		running_projection = point_temp;
+		running_min_sq = new_distance_tmp_sq;
       }
     }
     return running_projection;
@@ -151,11 +159,13 @@ namespace VisiLibity
 	   and polygon_temp.vertices_.size() > 0 );
 
     Point running_projection = polygon_temp[0];
-    double running_min = distance(*this, running_projection);
+    double running_min_sq = distance_squared(*this, running_projection);
     for(unsigned i=1; i<=polygon_temp.n()-1; i++){
-      if( distance(*this, polygon_temp[i]) < running_min ){
-	running_projection = polygon_temp[i];
-	running_min = distance(*this, running_projection);
+
+      const double new_distance_tmp_sq = distance_squared(*this, polygon_temp[i]);
+      if( new_distance_tmp_sq < running_min_sq ){
+		running_projection = polygon_temp[i];
+		running_min_sq = new_distance_tmp_sq;
       }
     }
     return running_projection;
@@ -170,13 +180,15 @@ namespace VisiLibity
 
     Point running_projection 
       = projection_onto_vertices_of(environment_temp.outer_boundary_);
-    double running_min = distance(*this, running_projection);   
+    double running_min_sq = distance_squared(*this, running_projection);
     Point point_temp;
     for(unsigned i=0; i<environment_temp.h(); i++){
       point_temp = projection_onto_vertices_of(environment_temp.holes_[i]);
-      if( distance(*this, point_temp) < running_min ){
-	running_projection = point_temp;
-	running_min = distance(*this, running_projection);
+
+      const double new_distance_tmp_sq = distance_squared(*this, point_temp);
+      if( new_distance_tmp_sq < running_min_sq ){
+		running_projection = point_temp;
+		running_min_sq = new_distance_tmp_sq;
       }
     }
     return running_projection;
@@ -189,14 +201,17 @@ namespace VisiLibity
 	    and polygon_temp.n() > 0 );
 
     Point running_projection = polygon_temp[0];
-    double running_min = distance(*this, running_projection);    
+    double running_min_sq = distance_squared(*this, running_projection);
     Point point_temp;
     for(unsigned i=0; i<=polygon_temp.n()-1; i++){
       point_temp = projection_onto( Line_Segment(polygon_temp[i],
 						 polygon_temp[i+1]) );
-      if( distance(*this, point_temp) < running_min ){
-	running_projection = point_temp;
-	running_min = distance(*this, running_projection);
+
+
+      const double new_distance_tmp_sq = distance_squared(*this, point_temp);
+      if( new_distance_tmp_sq < running_min_sq ){
+		running_projection = point_temp;
+		running_min_sq = new_distance_tmp_sq;
       }
     }
     return running_projection;
@@ -211,13 +226,16 @@ namespace VisiLibity
 
     Point running_projection 
       = projection_onto_boundary_of(environment_temp.outer_boundary_);
-    double running_min = distance(*this, running_projection);
+
+    double running_min_sq = distance_squared(*this, running_projection);
     Point point_temp;
     for(unsigned i=0; i<environment_temp.h(); i++){
       point_temp = projection_onto_boundary_of(environment_temp.holes_[i]);
-      if( distance(*this, point_temp) < running_min ){
-	running_projection = point_temp;
-	running_min = distance(*this, running_projection);
+
+      const double new_distance_tmp_sq = distance_squared(*this, point_temp);
+      if( new_distance_tmp_sq < running_min_sq ){
+		running_projection = point_temp;
+		running_min_sq = new_distance_tmp_sq;
       }
     }
     return running_projection;
@@ -230,8 +248,8 @@ namespace VisiLibity
     assert( *this == *this
 	    and polygon_temp.vertices_.size() > 0 );
 
-    if( distance(*this, projection_onto_boundary_of(polygon_temp) ) 
-	<= epsilon ){
+    if( distance_squared(*this, projection_onto_boundary_of(polygon_temp) )
+	<= epsilon*epsilon ){
       return true;
     }
     return false;
@@ -244,8 +262,8 @@ namespace VisiLibity
     assert( *this == *this
 	    and environment_temp.outer_boundary_.n() > 0 );
 
-    if( distance(*this, projection_onto_boundary_of(environment_temp) ) 
-	<= epsilon ){
+    if( distance_squared(*this, projection_onto_boundary_of(environment_temp) )
+	<= epsilon*epsilon ){
       return true;
     }
     return false;
@@ -258,7 +276,7 @@ namespace VisiLibity
     assert( *this == *this
 	    and line_segment_temp.size() > 0 );
 
-    if( distance(*this, line_segment_temp) < epsilon )
+    if( distance_squared(*this, line_segment_temp) < epsilon*epsilon )
       return true;
     return false;
   }
@@ -271,8 +289,8 @@ namespace VisiLibity
 	    and line_segment_temp.size() > 0 );
       
     return in(line_segment_temp, epsilon) 
-      and distance(*this, line_segment_temp.first()) > epsilon
-      and distance(*this, line_segment_temp.second()) > epsilon;
+      and distance_squared(*this, line_segment_temp.first()) > epsilon*epsilon
+      and distance_squared(*this, line_segment_temp.second()) > epsilon*epsilon;
   }
 
 
@@ -334,8 +352,8 @@ namespace VisiLibity
     assert( *this == *this
 	    and line_segment_temp.size() > 0 );
 
-    if( distance(line_segment_temp.first(), *this)<=epsilon 
-	or distance(line_segment_temp.second(), *this)<=epsilon )
+    if( distance_squared(line_segment_temp.first(), *this) <= epsilon*epsilon
+	or distance_squared(line_segment_temp.second(), *this) <= epsilon*epsilon  )
       return true;
     return false;
   }
@@ -348,7 +366,7 @@ namespace VisiLibity
 	    and polygon_temp.n() > 0 );
 
     Point point_temp( this->projection_onto_vertices_of(polygon_temp) );
-    if(  distance( *this , point_temp ) <= epsilon )
+    if( distance_squared( *this , point_temp ) <= epsilon*epsilon )
       *this = point_temp;
   }
   void Point::snap_to_vertices_of(const Environment& environment_temp,
@@ -358,7 +376,7 @@ namespace VisiLibity
 	    and environment_temp.n() > 0 );
 
     Point point_temp( this->projection_onto_vertices_of(environment_temp) );
-    if(  distance( *this , point_temp ) <= epsilon )
+    if(  distance_squared( *this , point_temp ) <= epsilon*epsilon )
       *this = point_temp;
   }
 
@@ -370,7 +388,7 @@ namespace VisiLibity
 	    and polygon_temp.n() > 0 );
 
     Point point_temp( this->projection_onto_boundary_of(polygon_temp) );
-    if(  distance( *this , point_temp ) <= epsilon )
+    if(  distance_squared( *this , point_temp ) <= epsilon*epsilon )
       *this = point_temp;
   }
   void Point::snap_to_boundary_of(const Environment& environment_temp,
@@ -380,7 +398,7 @@ namespace VisiLibity
 	    and environment_temp.n() > 0 );
 
     Point point_temp( this->projection_onto_boundary_of(environment_temp) );
-    if(  distance( *this , point_temp ) <= epsilon )
+    if(  distance_squared( *this , point_temp ) <= epsilon*epsilon )
       *this = point_temp;
   }
 
@@ -468,16 +486,38 @@ namespace VisiLibity
     return point1.x()*point2.y() - point2.x()*point1.y();
   }
 
+  double distance_squared(const Point& point1, const Point& point2) {
+	assert( point1 == point1
+		and point2 == point2 );
+
+	const double dx = point1.x() - point2.x();
+	const double dy = point1.y() - point2.y();
+
+	return dx*dx +dy*dy;
+  }
 
   double distance(const Point& point1, const Point& point2)
   {
-    assert( point1 == point1
-	    and point2 == point2 );
-
-    return sqrt(  pow( point1.x() - point2.x() , 2 )
-		  + pow( point1.y() - point2.y() , 2 )  );
+    return counter_sqrt(  distance_squared(point1, point2)  );
   }
 
+  double distance_squared(const Point& point_temp,
+		  const Line_Segment& line_segment_temp) {
+	assert( point_temp == point_temp
+		and line_segment_temp.size() > 0 );
+
+	return distance_squared( point_temp,
+		     point_temp.projection_onto(line_segment_temp) );
+  }
+
+  double distance_squared(const Line_Segment& line_segment_temp,
+		  const Point& point_temp) {
+	assert( point_temp == point_temp
+		and line_segment_temp.size() > 0 );
+
+	return distance_squared( point_temp,
+			line_segment_temp );
+  }
 
   double distance(const Point& point_temp,
 		  const Line_Segment& line_segment_temp)
@@ -495,6 +535,19 @@ namespace VisiLibity
 		     line_segment_temp );
   }
 
+  double distance_squared(const Point& point_temp,
+		  const Ray& ray_temp) {
+	    assert( point_temp == point_temp
+		    and ray_temp == ray_temp );
+	return distance_squared( point_temp,
+			     point_temp.projection_onto(ray_temp) );
+  }
+
+  double distance_squared(const Ray& ray_temp,
+		  const Point& point_temp) {
+	return distance_squared( point_temp,
+			     point_temp.projection_onto(ray_temp) );
+  }
 
   double distance(const Point& point_temp,
 		  const Ray& ray_temp)
@@ -511,22 +564,31 @@ namespace VisiLibity
 		     point_temp.projection_onto(ray_temp) );
   }
 
+  double distance_squared(const Point& point_temp,
+		  const Polyline& polyline_temp) {
+	    assert( point_temp == point_temp
+		    and polyline_temp.size() > 0 );
+
+	    double running_min_sq = distance_squared(point_temp, polyline_temp[0]);
+	    double distance_temp;
+	    for(unsigned i=0; i<polyline_temp.size()-1; i++){
+	      distance_temp = distance_squared(point_temp, Line_Segment(polyline_temp[i],
+								polyline_temp[i+1]) );
+	      if(distance_temp < running_min_sq)
+	    	  running_min_sq = distance_temp;
+	    }
+	    return running_min_sq;
+  }
+
+  double distance_squared(const Polyline& polyline_temp,
+		  const Point& point_temp) {
+	  return distance_squared(point_temp, polyline_temp);
+  }
 
   double distance(const Point& point_temp,
 		  const Polyline& polyline_temp)
   {
-    assert( point_temp == point_temp
-	    and polyline_temp.size() > 0 );
-
-    double running_min = distance(point_temp, polyline_temp[0]);
-    double distance_temp;
-    for(unsigned i=0; i<polyline_temp.size()-1; i++){
-      distance_temp = distance(point_temp, Line_Segment(polyline_temp[i],
-							polyline_temp[i+1]) );
-      if(distance_temp < running_min)
-	running_min = distance_temp;
-    }
-    return running_min;
+	  return counter_sqrt( distance_squared(point_temp, polyline_temp) );
   }
   double distance(const Polyline& polyline_temp,
 		  const Point& point_temp)
@@ -534,43 +596,61 @@ namespace VisiLibity
     return distance(point_temp, polyline_temp);
   }
 
+  double boundary_distance_squared(const Point& point_temp,
+			   const Polygon& polygon_temp) {
+	assert( point_temp == point_temp
+		and polygon_temp.n() > 0);
+
+	double running_min_sq = distance_squared(point_temp, polygon_temp[0]);
+	double distance_temp_sq;
+	for(unsigned i=0; i<=polygon_temp.n(); i++){
+	  distance_temp_sq = distance_squared(point_temp, Line_Segment(polygon_temp[i],
+							polygon_temp[i+1]) );
+	  if(distance_temp_sq < running_min_sq)
+		  running_min_sq = distance_temp_sq;
+	}
+	return running_min_sq;
+  }
+
+  double boundary_distance_squared(const Polygon& polygon_temp,
+			   const Point& point_temp) {
+	  return boundary_distance_squared(point_temp, polygon_temp);
+  }
 
   double boundary_distance(const Point& point_temp,
 			   const Polygon& polygon_temp)
   {
-    assert( point_temp == point_temp
-	    and polygon_temp.n() > 0);
-
-    double running_min = distance(point_temp, polygon_temp[0]);
-    double distance_temp;
-    for(unsigned i=0; i<=polygon_temp.n(); i++){
-      distance_temp = distance(point_temp, Line_Segment(polygon_temp[i],
-							polygon_temp[i+1]) );
-      if(distance_temp < running_min)
-	running_min = distance_temp;
-    }
-    return running_min;
+	  return counter_sqrt(boundary_distance_squared(point_temp, polygon_temp));
   }
   double boundary_distance(const Polygon& polygon_temp, const Point& point_temp)
   {
     return boundary_distance(point_temp, polygon_temp);
   } 
 
- 
+  double boundary_distance_squared(const Point& point_temp,
+			   const Environment& environment_temp) {
+	assert( point_temp == point_temp
+		and environment_temp.n() > 0 );
+
+	double running_min_sq = distance_squared(point_temp, environment_temp[0][0]);
+	double distance_temp_sq;
+	for(unsigned i=0; i <= environment_temp.h(); i++){
+		distance_temp_sq = boundary_distance_squared(point_temp, environment_temp[i]);
+	  if(distance_temp_sq < running_min_sq)
+	running_min_sq = distance_temp_sq;
+	}
+	return running_min_sq;
+  }
+
+  double boundary_distance_squared(const Environment& environment_temp,
+			   const Point& point_temp) {
+	  return boundary_distance_squared( point_temp, environment_temp );
+  }
+
   double boundary_distance(const Point& point_temp,
 			   const Environment& environment_temp)
   {
-    assert( point_temp == point_temp
-	    and environment_temp.n() > 0 );
-
-    double running_min = distance(point_temp, environment_temp[0][0]);
-    double distance_temp;
-    for(unsigned i=0; i <= environment_temp.h(); i++){
-      distance_temp = boundary_distance(point_temp, environment_temp[i]);
-      if(distance_temp < running_min)
-	running_min = distance_temp;
-    }
-    return running_min;
+	  return counter_sqrt( boundary_distance_squared(point_temp, environment_temp) );
   }  
   double boundary_distance(const Environment& environment_temp,
 			   const Point& point_temp)
@@ -629,7 +709,7 @@ namespace VisiLibity
   Line_Segment::Line_Segment(const Point& first_point_temp,
 			     const Point& second_point_temp, double epsilon)
   {
-    if( distance(first_point_temp, second_point_temp) <= epsilon ){
+    if( distance_squared(first_point_temp, second_point_temp) <= epsilon * epsilon ){
       endpoints_ = new Point[1];
       endpoints_[0] = first_point_temp;
       size_ = 1;
@@ -669,6 +749,11 @@ namespace VisiLibity
     return 0.5*( first() + second() );
   }
 
+  double Line_Segment::length_squared() const {
+	  assert( size_ > 0 );
+
+	  return distance_squared(first(), second());
+  }
 
   double Line_Segment::length() const
   {
@@ -725,7 +810,7 @@ namespace VisiLibity
       size_ = 1;
       break;
     case 1:
-      if( distance(endpoints_[0], point_temp) <= epsilon )
+      if( distance_squared(endpoints_[0], point_temp) <= epsilon*epsilon )
 	{ endpoints_[0] = point_temp; return; }
       second_point_temp = endpoints_[0];
       delete [] endpoints_;
@@ -735,7 +820,7 @@ namespace VisiLibity
       size_ = 2;
       break;
     case 2:
-      if( distance(point_temp, endpoints_[1]) > epsilon )
+      if( distance_squared(point_temp, endpoints_[1]) > epsilon*epsilon )
 	{ endpoints_[0] = point_temp; return; }
       delete [] endpoints_;
       endpoints_ = new Point[1];
@@ -756,7 +841,7 @@ namespace VisiLibity
       size_ = 1;
       break;
     case 1:
-      if( distance(endpoints_[0], point_temp) <= epsilon )
+      if( distance_squared(endpoints_[0], point_temp) <= epsilon*epsilon )
 	{ endpoints_[0] = point_temp; return; }
       first_point_temp = endpoints_[0];
       delete [] endpoints_;
@@ -766,7 +851,7 @@ namespace VisiLibity
       size_ = 2;
       break;
     case 2:
-      if( distance(endpoints_[0], point_temp) > epsilon )
+      if( distance_squared(endpoints_[0], point_temp) > epsilon*epsilon )
 	{ endpoints_[1] = point_temp; return; }
       delete [] endpoints_;
       endpoints_ = new Point[1];
@@ -837,64 +922,84 @@ namespace VisiLibity
 	or line_segment1.size() == 0
 	or line_segment2.size() == 0 )
       return false;
-    else if(   (  distance( line_segment1.first(), 
-			    line_segment2.first() ) <= epsilon  
-		  and  distance( line_segment1.second(), 
-				 line_segment2.second() ) <= epsilon  )
-	    or (  distance( line_segment1.first(), 
-			    line_segment2.second() ) <= epsilon  
-		  and  distance( line_segment1.second(), 
-				 line_segment2.first() ) <= epsilon  )   )
+    else if(   (  distance_squared( line_segment1.first(),
+			    line_segment2.first() ) <= epsilon*epsilon
+		  and  distance_squared( line_segment1.second(),
+				 line_segment2.second() ) <= epsilon*epsilon  )
+	    or (  distance_squared( line_segment1.first(),
+			    line_segment2.second() ) <= epsilon*epsilon
+		  and  distance_squared( line_segment1.second(),
+				 line_segment2.first() ) <= epsilon*epsilon  )   )
       return true;
     else
       return false;
   }
 
+  double distance_squared(const Line_Segment& line_segment1,
+		  const Line_Segment& line_segment2) {
+	assert( line_segment1.size() > 0  and  line_segment2.size() > 0 );
+
+	if(intersect_proper(line_segment1, line_segment2))
+	  return 0;
+	//But if two line segments intersect improperly, the distance
+	//between them is equal to the minimum of the distances between
+	//all 4 endpoints_ and their respective projections onto the line
+	//segment they don't belong to.
+	double running_min_sq, distance_temp_sq;
+	running_min_sq = distance_squared(line_segment1.first(), line_segment2);
+
+	distance_temp_sq = distance_squared(line_segment1.second(), line_segment2);
+	if(distance_temp_sq < running_min_sq)
+		running_min_sq = distance_temp_sq;
+
+	distance_temp_sq = distance_squared(line_segment2.first(), line_segment1);
+	if(distance_temp_sq < running_min_sq)
+		running_min_sq = distance_temp_sq;
+
+	distance_temp_sq = distance_squared(line_segment2.second(), line_segment1);
+	if(distance_temp_sq < running_min_sq)
+	  return distance_temp_sq;
+
+	return running_min_sq;
+  }
 
   double distance(const Line_Segment& line_segment1,
 		  const Line_Segment& line_segment2)
   {
-    assert( line_segment1.size() > 0  and  line_segment2.size() > 0 );
-    
-    if(intersect_proper(line_segment1, line_segment2))
-      return 0;
-    //But if two line segments intersect improperly, the distance
-    //between them is equal to the minimum of the distances between
-    //all 4 endpoints_ and their respective projections onto the line
-    //segment they don't belong to.
-    double running_min, distance_temp;
-    running_min = distance(line_segment1.first(), line_segment2);
-    distance_temp = distance(line_segment1.second(), line_segment2);
-    if(distance_temp<running_min)
-      running_min = distance_temp;
-    distance_temp = distance(line_segment2.first(), line_segment1);
-    if(distance_temp<running_min)
-      running_min = distance_temp;
-    distance_temp = distance(line_segment2.second(), line_segment1);
-    if(distance_temp<running_min)
-      return distance_temp;
-    return running_min;
+	  return counter_sqrt( distance_squared(line_segment1, line_segment2) );
   }
 
+  double boundary_distance_squared(const Line_Segment& line_segment,
+			   const Polygon& polygon) {
+	assert( line_segment.size() > 0 and polygon.n() > 0 );
+
+	double running_min_sq = distance_squared( line_segment , polygon[0] );
+	if( polygon.n() > 1 ) {
+		for(unsigned i = 0; i < polygon.n(); i++){
+		  double d = distance_squared( line_segment, Line_Segment( polygon[i], polygon[i+1] ) );
+		  if( running_min_sq > d ) {
+			  running_min_sq = d;
+		  }
+		}
+	}
+	return running_min_sq;
+  }
+
+  double boundary_distance_squared(const Polygon& polygon,
+			   const Line_Segment& line_segment) {
+	  return boundary_distance_squared(line_segment, polygon);
+  }
 
   double boundary_distance(const Line_Segment& line_segment,
 			   const Polygon& polygon)
   {
-    assert( line_segment.size() > 0 and polygon.n() > 0 );
-
-    double running_min = distance( line_segment , polygon[0] );
-    if( polygon.n() > 1 )
-      for(unsigned i=0; i<polygon.n(); i++){
-	double d = distance(  line_segment, 
-			      Line_Segment( polygon[i] , polygon[i+1] )  );
-	if( running_min > d )
-	  running_min = d;
-      }
-    return running_min;
+	  return counter_sqrt( boundary_distance_squared(line_segment, polygon) );
   }
   double boundary_distance(const Polygon& polygon,
 			   const Line_Segment& line_segment)
-  { return boundary_distance( line_segment , polygon ); }
+  {
+	  return boundary_distance( line_segment , polygon );
+  }
 
 
   bool intersect(const Line_Segment& line_segment1,
@@ -903,7 +1008,7 @@ namespace VisiLibity
     if( line_segment1.size() == 0
 	or line_segment2.size() == 0 )
       return false;
-    if( distance(line_segment1, line_segment2) <= epsilon )
+    if( distance_squared(line_segment1, line_segment2) <= epsilon*epsilon )
       return true;
     return false;
   }
@@ -923,20 +1028,24 @@ namespace VisiLibity
     Point d( line_segment2.second() );
     //First find the minimum of the distances between all 4 endpoints_
     //and their respective projections onto the opposite line segment.
-    double running_min, distance_temp;
-    running_min = distance(a, line_segment2);
-    distance_temp = distance(b, line_segment2);
-    if(distance_temp<running_min)
-      running_min = distance_temp;
-    distance_temp = distance(c, line_segment1);
-    if(distance_temp<running_min)
-      running_min = distance_temp;
-    distance_temp = distance(d, line_segment1);
-    if(distance_temp<running_min)
-      running_min = distance_temp;
+    double running_min_sq, distance_temp_sq;
+    running_min_sq = distance_squared(a, line_segment2);
+
+    distance_temp_sq = distance_squared(b, line_segment2);
+    if(distance_temp_sq < running_min_sq)
+    	running_min_sq = distance_temp_sq;
+
+    distance_temp_sq = distance_squared(c, line_segment1);
+    if(distance_temp_sq < running_min_sq)
+    	running_min_sq = distance_temp_sq;
+
+    distance_temp_sq = distance_squared(d, line_segment1);
+    if(distance_temp_sq < running_min_sq)
+    	running_min_sq = distance_temp_sq;
+
     //If an endpoint is close enough to the other segment, the
     //intersection is not considered proper.
-    if(running_min <= epsilon)
+    if(running_min_sq <= epsilon*epsilon)
       return false; 
     //This test is from O'Rourke's "Computational Geometry in C",
     //p.30.  Checks left and right turns.
@@ -960,11 +1069,13 @@ namespace VisiLibity
     //No intersection => return empty segment.
     if( !intersect(line_segment1, line_segment2, epsilon) )
        return line_segment_temp;
+
+    //TODO first(), second() should return const references
     //Declare new vars just for readability.
-    Point a( line_segment1.first()  );
-    Point b( line_segment1.second() );
-    Point c( line_segment2.first()  );
-    Point d( line_segment2.second() );
+    const Point a( line_segment1.first()  );
+    const Point b( line_segment1.second() );
+    const Point c( line_segment2.first()  );
+    const Point d( line_segment2.second() );
     if( intersect_proper(line_segment1, line_segment2, epsilon) ){
       //Use formula from O'Rourke's "Computational Geometry in C", p. 221.
       //Note D=0 iff the line segments are parallel.
@@ -979,55 +1090,55 @@ namespace VisiLibity
       return line_segment_temp;
       }
     //Otherwise if improper...
-    double distance_temp_a = distance(a,  line_segment2);
-    double distance_temp_b = distance(b, line_segment2);
-    double distance_temp_c = distance(c,  line_segment1);
-    double distance_temp_d = distance(d, line_segment1);
+    const bool distance_temp_a_within_eps = distance_squared(a, line_segment2) <= epsilon*epsilon;
+    const bool distance_temp_b_within_eps = distance_squared(b, line_segment2) <= epsilon*epsilon;
+    const bool distance_temp_c_within_eps = distance_squared(c, line_segment1) <= epsilon*epsilon;
+    const bool distance_temp_d_within_eps = distance_squared(d, line_segment1) <= epsilon*epsilon;
     //Check if the intersection is nondegenerate segment.
-    if( distance_temp_a <= epsilon  and  distance_temp_b <= epsilon ){
+    if( distance_temp_a_within_eps and distance_temp_b_within_eps ){
       line_segment_temp.set_first(a, epsilon);
       line_segment_temp.set_second(b, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_c <= epsilon  and  distance_temp_d <= epsilon ){
+    else if( distance_temp_c_within_eps and  distance_temp_d_within_eps ){
       line_segment_temp.set_first(c, epsilon);
       line_segment_temp.set_second(d, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_a <= epsilon  and  distance_temp_c <= epsilon ){
+    else if( distance_temp_a_within_eps  and  distance_temp_c_within_eps ){
       line_segment_temp.set_first(a, epsilon);
       line_segment_temp.set_second(c, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_a <= epsilon  and  distance_temp_d <= epsilon ){
+    else if( distance_temp_a_within_eps  and  distance_temp_d_within_eps ){
       line_segment_temp.set_first(a, epsilon);
       line_segment_temp.set_second(d, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_b <= epsilon  and  distance_temp_c <= epsilon ){
+    else if(distance_temp_b_within_eps  and  distance_temp_c_within_eps ){
       line_segment_temp.set_first(b, epsilon);
       line_segment_temp.set_second(c, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_b <= epsilon  and  distance_temp_d <= epsilon ){
+    else if( distance_temp_b_within_eps  and  distance_temp_d_within_eps ){
       line_segment_temp.set_first(b, epsilon);
       line_segment_temp.set_second(d, epsilon);
       return line_segment_temp;
     }
     //Check if the intersection is a single point.
-    else if( distance_temp_a <= epsilon ){
+    else if( distance_temp_a_within_eps ){
       line_segment_temp.set_first(a, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_b <= epsilon ){
+    else if( distance_temp_b_within_eps ){
       line_segment_temp.set_first(b, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_c <= epsilon ){
+    else if( distance_temp_c_within_eps ){
       line_segment_temp.set_first(c, epsilon);
       return line_segment_temp;
     }
-    else if( distance_temp_d <= epsilon ){
+    else if( distance_temp_d_within_eps ){
       line_segment_temp.set_first(d, epsilon);
       return line_segment_temp;
     }
@@ -1138,12 +1249,11 @@ namespace VisiLibity
     assert( angle1.get() == angle1.get()
 	    and angle2.get() == angle2.get() );
 
-    double distance1 = std::fabs( angle1.get() 
+    const double distance1 = std::fabs( angle1.get()
 				  - angle2.get() );
-    double distance2 = 2*M_PI - distance1;
-    if(distance1 < distance2)
-      return distance1;
-    return distance2;
+    const double distance2 = 2*M_PI - distance1;
+
+    return std::min(distance1, distance2);
   }
 
 
@@ -1184,7 +1294,7 @@ namespace VisiLibity
     polar_origin_ = polar_origin_temp;
     if( polar_origin_==polar_origin_
 	and point_temp==point_temp
-	and distance(polar_origin_, point_temp) <= epsilon ){
+	and distance_squared(polar_origin_, point_temp) <= epsilon*epsilon ){
       bearing_ = Angle(0.0);
       range_ = 0.0;
     }
@@ -1380,8 +1490,8 @@ namespace VisiLibity
 					      epsilon);
     //Make sure point closer to ray_temp's base_point is listed first.
     if( intersect_seg.size() == 2
-	and distance( intersect_seg.first(), ray_temp.base_point() ) >
-	distance( intersect_seg.second(), ray_temp.base_point() )  ){
+	and distance_squared( intersect_seg.first(), ray_temp.base_point() ) >
+    distance_squared( intersect_seg.second(), ray_temp.base_point() )  ){
       intersect_seg.reverse();
     }
     return intersect_seg;
@@ -1407,19 +1517,24 @@ namespace VisiLibity
     return length_temp;
   }
 
+  double Polyline::diameter_squared() const {
+	//Precondition:  nonempty Polyline.
+	assert( size() > 0 );
+
+	double running_max_sq=0;
+	for(unsigned i=0; i<size()-1; i++){
+	for(unsigned j=i+1; j<size(); j++){
+	  const double current_sq = distance_squared( (*this)[i] , (*this)[j] );
+	  if( current_sq > running_max_sq )
+		  running_max_sq = current_sq;
+	}}
+	return running_max_sq;
+  }
+
 
   double Polyline::diameter() const
   {
-    //Precondition:  nonempty Polyline.
-    assert( size() > 0 );
-
-    double running_max=0;
-    for(unsigned i=0; i<size()-1; i++){
-    for(unsigned j=i+1; j<size(); j++){
-      if( distance( (*this)[i] , (*this)[j] ) > running_max )
-	running_max = distance( (*this)[i] , (*this)[j] );
-    }}
-    return running_max;
+	  return counter_sqrt( diameter_squared() );
   }
 
 
@@ -1463,10 +1578,10 @@ namespace VisiLibity
 
     while( third < vertices_.size() ){
       //if second redundant
-      if(   distance(  Line_Segment( (*this)[first], 
+      if(   distance_squared(  Line_Segment( (*this)[first],
 				     (*this)[third] ) ,
 		       (*this)[second]  ) 
-	    <= epsilon   ){
+	    <= epsilon*epsilon  ){
 	//=>skip it
 	second = third;
 	third++;
@@ -1585,8 +1700,8 @@ namespace VisiLibity
     for(unsigned i=0; i<n()-2; i++)
       for(unsigned j=i+2; j<=n()-1; j++)
 	if( 0!=(j+1)%vertices_.size()  
-	    and distance( Line_Segment((*this)[i],(*this)[i+1]) , 
-			  Line_Segment((*this)[j],(*this)[j+1]) ) <= epsilon  )
+	    and distance_squared( Line_Segment((*this)[i],(*this)[i+1]) ,
+			  Line_Segment((*this)[j],(*this)[j+1]) ) <= epsilon*epsilon  )
 	  return false;
     
     return true;
@@ -1650,19 +1765,23 @@ namespace VisiLibity
     return Point(x_temp/(6*area_temp), y_temp/(6*area_temp));
   }
 
+  double Polygon::diameter_squared() const {
+	//Precondition:  nonempty Polygon.
+	assert( n() > 0 );
+
+	double running_max_sq=0;
+	for(unsigned i=0; i<n()-1; i++){
+	for(unsigned j=i+1; j<n(); j++){
+	  const double current_sq =  distance_squared( (*this)[i] , (*this)[j] );
+	  if( current_sq > running_max_sq )
+		  running_max_sq = current_sq;
+	}}
+	return running_max_sq;
+  }
 
   double Polygon::diameter() const
   {
-    //Precondition:  nonempty Polygon.
-    assert( n() > 0 );
-
-    double running_max=0;
-    for(unsigned i=0; i<n()-1; i++){
-    for(unsigned j=i+1; j<n(); j++){
-      if( distance( (*this)[i] , (*this)[j] ) > running_max )
-	running_max = distance( (*this)[i] , (*this)[j] );
-    }}
-    return running_max;
+	  return counter_sqrt( diameter_squared() );
   }
 
 
@@ -1771,10 +1890,10 @@ namespace VisiLibity
 
     while( third <= vertices_.size() ){
       //if second is redundant
-      if(   distance(  Line_Segment( (*this)[first], 
+      if(   distance_squared(  Line_Segment( (*this)[first],
 				     (*this)[third] ) ,
 		       (*this)[second]  ) 
-	    <= epsilon   ){
+	    <= epsilon*epsilon   ){
 	//=>skip it
 	second = third;
 	third++;
@@ -1790,10 +1909,10 @@ namespace VisiLibity
     }
 
     //decide whether to add original first point
-    if(   distance(  Line_Segment( vertices_temp.front(), 
+    if(   distance_squared(  Line_Segment( vertices_temp.front(),
 				   vertices_temp.back() ) ,
 		     vertices_.front()  ) 
-	  > epsilon   )
+	  > epsilon*epsilon   )
       vertices_temp.push_back( vertices_.front() );
     
     //Update list of vertices.
@@ -1834,7 +1953,7 @@ namespace VisiLibity
     for( unsigned offset = 0 ; offset < n ; offset++ ){
       bool successful_match = true;
       for(unsigned i=0; i<n; i++){
-	if(  distance( polygon1[ i ] , polygon2[ i + offset ] ) > epsilon  )
+	if(  distance_squared( polygon1[ i ] , polygon2[ i + offset ] ) > epsilon*epsilon  )
 	  { successful_match = false; break; }
       }
       if( successful_match )
@@ -1843,29 +1962,33 @@ namespace VisiLibity
     return false;
   }
 
+  double boundary_distance_squared( const Polygon& polygon1,
+			    const Polygon& polygon2 ) {
+	assert( polygon1.n() > 0  and  polygon2.n() > 0 );
+
+	//Handle single point degeneracy.
+	if(polygon1.n() == 1)
+	  return boundary_distance_squared(polygon1[0], polygon2);
+	else if(polygon2.n() == 1)
+	  return boundary_distance_squared(polygon2[0], polygon1);
+	//Handle cases where each polygon has at least 2 points.
+	//Initialize to an upper bound.
+	double running_min_sq = boundary_distance_squared(polygon1[0], polygon2);
+	double distance_temp_sq;
+	//Loop over all possible pairs of line segments.
+	for(unsigned i=0; i<=polygon1.n()-1; i++){
+	for(unsigned j=0; j<=polygon2.n()-1; j++){
+		distance_temp_sq = distance_squared( Line_Segment(polygon1[i], polygon1[i+1]) ,
+				Line_Segment(polygon2[j], polygon2[j+1]) );
+	  if(distance_temp_sq < running_min_sq)
+		  running_min_sq = distance_temp_sq;
+	}}
+	return running_min_sq;
+  }
 
   double boundary_distance(const Polygon& polygon1, const Polygon& polygon2)
   {
-    assert( polygon1.n() > 0  and  polygon2.n() > 0 );
-
-    //Handle single point degeneracy.
-    if(polygon1.n() == 1)
-      return boundary_distance(polygon1[0], polygon2);
-    else if(polygon2.n() == 1)
-      return boundary_distance(polygon2[0], polygon1);
-    //Handle cases where each polygon has at least 2 points.
-    //Initialize to an upper bound.
-    double running_min = boundary_distance(polygon1[0], polygon2);
-    double distance_temp;
-    //Loop over all possible pairs of line segments.
-    for(unsigned i=0; i<=polygon1.n()-1; i++){
-    for(unsigned j=0; j<=polygon2.n()-1; j++){
-      distance_temp = distance( Line_Segment(polygon1[i], polygon1[i+1]) ,
-				Line_Segment(polygon2[j], polygon2[j+1]) );
-      if(distance_temp < running_min)
-	running_min = distance_temp;
-    }}
-    return running_min;
+	  return counter_sqrt( boundary_distance_squared(polygon1, polygon2) );
   }
 
 
@@ -2014,7 +2137,7 @@ namespace VisiLibity
 
     //Check none of the Polygons' boundaries intersect w/in epsilon.
     for(unsigned i=0; i<h(); i++)
-      if( boundary_distance(outer_boundary_, holes_[i]) <= epsilon ){
+      if( boundary_distance_squared(outer_boundary_, holes_[i]) <= epsilon*epsilon ){
 	std::cerr << std::endl << "\x1b[31m" 
 	  << "The outer boundary intersects the boundary of hole " << i << "." 
 	  <<  "\x1b[0m" << std::endl;
@@ -2022,7 +2145,7 @@ namespace VisiLibity
       }
     for(unsigned i=0; i<h(); i++)
       for(unsigned j=i+1; j<h(); j++)
-	if( boundary_distance(holes_[i], holes_[j]) <= epsilon ){
+	if( boundary_distance_squared(holes_[i], holes_[j]) <= epsilon*epsilon ){
 	  std::cerr << std::endl << "\x1b[31m" 
 		    << "The boundary of hole " << i 
 		    << " intersects the boundary of hole " << j << "." 
@@ -2140,7 +2263,7 @@ namespace VisiLibity
     Visibility_Polygon start_visibility_polygon(start, *this, epsilon);
 
     //Trivial cases
-    if( distance(start,finish) <= epsilon ){
+    if( distance_squared(start,finish) <= epsilon*epsilon ){
       shortest_path_output.push_back(start);
       return shortest_path_output;
     }
@@ -2415,9 +2538,8 @@ namespace VisiLibity
 	  waypoint = start;
 	//Add vertex if not redundant
 	if( shortest_path_output.size() > 0
-	    and distance( shortest_path_output[ shortest_path_output.size()
-						- 1 ],
-			  waypoint ) > epsilon )
+	    and distance_squared( shortest_path_output[ shortest_path_output.size()	- 1 ],
+			  waypoint ) > epsilon*epsilon )
 	  shortest_path_output.push_back( waypoint );
 	if( backtrace_itr->cost_to_come == 0 )
 	  break;
@@ -2601,7 +2723,7 @@ namespace VisiLibity
   {
     for(unsigned i=0; i<positions_.size(); i++)
       for(unsigned j=i+1; j<positions_.size(); j++)
-	if( distance(positions_[i], positions_[j]) <= epsilon )
+	if( distance_squared(positions_[i], positions_[j]) <= epsilon*epsilon )
 	  return false;
     return true;
   }
@@ -2624,19 +2746,23 @@ namespace VisiLibity
     return true;
   }
 
+  double Guards::diameter_squared() const {
+	//Precondition:  more than 0 guards
+	assert( N() > 0 );
+
+	double running_max_sq=0;
+	for(unsigned i=0; i<N()-1; i++){
+	for(unsigned j=i+1; j<N(); j++){
+	  const double current_sq = distance_squared( (*this)[i] , (*this)[j] );
+	  if( current_sq > running_max_sq )
+		  running_max_sq = current_sq;
+	}}
+	return running_max_sq;
+  }
 
   double Guards::diameter() const
   {
-    //Precondition:  more than 0 guards
-    assert( N() > 0 );
-
-    double running_max=0;
-    for(unsigned i=0; i<N()-1; i++){
-    for(unsigned j=i+1; j<N(); j++){
-      if( distance( (*this)[i] , (*this)[j] ) > running_max )
-	running_max = distance( (*this)[i] , (*this)[j] );
-    }}
-    return running_max;
+	  return counter_sqrt( diameter_squared() );
   }
 
 
@@ -2746,22 +2872,22 @@ namespace VisiLibity
 
     return(  
          //Make sure observer not colocated with any of the points.
-	   distance( observer , point1 ) > epsilon
-	   and distance( observer , point2 ) > epsilon
-	   and distance( observer , point3 ) > epsilon
+	   distance_squared( observer , point1 ) > epsilon*epsilon
+	   and distance_squared( observer , point2 ) > epsilon*epsilon
+	   and distance_squared( observer , point3 ) > epsilon*epsilon
 	 //Test whether there is a spike with point2 as the tip
-	   and (  ( distance(observer,point2) 
-		    >= distance(observer,point1)
-		    and distance(observer,point2) 
-		    >= distance(observer,point3) ) 
-		  or ( distance(observer,point2) 
-		       <= distance(observer,point1)
-		       and distance(observer,point2) 
-		       <= distance(observer,point3) )  )
+	   and (  ( distance_squared(observer,point2)
+		    >= distance_squared(observer,point1)
+		    and distance_squared(observer,point2)
+		    >= distance_squared(observer,point3) )
+		  or ( distance_squared(observer,point2)
+		       <= distance_squared(observer,point1)
+		       and distance_squared(observer,point2)
+		       <= distance_squared(observer,point3) )  )
 	 //and the pike is sufficiently sharp,
-	   and std::max(  distance( Ray(observer, point1), point2 ), 
-			  distance( Ray(observer, point3), point2 )  )
-	   <= epsilon  
+	   and std::max(  distance_squared( Ray(observer, point1), point2 ),
+			   distance_squared( Ray(observer, point3), point2 )  )
+	   <= epsilon*epsilon
 	     );
     //Formerly used
     //std::fabs( Polygon(point1, point2, point3).area() ) < epsilon
@@ -2807,13 +2933,13 @@ namespace VisiLibity
     std::vector<Point> vertices_temp;
     //Middle point is potentially the tip of a spike
     for(unsigned i=0; i<vertices_.size(); i++)
-      if(   distance(  (*this)[i+2], 
+      if(   distance_squared(  (*this)[i+2],
 		       Line_Segment( (*this)[i], (*this)[i+1] )  )
-	    <= epsilon
+	    <= epsilon*epsilon
 	    or
-	    distance(  (*this)[i], 
+	    distance_squared(  (*this)[i],
 		       Line_Segment( (*this)[i+1], (*this)[i+2] )  )
-	    <= epsilon   )
+	    <= epsilon*epsilon   )
 	spike_tips.insert( (*this)[i+1] );
     
     for(unsigned i=0; i<vertices_.size(); i++)
@@ -2955,7 +3081,7 @@ namespace VisiLibity
       }
 
       //Else if the observer is on first vertex of edge.
-      else if( distance(observer, ppoint1) <= epsilon ){
+      else if( distance_squared(observer, ppoint1) <= epsilon*epsilon ){
 	if( ppoint2.bearing() == Angle(0.0) )
 	  ppoint2.set_bearing_to_2pi();
 	//Get right wall bearing.
@@ -2965,7 +3091,7 @@ namespace VisiLibity
 	continue;
       }
       //Else if the observer is on second vertex of edge.
-      else if( distance(observer, ppoint2) <= epsilon ){
+      else if( distance_squared(observer, ppoint2) <= epsilon*epsilon ){
 	//Get left wall bearing.
 	left_wall_bearing = ppoint1.bearing();
 	elp.push_back(  Polar_Edge( ppoint1,
@@ -3050,7 +3176,7 @@ namespace VisiLibity
       ppoint_wei2.is_first = false;
       //If edge contains the observer, then adjust the bearing of
       //the Polar_Point containing the observer.
-      if( distance(observer, ppoint_wei1) <= epsilon ){
+      if( distance_squared(observer, ppoint_wei1) <= epsilon*epsilon ){
 	if( right_wall_bearing > left_wall_bearing ){
 	  ppoint_wei1.set_bearing( right_wall_bearing );
 	  (elp_iterator->first).set_bearing( right_wall_bearing );
@@ -3060,7 +3186,7 @@ namespace VisiLibity
 	  (elp_iterator->first).set_bearing( Angle(0.0) );
 	}
       } 
-      else if( distance(observer, ppoint_wei2) <= epsilon ){
+      else if( distance_squared(observer, ppoint_wei2) <= epsilon*epsilon ){
 	if( right_wall_bearing > left_wall_bearing ){
 	  ppoint_wei2.set_bearing(right_wall_bearing);
 	  (elp_iterator->second).set_bearing( right_wall_bearing );
@@ -3146,8 +3272,8 @@ namespace VisiLibity
 
     //Insert e into q2 as long as it doesn't contain the
     //observer.
-    if( distance(observer,active_edge->first) > epsilon
-	and distance(observer,active_edge->second) > epsilon ){
+    if( distance_squared(observer,active_edge->first) > epsilon*epsilon
+	and distance_squared(observer,active_edge->second) > epsilon*epsilon ){
      
       if(PRINTING_DEBUG_DATA){
 	std::cout << std::endl
@@ -3205,7 +3331,7 @@ namespace VisiLibity
 
 	if( !q1.empty() ){ 
 	  //If the next vertex in q1 is contiguous.
-	  if( distance( current_vertex, q1.front() ) <= epsilon ){
+	  if( distance_squared( current_vertex, q1.front() ) <= epsilon*epsilon ){
 
 	    if(PRINTING_DEBUG_DATA){
 	      std::cout << std::endl
@@ -3252,8 +3378,8 @@ namespace VisiLibity
 	  if(  ( current_vertex.bearing().get() 
 		 <= e->second.bearing().get() )
 	       //For robustness.
-	       and distance( Ray(observer, current_vertex.bearing()),
-			     e->second ) >= epsilon
+	       and distance_squared( Ray(observer, current_vertex.bearing()),
+			     e->second ) >= epsilon*epsilon
 	       /* was
 	       and std::min( distance(Ray(observer, current_vertex.bearing()),
 				      e->second), 
@@ -3314,7 +3440,7 @@ namespace VisiLibity
 					  active_edge->second),
 			     epsilon );
 	if(  xing.size() == 0 
-	     or ( distance(active_edge->first, observer) <= epsilon 
+	     or ( distance_squared(active_edge->first, observer) <= epsilon*epsilon
 		  and active_edge->second.bearing() 
 		  <= current_vertex.bearing() )
 	     or active_edge->second < current_vertex  ){
@@ -3340,8 +3466,8 @@ namespace VisiLibity
 	
 	//Insert e into q2 as long as it doesn't contain the
 	//observer.
-	if( distance(observer, e->first) > epsilon
-	    and distance(observer, e->second) > epsilon ){
+	if( distance_squared(observer, e->first) > epsilon*epsilon
+	    and distance_squared(observer, e->second) > epsilon*epsilon ){
 	 
 	  if(PRINTING_DEBUG_DATA){
 	    std::cout << std::endl
@@ -3395,8 +3521,8 @@ namespace VisiLibity
 	  if( xing.size() > 0
 	      //and k == k
 	      and k_range != INFINITY
-	      and distance(k, current_vertex) > epsilon 
-	      and distance(active_edge->first, observer) > epsilon 
+	      and distance_squared(k, current_vertex) > epsilon*epsilon
+	      and distance_squared(active_edge->first, observer) > epsilon*epsilon
 	      ){
 	   
 	    if(PRINTING_DEBUG_DATA){
