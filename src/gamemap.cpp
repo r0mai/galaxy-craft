@@ -7,7 +7,7 @@
 namespace gc {
 
 
-const double gamemap::vis_epsilon = 0.0000001;
+const double gamemap::vis_epsilon = 0.001;
 
 gamemap gamemap::from_file(const std::string& mapfile) {
 

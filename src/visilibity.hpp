@@ -438,6 +438,11 @@ namespace VisiLibity
    */
   double cross(const Point& point1, const Point& point2);
 
+  /** \brief  Euclidean distance squared between Points
+   *
+   * \pre  Points' data are numbers
+   */
+  double distance_squared(const Point& point1, const Point& point2);
 
   /** \brief  Euclidean distance between Points
    *
@@ -445,6 +450,21 @@ namespace VisiLibity
    */
   double distance(const Point& point1, const Point& point2);
 
+  /** \brief  Euclidean distance squared between a Point and a Line_Segment
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Line_Segment is nonempty
+   */
+  double distance_squared(const Point& point_temp,
+		  const Line_Segment& line_segment_temp);
+
+  /** \brief  Euclidean distance squared between a Point and a Line_Segment
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Line_Segment is nonempty
+   */
+  double distance_squared(const Line_Segment& line_segment_temp,
+		  const Point& point_temp);
 
   /** \brief  Euclidean distance between a Point and a Line_Segment
    *
@@ -461,6 +481,20 @@ namespace VisiLibity
   double distance(const Line_Segment& line_segment_temp,
 		  const Point& point_temp);
 
+  /** \brief  Euclidean distance squared between a Point and a Ray
+   *
+   * \author  R0mai
+   * \pre  Point's and Ray's data are numbers
+   */
+  double distance_squared(const Point& point_temp,
+		  const Ray& ray_temp);
+  /** \brief  Euclidean distance squared between a Point and a Ray
+   *
+   * \author  R0mai
+   * \pre  Point's and Ray's data are numbers
+   */
+  double distance_squared(const Ray& ray_temp,
+		  const Point& point_temp);
 
   /** \brief  Euclidean distance between a Point and a Ray
    *
@@ -477,6 +511,20 @@ namespace VisiLibity
   double distance(const Ray& ray_temp,
 		  const Point& point_temp);
 
+  /** \brief  Euclidean distance squared between a Point and a Polyline
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Polyline is nonempty
+   */
+  double distance_squared(const Point& point_temp,
+		  const Polyline& polyline_temp);
+  /** \brief  Euclidean distance squared between a Point and a Polyline
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Polyline is nonempty
+   */
+  double distance_squared(const Polyline& polyline_temp,
+		  const Point& point_temp);
 
   /** \brief  Euclidean distance between a Point and a Polyline
    *
@@ -493,6 +541,20 @@ namespace VisiLibity
   double distance(const Polyline& polyline_temp,
 		  const Point& point_temp);
 
+  /** \brief  Euclidean distance squared between a Point and a Polygon's boundary
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Polygon is nonempty
+   */
+  double boundary_distance_squared(const Point& point_temp,
+			   const Polygon& polygon_temp);
+  /** \brief  Euclidean distance squared between a Point and a Polygon's boundary
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Polygon is nonempty
+   */
+  double boundary_distance_squared(const Polygon& polygon_temp,
+			   const Point& point_temp);
 
   /** \brief  Euclidean distance between a Point and a Polygon's boundary
    *
@@ -509,7 +571,20 @@ namespace VisiLibity
   double boundary_distance(const Polygon& polygon_temp,
 			   const Point& point_temp);
 
-
+  /** \brief  Euclidean distance squared between a Point and a Environment's boundary
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Environment is nonempty
+   */
+  double boundary_distance_squared(const Point& point_temp,
+			   const Environment& environment_temp);
+  /** \brief  Euclidean distance squared between a Point and a Environment's boundary
+   *
+   * \author  R0mai
+   * \pre  Point's data are numbers and the Environment is nonempty
+   */
+  double boundary_distance_squared(const Environment& environment_temp,
+			   const Point& point_temp);
   /** \brief  Euclidean distance between a Point and a Environment's boundary
    *
    * \author  Karl J. Obermeyer
@@ -578,6 +653,12 @@ namespace VisiLibity
      * \pre size() > 0
      */
     Point midpoint() const;
+
+    /** \brief Euclidean length squared
+     *
+     * \pre size() > 0
+     */
+    double length_squared() const;
     /** \brief Euclidean length
      *
      * \pre size() > 0
@@ -660,7 +741,13 @@ namespace VisiLibity
   bool equivalent(Line_Segment line_segment1,
 		  Line_Segment line_segment2, double epsilon=0);
 
-
+  /** \brief  Euclidean distance squared between Line_Segments
+   *
+   * \author  R0mai
+   * \pre  \a line_segment1.size() > 0 and \a line_segment2.size() > 0
+   */
+  double distance_squared(const Line_Segment& line_segment1,
+		  const Line_Segment& line_segment2);
   /** \brief  Euclidean distance between Line_Segments
    *
    * \author  Karl J. Obermeyer
@@ -669,7 +756,24 @@ namespace VisiLibity
   double distance(const Line_Segment& line_segment1,
 		  const Line_Segment& line_segment2);
 
+  /** \brief  Euclidean distance squared between a Line_Segment and the
+   *          boundary of a Polygon
+   *
+   * \author  R0mai
+   * \pre  \a line_segment.size() > 0 and \a polygon.n() > 0
+   */
+  double boundary_distance_squared(const Line_Segment& line_segment,
+			   const Polygon& polygon);
 
+
+  /** \brief  Euclidean distance squared between a Line_Segment and the
+   *          boundary of a Polygon
+   *
+   * \author  R0mai
+   * \pre  \a line_segment.size() > 0 and \a polygon.n() > 0
+   */
+  double boundary_distance_squared(const Polygon& polygon,
+			   const Line_Segment& line_segment);
   /** \brief  Euclidean distance between a Line_Segment and the
    *          boundary of a Polygon
    *
@@ -1064,8 +1168,20 @@ namespace VisiLibity
     /// vertex count
     unsigned size() const
     { return vertices_.size(); }
+
+
     /// Euclidean length of the Polyline
     double length() const;
+
+    /** \brief  Euclidean diameter squared
+     *
+     * \pre  Polyline has greater than 0 vertices
+     * \return  the maximum Euclidean distance squared between all pairs of
+     * vertices
+     * \remarks  time complexity O(n^2), where n is the number of
+     * vertices representing the Polyline
+     */
+    double diameter_squared() const;
     /** \brief  Euclidean diameter
      *
      * \pre  Polyline has greater than 0 vertices
@@ -1213,6 +1329,16 @@ namespace VisiLibity
      * but for efficiency simplicity is not asserted
      */
     Point  centroid() const;
+
+    /** \brief  Euclidean diameter squared
+     *
+     * \pre Polygon has greater than 0 vertices
+     * \return  maximum Euclidean distance squared between all pairs of
+     * vertices
+     * \remarks  time complexity O(n^2), where n is the number of
+     * vertices representing the Polygon
+     */
+    double diameter_squared() const;
     /** \brief  Euclidean diameter
      *
      * \pre Polygon has greater than 0 vertices
@@ -1314,6 +1440,13 @@ namespace VisiLibity
   bool equivalent(Polygon polygon1, Polygon polygon2,
 		  double epsilon=0.0);
 
+  /** \brief  Euclidean distance squared between Polygons' boundaries
+   *
+   * \author  R0mai
+   * \pre  \a polygon1 and \a polygon2 each have greater than 0 vertices
+   */
+  double boundary_distance_squared( const Polygon& polygon1,
+			    const Polygon& polygon2 );
 
   /** \brief  Euclidean distance between Polygons' boundaries
    *
@@ -1691,6 +1824,17 @@ namespace VisiLibity
     bool in(const Polygon& polygon_temp, double epsilon=0.0) const;
     /// true iff all guards are located in \a environment_temp
     bool in(const Environment& environment_temp, double epsilon=0.0) const;
+
+    /** \brief  Euclidean diameter squared
+     *
+     * \author  R0mai
+     * \pre  greater than 0 guards
+     * \return  maximum Euclidean distance squared between all pairs of
+     * vertices
+     * \remarks  time complexity O(N^2), where N is the number of
+     * guards
+     */
+    double diameter_squared() const;
     /** \brief  Euclidean diameter
      *
      * \author  Karl J. Obermeyer
