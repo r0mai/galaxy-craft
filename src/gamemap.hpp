@@ -33,9 +33,12 @@ private:
 	vector2df dimension;
 	std::vector<polygonf> obstacles;
 
+	std::vector<polygonf> offset_obstacles;
+
 	//Cached stuff
-	VisiLibity::Environment vis_enviroment;
-	VisiLibity::Visibility_Graph vis_visibility_graph;
+	VisiLibity::Environment vis_enviroment; //for obstacles
+	VisiLibity::Environment vis_enviroment_offset; //for offset_obstacles
+	VisiLibity::Visibility_Graph vis_visibility_graph_offset; //for offset_obstacles
 
 	//initializes vis_enviroment and vis_visibility_graph
 	//this has to be called whenever obstacles, or dimension is modified for correct path finding

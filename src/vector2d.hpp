@@ -10,6 +10,10 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "util.hpp"
+
+#include "clipper.hpp"
+
 #include "visilibity.hpp"
 
 namespace gc {
@@ -28,6 +32,8 @@ public:
 
 	vector2d(const VisiLibity::Point& p);
 
+	vector2d(const ClipperLib::IntPoint& p);
+
 	//construct from arbitrary vector with x and y components
 	//works for sf::Vector2<X> and other vector2d<X>
 	template<class U> //Copy constructor and conversion construtor all in one
@@ -35,6 +41,7 @@ public:
 
 	sf::Vector2<T> to_sfml_vector() const;
 	VisiLibity::Point to_visilibity_point() const;
+	ClipperLib::IntPoint to_clipper_point() const;
 
 	vector2d normalize() const;
 
@@ -76,6 +83,9 @@ template<class T>
 vector2d<T>::vector2d(const VisiLibity::Point& p) : x(static_cast<T>(p.x())), y(static_cast<T>(p.y())) {}
 
 template<class T>
+vector2d<T>::vector2d(const ClipperLib::IntPoint& p) : x(p.X), y(p.Y) {}
+
+template<class T>
 template<class U>
 vector2d<T>::vector2d(const U& v) : x(static_cast<T>(v.x)), y(static_cast<T>(v.y)) {}
 
@@ -87,6 +97,11 @@ sf::Vector2<T> vector2d<T>::to_sfml_vector() const {
 template<class T>
 VisiLibity::Point vector2d<T>::to_visilibity_point() const {
 	return VisiLibity::Point( x, y );
+}
+
+template<class T>
+ClipperLib::IntPoint vector2d<T>::to_clipper_point() const {
+	return ClipperLib::IntPoint( round_to_int<ClipperLib::long64>(x), round_to_int<ClipperLib::long64>(y) );
 }
 
 template<class T>

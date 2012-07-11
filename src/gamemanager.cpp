@@ -98,13 +98,14 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 void gamemanager::process_mousemoved_event(const sf::Event& event) {
 	//This line is fun! :D
 	//test_unit.move_on( map.search_path( test_unit.get_position(),	vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) )) );
-
+#if 0
 	test_unit.set_position( vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) ) );
 
 	VisiLibity::distance_point_t closest =
 			VisiLibity::closest_boundary_distance_and_point_squared( test_unit.get_position().to_visilibity_point(), map.get_vis_enviroment() );
 
 	test_point = closest.second;
+#endif
 
 }
 
@@ -164,7 +165,9 @@ void gamemanager::advance(const float frame_rate) {
 
 	std::for_each( units.begin(), units.end(),
 		[this, speed, frame_rate](unit& u) {
-			//u.advance( frame_rate * speed );
+#if 1
+			u.advance( frame_rate * speed );
+#else
 			if ( u.get_state() == unit::MOVING ) {
 				const vector2df& destination = u.get_destination();
 
@@ -190,6 +193,7 @@ void gamemanager::advance(const float frame_rate) {
 
 				u.set_position( u.get_center() + moving_vector );
 			}
+#endif
 		}
 	);
 }
@@ -208,8 +212,8 @@ void gamemanager::draw() {
 		}
 	);
 
-	test_unit.draw(window);
-	window.Draw( sf::Shape::Circle(test_point.to_sfml_vector(), 3.f, sf::Color::Green) );
+	//test_unit.draw(window);
+	//window.Draw( sf::Shape::Circle(test_point.to_sfml_vector(), 3.f, sf::Color::Green) );
 
 	if ( selection_in_progress ) {
 		window.Draw( sf::Shape::Rectangle( selection_start.to_sfml_vector(),
