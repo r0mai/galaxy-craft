@@ -159,9 +159,37 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 }
 
 void gamemanager::advance(const float frame_rate) {
+
+	const float speed = 100.f;
+
 	std::for_each( units.begin(), units.end(),
-		[this, frame_rate](unit& u) {
-			u.advance( frame_rate * 100.f );
+		[this, speed, frame_rate](unit& u) {
+			//u.advance( frame_rate * speed );
+			if ( u.get_state() == unit::MOVING ) {
+				const vector2df& destination = u.get_destination();
+
+				vector2df moving_vector = (destination - u.get_center()).normalize();
+
+
+
+				const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
+									u.get_position().to_visilibity_point(),
+									map.get_vis_enviroment() );
+				if ( closest.first < u.get_radius() * u.get_radius() ) {
+					const vector2df point_of_impact = vector2df(closest.second);
+
+					vector2df desired_movement = (u.get_center() - point_of_impact).normalize();
+
+					moving_vector += desired_movement;
+					moving_vector.normalize();
+
+				}
+
+
+				moving_vector *= speed * frame_rate;
+
+				u.set_position( u.get_center() + moving_vector );
+			}
 		}
 	);
 }

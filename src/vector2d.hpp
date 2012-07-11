@@ -36,6 +36,8 @@ public:
 	sf::Vector2<T> to_sfml_vector() const;
 	VisiLibity::Point to_visilibity_point() const;
 
+	vector2d normalize() const;
+
 	T length_squared() const;
 	float length() const;
 
@@ -85,6 +87,11 @@ sf::Vector2<T> vector2d<T>::to_sfml_vector() const {
 template<class T>
 VisiLibity::Point vector2d<T>::to_visilibity_point() const {
 	return VisiLibity::Point( x, y );
+}
+
+template<class T>
+vector2d<T> vector2d<T>::normalize() const {
+	return (*this) / length();
 }
 
 template<class T>

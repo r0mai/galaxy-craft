@@ -25,6 +25,14 @@ void unit::move_on(const path& p) {
 	moving_path = p;
 }
 
+const vector2df& unit::get_destination() const {
+	return moving_path.get_end();
+}
+
+unit::state_t unit::get_state() const {
+	return state;
+}
+
 bool unit::is_selected() const {
 	return selected;
 }
