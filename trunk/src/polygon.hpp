@@ -11,9 +11,12 @@
 
 #include <SFML/Graphics.hpp>
 
+#include "visilibity.hpp"
+
+#include "clipper.hpp"
+
 #include "drawable.hpp"
 #include "vector2d.hpp"
-#include "visilibity.hpp"
 
 namespace gc {
 
@@ -24,7 +27,10 @@ public:
 	polygon();
 	polygon(const std::vector< vector2d<T> >& points);
 
+	polygon(const ClipperLib::Polygon& poly);
+
 	VisiLibity::Polygon to_visilibity_polygon() const;
+	ClipperLib::Polygon to_clipper_polygon() const;
 
 	void add_point(const vector2d<T>& p);
 
@@ -56,6 +62,9 @@ template<class T>
 polygon<T>::polygon(const std::vector< vector2d<T> >& points) : points(points) {}
 
 template<class T>
+polygon<T>::polygon(const ClipperLib::Polygon& poly) : points(poly.begin(), poly.end()) {}
+
+template<class T>
 VisiLibity::Polygon polygon<T>::to_visilibity_polygon() const {
 	std::vector<VisiLibity::Point> vispoints;
 	vispoints.reserve( points.size() );
@@ -71,6 +80,20 @@ VisiLibity::Polygon polygon<T>::to_visilibity_polygon() const {
 }
 
 template<class T>
+ClipperLib::Polygon polygon<T>::to_clipper_polygon() const {
+	ClipperLib::Polygon result;
+	result.reserve( points.size() );
+
+	std::transform( points.begin(), points.end(), std::back_inserter( result ),
+		[](const vector2d<T>& v) {
+			return v.to_clipper_point();
+		}
+	);
+
+	return result;
+}
+
+template<class T>
 void polygon<T>::add_point(const vector2d<T>& p) {
 	points.push_back( p );
 }
@@ -80,17 +103,12 @@ void polygon<T>::draw(sf::RenderWindow& window) const {
 	if ( points.size() <= 1 ) {
 		return;
 	}
-	//size 2 will draw a line
-	window.Draw( sf::Shape::Circle(centroid().to_sfml_vector(), 2.f, sf::Color::Green) );
-
 
 	for ( unsigned i = 0; i < points.size() - 1; ++i ) { // Connect all adjacent points.
 		window.Draw( sf::Shape::Line( points[i].to_sfml_vector(), points[i+1].to_sfml_vector(), 4.f, color ) );
 	}
-	// Connect last to first, to complete polygon.
+	// Connect last to first, to complete the polygon.
 	window.Draw( sf::Shape::Line( points.back().to_sfml_vector(), points.front().to_sfml_vector(), 4.f, color ) );
-
-	window.Draw( sf::Shape::Circle( centroid().to_sfml_vector(), 2.f, sf::Color::Green ) );
 }
 
 template<class T>
