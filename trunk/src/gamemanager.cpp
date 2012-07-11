@@ -27,7 +27,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 
 
 void gamemanager::init() {
-	units.push_back( unit( vector2df(350.0,250.0), manager.getimage("obj.png") ) );
+	test_unit = unit( vector2df(350.0,250.0), manager.getimage("obj.png") );
 }
 
 void gamemanager::run() {
@@ -51,71 +51,17 @@ void gamemanager::process_events() {
 			window.Close();
 			break;
 		case sf::Event::KeyPressed :
-			switch ( event.Key.Code ) {
-			case sf::Key::Escape :
-				window.Close();
-				break;
-			case sf::Key::Space :
-				units.push_back( unit( vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
-						window.GetInput().GetMouseY(), &mapview )), manager.getimage("obj.png") ) );
-				break;
-			default:
-				break;
-			}
+			process_keypressed_event(event);
+			break;
+		case sf::Event::MouseMoved :
+			process_mousemoved_event(event);
 			break;
 		case sf::Event::MouseButtonPressed :
-		{
-
-			switch ( event.MouseButton.Button ) {
-
-			case sf::Mouse::Right :
-			{
-				std::clock_t start = std::clock();
-				unsigned i = 0;
-				std::for_each( units.begin(), units.end(),
-					[this, &event, &i](unit& u) {
-						if ( u.is_selected() ) {
-							++i;
-							u.move_on( map.search_path( u.get_position(),
-								vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
-						}
-					}
-				);
-
-				std::cout << "Path planning took " << (clock() - start)/float(CLOCKS_PER_SEC) << "s for " << i << " units" << std::endl;
-				break;
-			}
-
-			case sf::Mouse::Left :
-				selection_in_progress = true;
-				selection_start = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
-				break;
-			default:
-				break;
-			}
+			process_mousebuttonpressed_event(event);
 			break;
-		}
 		case sf::Event::MouseButtonReleased :
-		{
-			switch ( event.MouseButton.Button ) {
-			case sf::Mouse::Left :
-			{
-				selection_in_progress = false;
-				const vector2df selection_end = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
-				std::for_each( units.begin(), units.end(),
-					[this, &selection_end](unit& u) {
-
-						u.set_selected( u.get_position().is_in_rectangle( selection_start, selection_end ) );
-
-					}
-				);
-				break;
-			}
-			default:
-				break;
-			}
+			process_mousebuttonreleased_event(event);
 			break;
-		}
 		default:
 			break;
 		}
@@ -133,6 +79,83 @@ void gamemanager::process_events() {
     if (window.GetInput().IsKeyDown(sf::Key::Add))      mapview.Zoom(1.001f);
     if (window.GetInput().IsKeyDown(sf::Key::Subtract)) mapview.Zoom(0.999f);
 
+}
+
+void gamemanager::process_keypressed_event(const sf::Event& event) {
+	switch ( event.Key.Code ) {
+	case sf::Key::Escape :
+		window.Close();
+		break;
+	case sf::Key::Space :
+		units.push_back( unit( vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
+				window.GetInput().GetMouseY(), &mapview )), manager.getimage("obj.png") ) );
+		break;
+	default:
+		break;
+	}
+}
+
+void gamemanager::process_mousemoved_event(const sf::Event& event) {
+	//This line is fun! :D
+	//test_unit.move_on( map.search_path( test_unit.get_position(),	vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) )) );
+
+	test_unit.set_position( vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) ) );
+
+	VisiLibity::distance_point_t closest =
+			VisiLibity::closest_boundary_distance_and_point_squared( test_unit.get_position().to_visilibity_point(), map.get_vis_enviroment() );
+
+	test_point = closest.second;
+
+}
+
+void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
+	switch ( event.MouseButton.Button ) {
+
+	case sf::Mouse::Right :
+	{
+		std::clock_t start = std::clock();
+		unsigned i = 0;
+		std::for_each( units.begin(), units.end(),
+			[this, &event, &i](unit& u) {
+				if ( u.is_selected() ) {
+					++i;
+					u.move_on( map.search_path( u.get_position(),
+						vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
+				}
+			}
+		);
+
+		std::cout << "Path planning took " << (clock() - start)/float(CLOCKS_PER_SEC) << "s for " << i << " units" << std::endl;
+		break;
+	}
+
+	case sf::Mouse::Left :
+		selection_in_progress = true;
+		selection_start = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
+		break;
+	default:
+		break;
+	}
+}
+
+void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
+	switch ( event.MouseButton.Button ) {
+	case sf::Mouse::Left :
+	{
+		selection_in_progress = false;
+		const vector2df selection_end = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
+		std::for_each( units.begin(), units.end(),
+			[this, &selection_end](unit& u) {
+
+				u.set_selected( u.get_position().is_in_rectangle( selection_start, selection_end ) );
+
+			}
+		);
+		break;
+	}
+	default:
+		break;
+	}
 }
 
 void gamemanager::advance(const float frame_rate) {
@@ -156,6 +179,10 @@ void gamemanager::draw() {
 			u.draw(window);
 		}
 	);
+
+	test_unit.draw(window);
+	window.Draw( sf::Shape::Circle(test_point.to_sfml_vector(), 3.f, sf::Color::Green) );
+
 	if ( selection_in_progress ) {
 		window.Draw( sf::Shape::Rectangle( selection_start.to_sfml_vector(),
 				vector2df( window.ConvertCoords( window.GetInput().GetMouseX(),

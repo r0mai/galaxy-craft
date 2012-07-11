@@ -27,6 +27,8 @@ public:
 	const vector2df& get_dimension() const;
 	const std::vector<polygonf>& get_obstacles() const;
 
+	const VisiLibity::Environment& get_vis_enviroment() const;
+
 private:
 	vector2df dimension;
 	std::vector<polygonf> obstacles;

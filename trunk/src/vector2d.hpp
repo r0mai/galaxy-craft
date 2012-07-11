@@ -3,6 +3,7 @@
 #ifndef VECTOR2D_HPP_
 #define VECTOR2D_HPP_
 
+#include <ostream>
 #include <cmath>
 
 #include <boost/operators.hpp>
@@ -55,6 +56,7 @@ public:
 	vector2d& rotate_copy(const T angle, const vector2d& center) const;
 
 	T x, y;
+
 };
 
 typedef vector2d<int> vector2di;
@@ -174,6 +176,12 @@ vector2d<T>& vector2d<T>::rotate_copy(const T angle, const vector2d<T>& center) 
 	vector2d<T> tmp = *this;
 	tmp.rotate(angle, center);
 	return tmp;
+}
+
+template<class T>
+std::ostream& operator<<(std::ostream& os, const vector2d<T>& v) {
+	os << "(" << v.x << "," << v.y << ")";
+	return os;
 }
 
 } //namespace gc
