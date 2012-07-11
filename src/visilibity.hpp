@@ -45,8 +45,6 @@ License along with VisiLibity.  If not, see <http://www.gnu.org/licenses/>.
 #define VISILIBITY_H
 
 
-//Uncomment these lines when compiling under 
-//Microsoft Visual Studio
 #ifdef _MSC_VER
 
 #include <limits>
@@ -78,6 +76,7 @@ License along with VisiLibity.  If not, see <http://www.gnu.org/licenses/>.
 namespace VisiLibity
 {
 
+
   //Fwd declaration of all classes and structs serves as index.
   struct Bounding_Box;
   class Point;
@@ -92,6 +91,8 @@ namespace VisiLibity
   class Visibility_Polygon;
   class Visibility_Graph;
 
+
+  typedef std::pair<double, Point> distance_point_t;
 
   /** \brief  floating-point display precision.
    *
@@ -466,6 +467,12 @@ namespace VisiLibity
   double distance_squared(const Line_Segment& line_segment_temp,
 		  const Point& point_temp);
 
+  distance_point_t closest_distance_and_point_squared(const Point& point_temp,
+		  const Line_Segment& line_segment_temp);
+
+  distance_point_t closest_distance_and_point_squared(const Line_Segment& line_segment_temp,
+		  const Point& point_temp);
+
   /** \brief  Euclidean distance between a Point and a Line_Segment
    *
    * \author  Karl J. Obermeyer
@@ -556,6 +563,9 @@ namespace VisiLibity
   double boundary_distance_squared(const Polygon& polygon_temp,
 			   const Point& point_temp);
 
+  distance_point_t closest_boundary_distance_and_point_squared(const Point& point_temp,
+			   const Polygon& polygon_temp);
+
   /** \brief  Euclidean distance between a Point and a Polygon's boundary
    *
    * \author  Karl J. Obermeyer
@@ -585,6 +595,15 @@ namespace VisiLibity
    */
   double boundary_distance_squared(const Environment& environment_temp,
 			   const Point& point_temp);
+
+  distance_point_t closest_boundary_distance_and_point_squared(
+		  const Point& point_temp,
+		  const Environment& environment_temp);
+
+  distance_point_t closest_boundary_distance_and_point_squared(
+		  const Environment& environment_temp,
+		  const Point& point_temp);
+
   /** \brief  Euclidean distance between a Point and a Environment's boundary
    *
    * \author  Karl J. Obermeyer

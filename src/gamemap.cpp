@@ -63,6 +63,10 @@ const std::vector<polygonf>& gamemap::get_obstacles() const {
 	return obstacles;
 }
 
+const VisiLibity::Environment& gamemap::get_vis_enviroment() const {
+	return vis_enviroment;
+}
+
 void gamemap::init_visilibity() {
 	init_enviroment(); //These has to be called in this order
 	init_visilibity_graph(); //init_visilibity_graph() relies on init_enviroment()

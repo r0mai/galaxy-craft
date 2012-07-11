@@ -40,16 +40,29 @@ License along with VisiLibity.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>        //string class
 #include <cassert>       //assertions
 
+#include <map>
 
 ///Hide helping functions in unnamed namespace (local to .C file).
 namespace
 {
+//<line number,counter>
+std::map<int, int> sqrt_counter_map;
+
+void print_map() {
+	std::for_each( sqrt_counter_map.begin(), sqrt_counter_map.end(), [](std::pair<int,int> p) {
+		std::cout << p.first << " : " << p.second << std::endl;
+	} );
+}
+
+#define counter_sqrt(X) \
+		/*++sqrt_counter_map[__LINE__], print_map(),*/ std::sqrt(X)
+/*
 double counter_sqrt(const double x) {
 	static int c = 0;
 	++c;
 	//std::cout << "sqrt: " << c << std::endl;
 	return std::sqrt( x );
-}
+}*/
 }
 
 
@@ -498,6 +511,7 @@ namespace VisiLibity
 
   double distance(const Point& point1, const Point& point2)
   {
+
     return counter_sqrt(  distance_squared(point1, point2)  );
   }
 
@@ -517,6 +531,22 @@ namespace VisiLibity
 
 	return distance_squared( point_temp,
 			line_segment_temp );
+  }
+
+  distance_point_t closest_distance_and_point_squared(const Point& point_temp,
+		  const Line_Segment& line_segment_temp)
+  {
+		assert( point_temp == point_temp
+			and line_segment_temp.size() > 0 );
+
+		const Point projection = point_temp.projection_onto(line_segment_temp);
+
+		return std::make_pair(distance_squared( point_temp, projection ), projection);
+  }
+
+  distance_point_t closest_distance_and_point_squared(const Line_Segment& line_segment_temp,
+		  const Point& point_temp) {
+	  return closest_distance_and_point_squared(point_temp, line_segment_temp);
   }
 
   double distance(const Point& point_temp,
@@ -617,6 +647,26 @@ namespace VisiLibity
 	  return boundary_distance_squared(point_temp, polygon_temp);
   }
 
+  distance_point_t closest_boundary_distance_and_point_squared(const Point& point,
+			   const Polygon& polygon)
+  {
+		assert( point == point and polygon.n() > 0);
+
+		Point running_point = polygon[0];
+		double running_min_sq = distance_squared(point, polygon[0]);
+
+		for(unsigned i=0; i<=polygon.n(); i++){
+
+			const distance_point_t closest = closest_distance_and_point_squared(point, Line_Segment(polygon[i], polygon[i+1]) );
+
+			if(closest.first < running_min_sq) {
+				running_point = closest.second;
+				running_min_sq = closest.first;
+			}
+		}
+		return std::make_pair( running_min_sq, running_point );
+  }
+
   double boundary_distance(const Point& point_temp,
 			   const Polygon& polygon_temp)
   {
@@ -645,6 +695,34 @@ namespace VisiLibity
   double boundary_distance_squared(const Environment& environment_temp,
 			   const Point& point_temp) {
 	  return boundary_distance_squared( point_temp, environment_temp );
+  }
+
+
+  distance_point_t closest_boundary_distance_and_point_squared(
+		  const Point& point,
+		  const Environment& environment)
+  {
+		assert( point == point and environment.n() > 0 );
+
+		Point running_point = environment[0][0];
+		double running_min_sq = distance_squared(point, environment[0][0]);
+
+		for(unsigned i=0; i <= environment.h(); i++) {
+
+			const distance_point_t closest = closest_boundary_distance_and_point_squared(point, environment[i]);
+
+			if(closest.first < running_min_sq) {
+				running_point = closest.second;
+				running_min_sq = closest.first;
+			}
+		}
+		return std::make_pair( running_min_sq, running_point );
+  }
+
+  distance_point_t closest_boundary_distance_and_point_squared(
+		  const Environment& environment,
+		  const Point& point) {
+	  return closest_boundary_distance_and_point_squared(point, environment);
   }
 
   double boundary_distance(const Point& point_temp,

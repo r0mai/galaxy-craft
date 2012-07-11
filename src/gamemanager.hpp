@@ -30,6 +30,9 @@ private:
 
 	std::vector<unit> units;
 
+	unit test_unit;
+	vector2df test_point;
+
 	sf::View mapview;
 
 	vector2df selection_start;
@@ -40,6 +43,12 @@ private:
 	void init();
 
 	void process_events();
+	void process_keypressed_event(const sf::Event& event);
+	void process_mousemoved_event(const sf::Event& event);
+	void process_mousebuttonpressed_event(const sf::Event& event);
+	void process_mousebuttonreleased_event(const sf::Event& event);
+
+
     void advance(const float frame_rate);
     void draw();
 

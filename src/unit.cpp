@@ -5,10 +5,10 @@
 namespace gc {
 
 unit::unit() :
-		object(vector2df(0.f, 0.f), 5.f, sf::Image()), state(STANDING), selected(false) {}
+		object(vector2df(0.f, 0.f), 10.f, sf::Image()), state(STANDING), selected(false) {}
 
 unit::unit(const vector2df& position, const sf::Image& texture) :
-		object(position, 5.f, texture), state(STANDING), selected(false)  {}
+		object(position, 10.f, texture), state(STANDING), selected(false)  {}
 
 void unit::advance(float distance) {
 	if ( state == MOVING ) {
