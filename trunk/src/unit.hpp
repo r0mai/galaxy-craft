@@ -22,6 +22,9 @@ public:
 	void advance(float distance);
 	void move_on(const path& p);
 
+	const vector2df& get_destination() const;
+	state_t get_state() const;
+
 	bool is_selected() const;
 	void set_selected(const bool val);
 
