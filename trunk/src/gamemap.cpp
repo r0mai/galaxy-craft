@@ -44,7 +44,7 @@ gamemap gamemap::from_file(const std::string& mapfile) {
 }
 
 path gamemap::search_path(const vector2df& start, const vector2df& end) const {
-	return path(vis_enviroment.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_enviroment, vis_epsilon ));
+	return path(vis_enviroment.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_visibility_graph, vis_epsilon ));
 }
 
 void gamemap::draw(sf::RenderWindow& window) const {
