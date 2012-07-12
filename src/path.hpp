@@ -26,6 +26,8 @@ public:
 	bool is_at_end() const;
 	vector2df get_position() const;
 
+	void set_position(const vector2df& pos);
+
 	void move_forward(float distance);
 
 	virtual void draw(sf::RenderWindow& window) const;

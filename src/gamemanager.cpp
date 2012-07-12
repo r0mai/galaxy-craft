@@ -163,39 +163,118 @@ void gamemanager::advance(const float frame_rate) {
 
 	const float speed = 100.f;
 
-	std::for_each( units.begin(), units.end(),
-		[this, speed, frame_rate](unit& u) {
+	for ( unsigned i = 0; i < units.size(); ++i ) {
 #if 1
-			u.advance( frame_rate * speed );
+
+
+		if ( units[i].get_state() == unit::MOVING ) {
+			//Main path to move on :
+			units[i].advance( speed*frame_rate );
+		}
+		//Collision with closest wall :
+		const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
+					units[i].get_position().to_visilibity_point(),
+					map.get_vis_enviroment() );
+
+		if ( closest.first < units[i].get_radius() * units[i].get_radius() ) {
+			const vector2df point_of_impact = vector2df(closest.second);
+
+			//TODO what if we're already in the obstacle?
+			units[i].set_position( units[i].get_position() + (units[i].get_position() - point_of_impact).normalize() * (units[i].get_radius() - std::sqrt(closest.first)) );
+
+		}
+
+		//Collision with other units
+		for ( unsigned j = i+1; j < units.size(); ++j ) {
+			const float radius_sum = units[i].get_radius() + units[j].get_radius();
+
+			//They're too close to each other
+			if (units[i].get_position().distance_to_squared(units[j].get_position()) < get_epsilon()*get_epsilon() ) {
+				//Move it away, so we won't get NAN
+				units[i].set_position( units[i].get_position() + 2.f*vector2df( get_epsilon(), get_epsilon()  ) );
+			}
+
+			if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) { //They're closer than they should be
+                vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
+
+                /*
+                const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
+
+                if ( move_vector.length() >= max_distance ) {
+                    move_vector *= max_distance/2.f;
+                } else {
+
+                }
+
+                moving_vector += move_vector;
+                units[j].pos += -1.f*move_vector;
+                */
+
+                units[i].set_position( units[i].get_position() + move_vector );
+                units[j].set_position( units[j].get_position() - move_vector );
+			}
+
+		}
+
+#elif 0
+		u.advance( frame_rate * speed );
 #else
-			if ( u.get_state() == unit::MOVING ) {
-				const vector2df& destination = u.get_destination();
+			if ( units[i].get_state() == unit::MOVING ) {
+				const vector2df& destination = units[i].get_destination();
 
-				vector2df moving_vector = (destination - u.get_center()).normalize();
+				vector2df moving_vector = units[i].desired_movement( speed*frame_rate ).normalize();
+
+				if ( moving_vector.length_squared() < get_epsilon()*get_epsilon() ) { //We arrived
+					u.set_state( unit::STANDING );
+				} else {
+
+					const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
+								units[i].get_position().to_visilibity_point(),
+								map.get_vis_enviroment() );
+
+					if ( closest.first < units[i].get_radius() * units[i].get_radius() ) {
+						const vector2df point_of_impact = vector2df(closest.second);
+
+						vector2df desired_movement = (units[i].get_center() - point_of_impact).normalize();
+
+						moving_vector += desired_movement;
+						moving_vector.normalize();
+
+					}
+
+				    for ( unsigned i = 0; i < units.size(); ++i ) {
+				        for ( unsigned j = i+1; j < units.size(); ++j ) {
+
+				        	const float radius_sum = units[i].get_radius() + units[j].get_radius();
+
+				            if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) {
+
+				                vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
 
 
+				                const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
 
-				const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
-									u.get_position().to_visilibity_point(),
-									map.get_vis_enviroment() );
-				if ( closest.first < u.get_radius() * u.get_radius() ) {
-					const vector2df point_of_impact = vector2df(closest.second);
+				                if ( move_vector.length() >= max_distance ) {
+				                    move_vector *= max_distance/2.f;
+				                } else {
+				                    //**//
+				                }
 
-					vector2df desired_movement = (u.get_center() - point_of_impact).normalize();
+				                moving_vector += move_vector;
+				                units[j].pos += -1.f*move_vector;
 
-					moving_vector += desired_movement;
-					moving_vector.normalize();
+				            }
+				        }
+				    }
 
+					moving_vector *= speed * frame_rate;
+
+					u.set_position( u.get_center() + moving_vector );
 				}
-
-
-				moving_vector *= speed * frame_rate;
-
-				u.set_position( u.get_center() + moving_vector );
 			}
 #endif
-		}
-	);
+	}
+
 }
 
 void gamemanager::draw() {

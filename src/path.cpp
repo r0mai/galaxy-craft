@@ -51,6 +51,11 @@ vector2df path::get_position() const {
 
 }
 
+void path::set_position(const vector2df& pos) {
+	path_points[position.segment] = pos;
+	position.advancment_ratio = 0.f;
+}
+
 void path::move_forward(float distance) {
 
 	assert(distance >= 0.f);

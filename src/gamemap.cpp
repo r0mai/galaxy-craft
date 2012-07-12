@@ -6,10 +6,11 @@
 
 #include "clipper.hpp"
 
+#include "util.hpp"
+
 namespace gc {
 
 
-const double gamemap::vis_epsilon = 0.001;
 
 gamemap gamemap::from_file(const std::string& mapfile) {
 
@@ -46,7 +47,7 @@ gamemap gamemap::from_file(const std::string& mapfile) {
 }
 
 path gamemap::search_path(const vector2df& start, const vector2df& end) const {
-	return path(vis_enviroment_offset.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_visibility_graph_offset, vis_epsilon ));
+	return path(vis_enviroment_offset.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_visibility_graph_offset, get_epsilon() ));
 }
 
 void gamemap::draw(sf::RenderWindow& window) const {
@@ -55,9 +56,9 @@ void gamemap::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
-	/*for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
+	for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
 		offset_obstacles[i].draw(window);
-	}*/
+	}
 }
 
 const vector2df& gamemap::get_dimension() const {
@@ -78,6 +79,8 @@ void gamemap::init_visilibity() {
 }
 
 void gamemap::init_enviroment() {
+
+	//TODO clean up this thing
 
 	ClipperLib::Polygons clipper_polygons;
 	std::transform( obstacles.begin(), obstacles.end(), std::back_inserter( clipper_polygons ),
@@ -140,7 +143,7 @@ void gamemap::init_enviroment() {
 }
 
 void gamemap::init_visilibity_graph() {
-	vis_visibility_graph_offset = VisiLibity::Visibility_Graph( vis_enviroment_offset, vis_epsilon );
+	vis_visibility_graph_offset = VisiLibity::Visibility_Graph( vis_enviroment_offset, get_epsilon() );
 }
 
 } //namespace gc
