@@ -47,8 +47,6 @@ private:
 
 	void init_enviroment();
 	void init_visilibity_graph();
-
-	static const double vis_epsilon;
 };
 
 } //namespace gc

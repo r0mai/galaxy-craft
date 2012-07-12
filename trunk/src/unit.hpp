@@ -19,14 +19,20 @@ public:
 	unit();
 	unit(const vector2df& position, const sf::Image& texture);
 
+
+	vector2df desired_movement(float distance);
 	void advance(float distance);
 	void move_on(const path& p);
 
 	const vector2df& get_destination() const;
+
 	state_t get_state() const;
+	void set_state(const state_t s);
 
 	bool is_selected() const;
 	void set_selected(const bool val);
+
+	virtual void set_position(const vector2df& pos);
 
 	virtual void draw(sf::RenderWindow& window) const;
 

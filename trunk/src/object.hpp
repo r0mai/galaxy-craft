@@ -19,7 +19,7 @@ public:
 	const vector2df& get_center() const;
 	const vector2df& get_position() const;
 
-	void set_position(const vector2df& p);
+	virtual void set_position(const vector2df& p);
 
 	float get_radius() const;
 

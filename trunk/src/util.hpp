@@ -10,6 +10,11 @@ T round_to_int(const U val) {
 	return static_cast<T>(val + U(0.5));
 }
 
+inline
+float get_epsilon() {
+	return 0.001f;
+}
+
 } //namespace gc
 
 #endif /* UTIL_HPP_ */

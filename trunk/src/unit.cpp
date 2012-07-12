@@ -10,6 +10,12 @@ unit::unit() :
 unit::unit(const vector2df& position, const sf::Image& texture) :
 		object(position, 10.f, texture), state(STANDING), selected(false)  {}
 
+vector2df unit::desired_movement(float distance) {
+	moving_path.move_forward( distance );
+
+	return moving_path.get_position() - get_position();
+}
+
 void unit::advance(float distance) {
 	if ( state == MOVING ) {
 		moving_path.move_forward( distance );
@@ -33,12 +39,24 @@ unit::state_t unit::get_state() const {
 	return state;
 }
 
+void unit::set_state(const state_t s) {
+	state = s;
+}
+
 bool unit::is_selected() const {
 	return selected;
 }
 
 void unit::set_selected(const bool val) {
 	selected = val;
+}
+
+void unit::set_position(const vector2df& pos) {
+	object::set_position(pos);
+
+	if ( state == MOVING ) {
+		moving_path.set_position( pos );
+	}
 }
 
 void unit::draw(sf::RenderWindow& window) const {

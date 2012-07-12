@@ -48,8 +48,8 @@ public:
 	T length_squared() const;
 	float length() const;
 
-	T distance_to_squared(const vector2d<T>& other);
-	float distance_to(const vector2d<T>& other);
+	T distance_to_squared(const vector2d<T>& other) const;
+	float distance_to(const vector2d<T>& other) const;
 
 	bool is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
 
@@ -120,12 +120,12 @@ float vector2d<T>::length() const {
 }
 
 template<class T>
-T vector2d<T>::distance_to_squared(const vector2d<T>& other) {
+T vector2d<T>::distance_to_squared(const vector2d<T>& other) const {
 	return (*this - other).length_squared();
 }
 
 template<class T>
-float vector2d<T>::distance_to(const vector2d<T>& other) {
+float vector2d<T>::distance_to(const vector2d<T>& other) const {
 	return std::sqrt(distance_to_squared(other));
 }
 
