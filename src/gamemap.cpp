@@ -56,9 +56,11 @@ void gamemap::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
+#if 0
 	for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
 		offset_obstacles[i].draw(window);
 	}
+#endif
 }
 
 const vector2df& gamemap::get_dimension() const {

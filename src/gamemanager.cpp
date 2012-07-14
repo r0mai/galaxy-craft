@@ -170,48 +170,53 @@ void gamemanager::advance(const float frame_rate) {
 		if ( units[i].get_state() == unit::MOVING ) {
 			//Main path to move on :
 			units[i].advance( speed*frame_rate );
-		}
-		//Collision with closest wall :
-		const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
-					units[i].get_position().to_visilibity_point(),
-					map.get_vis_enviroment() );
+		} else {
 
-		if ( closest.first < units[i].get_radius() * units[i].get_radius() ) {
-			const vector2df point_of_impact = vector2df(closest.second);
 
-			//TODO what if we're already in the obstacle?
-			units[i].set_position( units[i].get_position() + (units[i].get_position() - point_of_impact).normalize() * (units[i].get_radius() - std::sqrt(closest.first)) );
+			//Collision with other units
+			for ( unsigned j = i+1; j < units.size(); ++j ) {
+				if ( units[j].get_state() != unit::MOVING ) {
+					const float radius_sum = units[i].get_radius() + units[j].get_radius();
 
-		}
+					//They're too close to each other
+					if (units[i].get_position().distance_to_squared(units[j].get_position()) < get_epsilon()*get_epsilon() ) {
+						//Move it away, so we won't get NAN
+						units[i].set_position( units[i].get_position() + 2.f*vector2df( get_epsilon(), get_epsilon()  ) );
+					}
 
-		//Collision with other units
-		for ( unsigned j = i+1; j < units.size(); ++j ) {
-			const float radius_sum = units[i].get_radius() + units[j].get_radius();
+					if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) { //They're closer than they should be
+						vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
 
-			//They're too close to each other
-			if (units[i].get_position().distance_to_squared(units[j].get_position()) < get_epsilon()*get_epsilon() ) {
-				//Move it away, so we won't get NAN
-				units[i].set_position( units[i].get_position() + 2.f*vector2df( get_epsilon(), get_epsilon()  ) );
+						/*
+						const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
+
+						if ( move_vector.length() >= max_distance ) {
+							move_vector *= max_distance/2.f;
+						} else {
+
+						}
+
+						moving_vector += move_vector;
+						units[j].pos += -1.f*move_vector;
+						*/
+
+						units[i].set_position( units[i].get_position() + move_vector );
+						units[j].set_position( units[j].get_position() - move_vector );
+					}
+				}
 			}
 
-			if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) { //They're closer than they should be
-                vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
+			//Collision with closest wall :
+			const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
+						units[i].get_position().to_visilibity_point(),
+						map.get_vis_enviroment() );
 
-                /*
-                const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
+			if ( closest.first < units[i].get_radius() * units[i].get_radius() ) {
+				const vector2df point_of_impact = vector2df(closest.second);
 
-                if ( move_vector.length() >= max_distance ) {
-                    move_vector *= max_distance/2.f;
-                } else {
+				//TODO what if we're already in the obstacle?
+				units[i].set_position( units[i].get_position() + (units[i].get_position() - point_of_impact).normalize() * (units[i].get_radius() - std::sqrt(closest.first)) );
 
-                }
-
-                moving_vector += move_vector;
-                units[j].pos += -1.f*move_vector;
-                */
-
-                units[i].set_position( units[i].get_position() + move_vector );
-                units[j].set_position( units[j].get_position() - move_vector );
 			}
 
 		}
