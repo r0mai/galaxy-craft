@@ -13,10 +13,12 @@
 
 namespace gc {
 
+const float gamemanager::unit_size = 10.f; //Can be tweaked for bigger units
+
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
 	window_size(width, height),
-	map(gamemap::from_file( "test.map" )),
+	map(gamemap::from_file( "test.map", unit_size * 0.8f )), //(0.8f) : magic number, can be tweaked if path searching is buggy <1 seems to work better
 	mapview(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f)),
 	selection_in_progress(false),
 	frame_rate_str("unknown")
@@ -27,7 +29,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 
 
 void gamemanager::init() {
-	test_unit = unit( vector2df(350.0,250.0), manager.getimage("obj.png") );
+
 }
 
 void gamemanager::run() {
@@ -88,7 +90,7 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 		break;
 	case sf::Key::Space :
 		units.push_back( unit( vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
-				window.GetInput().GetMouseY(), &mapview )), manager.getimage("obj.png") ) );
+				window.GetInput().GetMouseY(), &mapview )), unit_size, manager.getimage("obj.png") ) );
 		break;
 	default:
 		break;
@@ -180,8 +182,8 @@ void gamemanager::advance(const float frame_rate) {
 
 					//They're too close to each other
 					if (units[i].get_position().distance_to_squared(units[j].get_position()) < get_epsilon()*get_epsilon() ) {
-						//Move it away, so we won't get NAN
-						units[i].set_position( units[i].get_position() + 2.f*vector2df( get_epsilon(), get_epsilon()  ) );
+						//Move it away in a random direction, so we won't get NAN
+						units[i].move( (2.f * get_epsilon() ) * vector2df::random_unit_vector() );
 					}
 
 					if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) { //They're closer than they should be
@@ -215,7 +217,10 @@ void gamemanager::advance(const float frame_rate) {
 				const vector2df point_of_impact = vector2df(closest.second);
 
 				//TODO what if we're already in the obstacle?
-				units[i].set_position( units[i].get_position() + (units[i].get_position() - point_of_impact).normalize() * (units[i].get_radius() - std::sqrt(closest.first)) );
+				//TODO put it a little bit farther away (epsilon problem)
+				units[i].set_position(
+						units[i].get_position() + (units[i].get_position() - point_of_impact).normalize()
+						* (units[i].get_radius() - std::sqrt(closest.first)) );
 
 			}
 
@@ -295,9 +300,6 @@ void gamemanager::draw() {
 			u.draw(window);
 		}
 	);
-
-	//test_unit.draw(window);
-	//window.Draw( sf::Shape::Circle(test_point.to_sfml_vector(), 3.f, sf::Color::Green) );
 
 	if ( selection_in_progress ) {
 		window.Draw( sf::Shape::Rectangle( selection_start.to_sfml_vector(),

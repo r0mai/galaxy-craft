@@ -17,7 +17,7 @@ public:
 	enum state_t { STANDING = 0, MOVING };
 
 	unit();
-	unit(const vector2df& position, const sf::Image& texture);
+	unit(const vector2df& position, const float radius, const sf::Image& texture);
 
 
 	vector2df desired_movement(float distance);

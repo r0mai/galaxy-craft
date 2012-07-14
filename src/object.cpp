@@ -48,6 +48,10 @@ void object::set_position(const vector2df& p) {
 	sprite.SetPosition( (center - vector2df(radius, radius)).to_sfml_vector());
 }
 
+void object::move(const vector2df& offset) {
+	set_position( center + offset );
+}
+
 float object::get_radius() const {
 	return radius;
 }

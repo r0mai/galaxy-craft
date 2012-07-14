@@ -18,7 +18,9 @@ namespace gc {
 
 class gamemap : public drawable {
 public:
-	static gamemap from_file(const std::string& file);
+	//obstacle_offset : The distance between the original obstacles,
+	//and the little bit larger polygon enclosing it, which is used for path searching
+	static gamemap from_file(const std::string& file, float obstacle_offset);
 
 	path search_path(const vector2df& start, const vector2df& end) const;
 
@@ -40,12 +42,15 @@ private:
 	VisiLibity::Environment vis_enviroment_offset; //for offset_obstacles
 	VisiLibity::Visibility_Graph vis_visibility_graph_offset; //for offset_obstacles
 
+	//TODO clean up these init_* functions
 	//initializes vis_enviroment and vis_visibility_graph
 	//this has to be called whenever obstacles, or dimension is modified for correct path finding
 	//calls init_enviroment() and init_visilibity_graph()
-	void init_visilibity();
+	//@param : offset_delta : The distance between the original obstacles,
+	//and the little bit larger polygon enclosing it, which is used for path searching
+	void init_visilibity(float offset_delta);
 
-	void init_enviroment();
+	void init_enviroment(float offset_delta);
 	void init_visilibity_graph();
 };
 

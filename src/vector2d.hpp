@@ -5,8 +5,10 @@
 
 #include <ostream>
 #include <cmath>
+#include <cstdlib>
 
 #include <boost/operators.hpp>
+#include <boost/math/constants/constants.hpp>
 
 #include <SFML/Graphics.hpp>
 
@@ -61,8 +63,16 @@ public:
 	const vector2d& operator*=(const T& rhs);
 	const vector2d& operator/=(const T& rhs);
 
+	//These should only work correctly with floating point T
 	void rotate(const T& angle, const vector2d& center);
-	vector2d& rotate_copy(const T angle, const vector2d& center) const;
+	vector2d rotate_copy(const T angle, const vector2d& center) const;
+
+	//Unit vector in random direction
+	//Should only work correctly with floating point T
+	static vector2d random_unit_vector();
+
+	//a vector with length 'length' in a random direction
+	static vector2d random_vector(const T& length);
 
 	T x, y;
 
@@ -194,10 +204,22 @@ void vector2d<T>::rotate(const T& angle, const vector2d<T>& center) {
 }
 
 template<class T>
-vector2d<T>& vector2d<T>::rotate_copy(const T angle, const vector2d<T>& center) const{
+vector2d<T> vector2d<T>::rotate_copy(const T angle, const vector2d<T>& center) const{
 	vector2d<T> tmp = *this;
 	tmp.rotate(angle, center);
 	return tmp;
+}
+
+template<class T>
+vector2d<T> vector2d<T>::random_unit_vector() {
+	const float theta = (T(std::rand()) / T(RAND_MAX)) * boost::math::constants::two_pi<float>();
+
+	return vector2d<T>( std::cos( theta ), std::sin( theta ) );
+}
+
+template<class T>
+vector2d<T> vector2d<T>::random_vector(const T& length) {
+	return length * random_unit_vector();
 }
 
 template<class T>
