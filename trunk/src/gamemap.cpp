@@ -12,7 +12,7 @@ namespace gc {
 
 
 
-gamemap gamemap::from_file(const std::string& mapfile) {
+gamemap gamemap::from_file(const std::string& mapfile, float obstacle_offset) {
 
 	gamemap result;
 
@@ -41,7 +41,7 @@ gamemap gamemap::from_file(const std::string& mapfile) {
 
 	}
 
-	result.init_visilibity();
+	result.init_visilibity(obstacle_offset);
 
 	return result;
 }
@@ -56,7 +56,7 @@ void gamemap::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
-#if 0
+#if 1
 	for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
 		offset_obstacles[i].draw(window);
 	}
@@ -75,12 +75,12 @@ const VisiLibity::Environment& gamemap::get_vis_enviroment() const {
 	return vis_enviroment;
 }
 
-void gamemap::init_visilibity() {
-	init_enviroment(); //These has to be called in this order
+void gamemap::init_visilibity(float offset_delta) {
+	init_enviroment(offset_delta); //These has to be called in this order
 	init_visilibity_graph(); //init_visilibity_graph() relies on init_enviroment()
 }
 
-void gamemap::init_enviroment() {
+void gamemap::init_enviroment(float offset_delta) {
 
 	//TODO clean up this thing
 
@@ -92,7 +92,7 @@ void gamemap::init_enviroment() {
 	);
 
 	ClipperLib::Polygons result_clipper_polygons;
-	ClipperLib::OffsetPolygons( clipper_polygons, result_clipper_polygons, 11., ClipperLib::jtRound, 6. );
+	ClipperLib::OffsetPolygons( clipper_polygons, result_clipper_polygons, offset_delta, ClipperLib::jtRound, 6. );
 
 	offset_obstacles.reserve(result_clipper_polygons.size());
 	std::transform( result_clipper_polygons.begin(), result_clipper_polygons.end(), std::back_inserter( offset_obstacles ),

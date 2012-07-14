@@ -7,8 +7,8 @@ namespace gc {
 unit::unit() :
 		object(vector2df(0.f, 0.f), 10.f, sf::Image()), state(STANDING), selected(false) {}
 
-unit::unit(const vector2df& position, const sf::Image& texture) :
-		object(position, 10.f, texture), state(STANDING), selected(false)  {}
+unit::unit(const vector2df& position, const float radius, const sf::Image& texture) :
+		object(position, radius, texture), state(STANDING), selected(false)  {}
 
 vector2df unit::desired_movement(float distance) {
 	moving_path.move_forward( distance );

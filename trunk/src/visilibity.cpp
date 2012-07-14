@@ -54,8 +54,8 @@ void print_map() {
 	} );
 }
 
-#define counter_sqrt(X) \
-		/*++sqrt_counter_map[__LINE__], print_map(),*/ std::sqrt(X)
+#define counter_sqrt(X) /*++sqrt_counter_map[__LINE__], print_map(),*/ std::sqrt(X)
+
 /*
 double counter_sqrt(const double x) {
 	static int c = 0;
@@ -506,7 +506,7 @@ namespace VisiLibity
 	const double dx = point1.x() - point2.x();
 	const double dy = point1.y() - point2.y();
 
-	return dx*dx +dy*dy;
+	return dx*dx + dy*dy;
   }
 
   double distance(const Point& point1, const Point& point2)
@@ -2337,6 +2337,7 @@ namespace VisiLibity
 
     //For now, just find one shortest path, later change this to a
     //vector to find all shortest paths (w/in epsilon).
+
     Polyline shortest_path_output;
     Visibility_Polygon start_visibility_polygon(start, *this, epsilon);
 

@@ -30,9 +30,6 @@ private:
 
 	std::vector<unit> units;
 
-	unit test_unit;
-	vector2df test_point;
-
 	sf::View mapview;
 
 	vector2df selection_start;
@@ -52,7 +49,8 @@ private:
     void advance(const float frame_rate);
     void draw();
 
-	
+    //Used only for initialization, so actual unit_size and gamemap init is in sync
+	static const float unit_size;
 
 };
 

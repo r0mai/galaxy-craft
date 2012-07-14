@@ -26,7 +26,7 @@
 * Paper no. DETC2005-85513 pp. 565-575                                         *
 * ASME 2005 International Design Engineering Technical Conferences             *
 * and Computers and Information in Engineering Conference (IDETC/CIE2005)      *
-* September 24–28, 2005 , Long Beach, California, USA                          *
+* September 24ï¿½28, 2005 , Long Beach, California, USA                          *
 * http://www.me.berkeley.edu/~mcmains/pubs/DAC05OffsetPolygon.pdf              *
 *                                                                              *
 *******************************************************************************/
@@ -1482,6 +1482,7 @@ bool Clipper::IsContributing(const TEdge& edge) const
       break;
     default: //pftNegative
       if (edge.windCnt != -1) return false;
+      break;
   }
 
   switch(m_ClipType)
@@ -1497,6 +1498,7 @@ bool Clipper::IsContributing(const TEdge& edge) const
         default: 
           return (edge.windCnt2 < 0);
       }
+      break;
     case ctUnion:
       switch(pft2)
       {
@@ -1508,6 +1510,7 @@ bool Clipper::IsContributing(const TEdge& edge) const
         default: 
           return (edge.windCnt2 >= 0);
       }
+      break;
     case ctDifference:
       if (edge.polyType == ptSubject)
         switch(pft2)
@@ -1531,6 +1534,7 @@ bool Clipper::IsContributing(const TEdge& edge) const
           default: 
             return (edge.windCnt2 < 0);
         }
+      break;
     default:
       return true;
   }
@@ -1828,13 +1832,13 @@ void Clipper::IntersectEdges(TEdge *e1, TEdge *e2,
   {
     case pftPositive: e1Wc = e1->windCnt; break;
     case pftNegative: e1Wc = -e1->windCnt; break;
-    default: e1Wc = Abs(e1->windCnt);
+    default: e1Wc = Abs(e1->windCnt); break;
   }
   switch(e2FillType)
   {
     case pftPositive: e2Wc = e2->windCnt; break;
     case pftNegative: e2Wc = -e2->windCnt; break;
-    default: e2Wc = Abs(e2->windCnt);
+    default: e2Wc = Abs(e2->windCnt); break;
   }
 
   if ( e1Contributing && e2contributing )
@@ -1870,13 +1874,13 @@ void Clipper::IntersectEdges(TEdge *e1, TEdge *e2,
     {
       case pftPositive: e1Wc2 = e1->windCnt2; break;
       case pftNegative : e1Wc2 = -e1->windCnt2; break;
-      default: e1Wc2 = Abs(e1->windCnt2);
+      default: e1Wc2 = Abs(e1->windCnt2); break;
     }
     switch (e2FillType2)
     {
       case pftPositive: e2Wc2 = e2->windCnt2; break;
       case pftNegative: e2Wc2 = -e2->windCnt2; break;
-      default: e2Wc2 = Abs(e2->windCnt2);
+      default: e2Wc2 = Abs(e2->windCnt2); break;
     }
 
     if (e1->polyType != e2->polyType)
@@ -1898,6 +1902,7 @@ void Clipper::IntersectEdges(TEdge *e1, TEdge *e2,
           break;
         case ctXor:
           AddLocalMinPoly(e1, e2, pt);
+          break;
       }
     else
       SwapSides( *e1, *e2 );

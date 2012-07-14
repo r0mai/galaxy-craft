@@ -21,6 +21,9 @@ public:
 
 	virtual void set_position(const vector2df& p);
 
+	//Uses set_position internally, so inherited set_positions will work
+	void move(const vector2df& offset);
+
 	float get_radius() const;
 
 	virtual void draw(sf::RenderWindow& window) const;
