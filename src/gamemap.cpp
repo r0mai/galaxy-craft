@@ -96,7 +96,7 @@ void gamemap::init_enviroment() {
 
 	offset_obstacles.reserve(result_clipper_polygons.size());
 	std::transform( result_clipper_polygons.begin(), result_clipper_polygons.end(), std::back_inserter( offset_obstacles ),
-		[](const ClipperLib::Polygon& p){
+		[](const ClipperLib::Polygon& p) -> polygonf {
 			polygonf res(p);
 			res.set_color( sf::Color::Yellow );
 			return res;
