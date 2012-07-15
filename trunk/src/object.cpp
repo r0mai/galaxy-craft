@@ -1,6 +1,7 @@
 
 #include "object.hpp"
 
+
 namespace gc {
 
 object::object() : center(), radius(), orientation(), sprite() {}

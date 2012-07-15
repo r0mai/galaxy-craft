@@ -44,6 +44,7 @@ private:
 	void process_mousemoved_event(const sf::Event& event);
 	void process_mousebuttonpressed_event(const sf::Event& event);
 	void process_mousebuttonreleased_event(const sf::Event& event);
+	void process_mousewheelmoved_event(const sf::Event& event);
 
 
     void advance(const float frame_rate);

@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <ctime>
-
+#include <algorithm>
 #include <SFML/Audio.hpp>
 #include <boost/lexical_cast.hpp>
 #include "object.hpp"
@@ -64,6 +64,9 @@ void gamemanager::process_events() {
 		case sf::Event::MouseButtonReleased :
 			process_mousebuttonreleased_event(event);
 			break;
+		case sf::Event::MouseWheelMoved :
+			process_mousewheelmoved_event(event);
+			break;
 		default:
 			break;
 		}
@@ -71,16 +74,32 @@ void gamemanager::process_events() {
 
 	float Offset = 400.f * window.GetFrameTime();
 
-    // Move the view using arrow keys
-    if (window.GetInput().IsKeyDown(sf::Key::Up))    mapview.Move( 0,      -Offset);
-    if (window.GetInput().IsKeyDown(sf::Key::Down))  mapview.Move( 0,       Offset);
-    if (window.GetInput().IsKeyDown(sf::Key::Left))  mapview.Move(-Offset,  0);
-    if (window.GetInput().IsKeyDown(sf::Key::Right)) mapview.Move( Offset,  0);
+	volatile float mousex = window.GetInput().GetMouseX();
 
-    // Zoom and unzoom using + and - keys
-    if (window.GetInput().IsKeyDown(sf::Key::Add))      mapview.Zoom(1.001f);
-    if (window.GetInput().IsKeyDown(sf::Key::Subtract)) mapview.Zoom(0.999f);
+	const float rim = 0.1f;
+	const float upthreshold = window.GetHeight()   * rim;
+	const float downthreshold = window.GetHeight() * (1-rim);
+	const float leftthreshold = window.GetWidth()  * rim;
+	const float rightthreshold = window.GetWidth() * (1-rim);
 
+	
+    // Move the view using arrow keys or by mouse position
+	// TODO: add check for out of rangness, and is window in focus
+
+	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || window.GetInput().GetMouseY() < upthreshold    )
+		mapview.Move( 0,      -Offset);
+    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || window.GetInput().GetMouseY() > downthreshold  )
+		mapview.Move( 0,       Offset);
+	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || window.GetInput().GetMouseX() < leftthreshold  )
+		mapview.Move(-Offset,  0);
+	if ( window.GetInput().IsKeyDown(sf::Key::Right) || window.GetInput().GetMouseX() > rightthreshold )
+		mapview.Move( Offset,  0);
+
+	// Handle keystroke combos here!
+
+	if (window.GetInput().IsKeyDown(sf::Key::LControl) && window.GetInput().IsKeyDown(sf::Key::A)) // CTRL A
+		std::for_each(units.begin(), units.end(), [](unit& u){u.set_selected(true);});
+	
 }
 
 void gamemanager::process_keypressed_event(const sf::Event& event) {
@@ -159,6 +178,27 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 	default:
 		break;
 	}
+}
+
+void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
+	
+	const float zoominfactor = 1.05f;
+	const float zoomoutfactor = 0.9523f;
+	const float maximumzoom = 10.0f;
+	const sf::FloatRect rect = mapview.GetRect();
+	const volatile float w = rect.GetWidth();
+	const volatile float h = rect.GetHeight(); // volatile against optimiazations :D 
+
+	if ( event.MouseWheel.Delta > 0){
+		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) )
+			mapview.Zoom(zoominfactor); // Zoom in
+	}
+
+	else{		
+		if ( w < map.get_dimension().x || h < map.get_dimension().y)  // Do not allow infinite zoom out
+			mapview.Zoom(zoomoutfactor); // Zoom out
+	}
+
 }
 
 void gamemanager::advance(const float frame_rate) {
