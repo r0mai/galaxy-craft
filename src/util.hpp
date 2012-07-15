@@ -12,7 +12,7 @@ T round_to_int(const U val) {
 
 inline
 float get_epsilon() {
-	return 0.001f;
+	return 0.0001f;
 }
 
 } //namespace gc
