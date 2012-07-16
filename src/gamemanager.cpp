@@ -21,6 +21,7 @@ gamemanager::gamemanager(unsigned width, unsigned height) :
 	map(gamemap::from_file( "test.map", unit_size * 0.8f )), //(0.8f) : magic number, can be tweaked if path searching is buggy <1 seems to work better
 	mapview(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f)),
 	selection_in_progress(false),
+	is_mouse_in_focus(true),
 	frame_rate_str("unknown")
 {
 	init();
@@ -67,6 +68,12 @@ void gamemanager::process_events() {
 		case sf::Event::MouseWheelMoved :
 			process_mousewheelmoved_event(event);
 			break;
+		case sf::Event::MouseEntered:
+			is_mouse_in_focus = true;
+			break;
+		case sf::Event::MouseLeft:
+			is_mouse_in_focus = false;
+			break;
 		default:
 			break;
 		}
@@ -86,13 +93,13 @@ void gamemanager::process_events() {
     // Move the view using arrow keys or by mouse position
 	// TODO: add check for out of rangness, and is window in focus
 
-	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || window.GetInput().GetMouseY() < upthreshold    )
+	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || (window.GetInput().GetMouseY() < upthreshold    && is_mouse_in_focus  ) )
 		mapview.Move( 0,      -Offset);
-    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || window.GetInput().GetMouseY() > downthreshold  )
+    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || (window.GetInput().GetMouseY() > downthreshold  && is_mouse_in_focus  ) )
 		mapview.Move( 0,       Offset);
-	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || window.GetInput().GetMouseX() < leftthreshold  )
+	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || (window.GetInput().GetMouseX() < leftthreshold  && is_mouse_in_focus  ) )
 		mapview.Move(-Offset,  0);
-	if ( window.GetInput().IsKeyDown(sf::Key::Right) || window.GetInput().GetMouseX() > rightthreshold )
+	if ( window.GetInput().IsKeyDown(sf::Key::Right) || (window.GetInput().GetMouseX() > rightthreshold && is_mouse_in_focus  ) )
 		mapview.Move( Offset,  0);
 
 	// Handle keystroke combos here!
@@ -110,6 +117,9 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 	case sf::Key::Space :
 		units.push_back( unit( vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
 				window.GetInput().GetMouseY(), &mapview )), unit_size, manager.getimage("obj.png") ) );
+		break;
+	case sf::Key::R:
+		std::for_each(units.begin(), units.end(), [](unit& u){u.set_orientation(M_PI/4);} );
 		break;
 	default:
 		break;
@@ -186,8 +196,8 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	const float zoomoutfactor = 0.9523f;
 	const float maximumzoom = 10.0f;
 	const sf::FloatRect rect = mapview.GetRect();
-	const volatile float w = rect.GetWidth();
-	const volatile float h = rect.GetHeight(); // volatile against optimiazations :D 
+	const float w = rect.GetWidth();
+	const float h = rect.GetHeight(); 
 
 	if ( event.MouseWheel.Delta > 0){
 		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) )

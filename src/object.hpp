@@ -15,7 +15,8 @@ public:
 	object();
 	object(const vector2df& c, const float r, const sf::Image& img);
 
-	//These two are the same
+	//These two are the same.
+
 	const vector2df& get_center() const;
 	const vector2df& get_position() const;
 
