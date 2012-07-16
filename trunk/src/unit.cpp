@@ -19,8 +19,17 @@ vector2df unit::desired_movement(float distance) {
 void unit::advance(float distance) {
 	if ( state == MOVING ) {
 		moving_path.move_forward( distance );
-		set_position( moving_path.get_position() );
+		vector2df currentpos = get_position();
+		vector2df nextpos = moving_path.get_position();
+
+		const float deltaX = nextpos.x - currentpos.x;
+		const float deltaY = nextpos.y - currentpos.y;
+
+		set_orientation(std::atan2f(deltaY, deltaX));
+		set_position( nextpos );
+
 		if ( moving_path.is_at_end() ) {
+			set_orientation(0.0f);
 			state = STANDING;
 		}
 	}
@@ -29,6 +38,15 @@ void unit::advance(float distance) {
 void unit::move_on(const path& p) {
 	state = MOVING;
 	moving_path = p;
+}
+
+void unit::set_orientation(const float angle){
+	// angle is in radians.
+	const float deltadegrees = (angle - orientation) * 180 / M_PI;
+	sprite.SetCenter(sprite.GetSize() / std::sqrtf(2));  // To rotate around center.
+	sprite.Rotate(deltadegrees);
+	sprite.SetCenter(sprite.GetSize() / std::sqrtf(2));  // To rotate around center.
+	orientation = angle;
 }
 
 const vector2df& unit::get_destination() const {

@@ -12,6 +12,8 @@
 #include "polygon.hpp"
 #include "resourcemanager.hpp"
 
+
+
 namespace gc {
 
 class gamemanager {
@@ -34,6 +36,7 @@ private:
 
 	vector2df selection_start;
 	bool selection_in_progress;
+	bool is_mouse_in_focus;
 
 	std::string frame_rate_str;
 

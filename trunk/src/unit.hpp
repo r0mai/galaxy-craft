@@ -23,6 +23,7 @@ public:
 	vector2df desired_movement(float distance);
 	void advance(float distance);
 	void move_on(const path& p);
+	void set_orientation(const float angle);
 
 	const vector2df& get_destination() const;
 
