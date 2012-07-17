@@ -81,7 +81,7 @@ void gamemanager::process_events() {
 
 	float Offset = 400.f * window.GetFrameTime();
 
-	const float rim = 0.1f;
+	const float rim = 0.08f;
 	const float upthreshold = window.GetHeight()   * rim;
 	const float downthreshold = window.GetHeight() * (1-rim);
 	const float leftthreshold = window.GetWidth()  * rim;
@@ -163,11 +163,19 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 				std::for_each(units.begin(), units.end(),
 					[this, &destination](unit& u) {
 						if(u.is_selected()) {
+							//Workaround : if the start and end locations are too close together,
+							//search_path returns a path with length=1, and this causes assertion faliures in path
 							if(u.get_state() == unit::MOVING) {
-								u.append_path(map.search_path(u.get_destination(), destination));
+
+								if ( u.get_destination().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+									u.append_path(map.search_path(u.get_destination(), destination));
+								}
 							} else {
-								u.move_on( map.search_path( u.get_position(), vector2df( destination )) );
+								if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+									u.move_on( map.search_path( u.get_position(), destination ) );
+								}
 							}
+
 						}
 					}
 				);
@@ -182,7 +190,12 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 				std::for_each( units.begin(), units.end(),
 					[this, &event, &destination](unit& u) {
 						if ( u.is_selected() ) {
-							u.move_on( map.search_path( u.get_position(), vector2df( destination )) );
+							//Workaround : if the start and end locations are too close together,
+							//search_path returns a path with length=1, and this causes assertion faliures in path
+
+							if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+								u.move_on( map.search_path( u.get_position(), destination ) );
+							}
 						}
 					}
 				);

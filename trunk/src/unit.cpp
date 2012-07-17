@@ -20,7 +20,8 @@ vector2df unit::desired_movement(float distance) {
 void unit::advance(float distance) {
 	if ( state == MOVING ) {
 
-		if( moving_path.move_forward( distance ) ){ //we advanced a segment, update orientation
+		//we advanced a segment, update orientation
+		if( moving_path.move_forward( distance ) ){
 			set_orientation(moving_path.get_orientation() + boost::math::constants::pi<float>() / 2.f);
 		}
 
@@ -78,11 +79,8 @@ void unit::set_selected(const bool val) {
 
 void unit::set_position(const vector2df& pos) {
 	object::set_position(pos);
-
-	if ( state == MOVING ) {
-		//Currently this is not mandatory right now, but does no harm
-		moving_path.set_position( pos );
-	}
+	//If this is called from the outside while the unit is moving on a path,
+	//then path readjusting should be done here
 }
 
 void unit::draw(sf::RenderWindow& window) const {
