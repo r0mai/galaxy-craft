@@ -97,6 +97,11 @@ void path::draw(sf::RenderWindow& window) const {
 	}
 }
 
+void path::append(const path& p){
+	path_points.pop_back(); // remove last;
+	std::copy(p.path_points.begin(), p.path_points.end(), std::back_inserter(path_points));
+}
+
 path::position_t::position_t() : segment(0), advancment_ratio(0.f) {}
 
 } //namespace gc

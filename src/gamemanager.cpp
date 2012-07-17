@@ -145,19 +145,34 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 
 	case sf::Mouse::Right :
 	{
-		std::clock_t start = std::clock();
-		unsigned i = 0;
-		std::for_each( units.begin(), units.end(),
-			[this, &event, &i](unit& u) {
-				if ( u.is_selected() ) {
-					++i;
-					u.move_on( map.search_path( u.get_position(),
-						vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
+		if ( window.GetInput().IsKeyDown(sf::Key::LShift)){ // Shift click
+			std::cout<<"shift click"<<std::endl;
+		vector2df pos(window.GetInput().GetMouseX(), window.GetInput().GetMouseY());
+		std::for_each(units.begin(), units.end(), 
+			[pos, this](unit& u){
+				if(u.is_selected()){
+					if(u.get_state() == unit::MOVING)
+						u.append_path(map.search_path(u.get_destination(), window.ConvertCoords(pos.x, pos.y, &mapview)));
 				}
 			}
 		);
+		}
+		else{
+		// Regular
+			std::clock_t start = std::clock();
+			unsigned i = 0;
+			std::for_each( units.begin(), units.end(),
+				[this, &event, &i](unit& u) {
+					if ( u.is_selected() ) {
+						++i;
+						u.move_on( map.search_path( u.get_position(),
+							vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
+					}
+				}
+			);
 
-		std::cout << "Path planning took " << (clock() - start)/float(CLOCKS_PER_SEC) << "s for " << i << " units" << std::endl;
+			std::cout << "Path planning took " << (clock() - start)/float(CLOCKS_PER_SEC) << "s for " << i << " units" << std::endl;
+		}
 		break;
 	}
 

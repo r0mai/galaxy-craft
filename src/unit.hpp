@@ -24,6 +24,7 @@ public:
 	void advance(float distance);
 	void move_on(const path& p);
 	void set_orientation(const float angle);
+	void append_path(const path& p);
 
 	const vector2df& get_destination() const;
 
@@ -32,6 +33,7 @@ public:
 
 	bool is_selected() const;
 	void set_selected(const bool val);
+	
 
 	virtual void set_position(const vector2df& pos);
 

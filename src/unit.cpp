@@ -58,6 +58,10 @@ void unit::move_on(const path& p) {
 
 }
 
+void unit::append_path(const path& p){
+	moving_path.append(p);
+}
+
 void unit::set_orientation(const float angle){
 	// angle is in radians.
 	const float deltadegrees = (orientation - angle) * 180 / M_PI;

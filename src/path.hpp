@@ -29,6 +29,7 @@ public:
 	void set_position(const vector2df& pos);
 
 	bool move_forward(float distance);
+	void append(const path&);
 
 	virtual void draw(sf::RenderWindow& window) const;
 
