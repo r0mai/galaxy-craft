@@ -13,7 +13,7 @@
 
 namespace gc {
 
-const float gamemanager::unit_size = 10.f; //Can be tweaked for bigger units
+const float gamemanager::unit_size = 13.f; //Can be tweaked for bigger units
 
 gamemanager::gamemanager(unsigned width, unsigned height) :
 	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
@@ -81,8 +81,6 @@ void gamemanager::process_events() {
 
 	float Offset = 400.f * window.GetFrameTime();
 
-	volatile float mousex = window.GetInput().GetMouseX();
-
 	const float rim = 0.1f;
 	const float upthreshold = window.GetHeight()   * rim;
 	const float downthreshold = window.GetHeight() * (1-rim);
@@ -93,20 +91,21 @@ void gamemanager::process_events() {
     // Move the view using arrow keys or by mouse position
 	// TODO: add check for out of rangness, and is window in focus
 
-	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || (window.GetInput().GetMouseY() < upthreshold    && is_mouse_in_focus  ) )
-		mapview.Move( 0,      -Offset);
-    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || (window.GetInput().GetMouseY() > downthreshold  && is_mouse_in_focus  ) )
-		mapview.Move( 0,       Offset);
-	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || (window.GetInput().GetMouseX() < leftthreshold  && is_mouse_in_focus  ) )
-		mapview.Move(-Offset,  0);
-	if ( window.GetInput().IsKeyDown(sf::Key::Right) || (window.GetInput().GetMouseX() > rightthreshold && is_mouse_in_focus  ) )
-		mapview.Move( Offset,  0);
+	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || (window.GetInput().GetMouseY() < upthreshold    && is_mouse_in_focus  ) ) {
+		mapview.Move( 0, -Offset);
+	}
+    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || (window.GetInput().GetMouseY() > downthreshold  && is_mouse_in_focus  ) ) {
+		mapview.Move( 0, Offset);
+    }
+	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || (window.GetInput().GetMouseX() < leftthreshold  && is_mouse_in_focus  ) ) {
+		mapview.Move(-Offset, 0);
+	}
+	if ( window.GetInput().IsKeyDown(sf::Key::Right) || (window.GetInput().GetMouseX() > rightthreshold && is_mouse_in_focus  ) ) {
+		mapview.Move( Offset, 0);
+	}
 
-	// Handle keystroke combos here!
-
-	if (window.GetInput().IsKeyDown(sf::Key::LControl) && window.GetInput().IsKeyDown(sf::Key::A)) // CTRL A
-		std::for_each(units.begin(), units.end(), [](unit& u){u.set_selected(true);});
 	
+
 }
 
 void gamemanager::process_keypressed_event(const sf::Event& event) {
@@ -120,6 +119,15 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 		break;
 	case sf::Key::R:
 		std::for_each(units.begin(), units.end(), [](unit& u){u.set_orientation(M_PI/4);} );
+		break;
+	case sf::Key::A:
+		if ( window.GetInput().IsKeyDown(sf::Key::LControl) ) {// CTRL A
+			std::for_each(units.begin(), units.end(),
+				[](unit& u) {
+					u.set_selected(true);
+				}
+			);
+		}
 		break;
 	default:
 		break;
@@ -145,33 +153,41 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 
 	case sf::Mouse::Right :
 	{
-		if ( window.GetInput().IsKeyDown(sf::Key::LShift)){ // Shift click
-			std::cout<<"shift click"<<std::endl;
-		vector2df pos(window.GetInput().GetMouseX(), window.GetInput().GetMouseY());
-		std::for_each(units.begin(), units.end(), 
-			[pos, this](unit& u){
-				if(u.is_selected()){
-					if(u.get_state() == unit::MOVING)
-						u.append_path(map.search_path(u.get_destination(), window.ConvertCoords(pos.x, pos.y, &mapview)));
-				}
-			}
-		);
-		}
-		else{
-		// Regular
-			std::clock_t start = std::clock();
-			unsigned i = 0;
-			std::for_each( units.begin(), units.end(),
-				[this, &event, &i](unit& u) {
-					if ( u.is_selected() ) {
-						++i;
-						u.move_on( map.search_path( u.get_position(),
-							vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ) )) );
-					}
-				}
-			);
+		if ( window.GetInput().IsKeyDown(sf::Key::LShift)) { // Shift click
 
-			std::cout << "Path planning took " << (clock() - start)/float(CLOCKS_PER_SEC) << "s for " << i << " units" << std::endl;
+			const vector2df destination = window.ConvertCoords(window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview);
+
+			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
+
+
+				std::for_each(units.begin(), units.end(),
+					[this, &destination](unit& u) {
+						if(u.is_selected()) {
+							if(u.get_state() == unit::MOVING) {
+								u.append_path(map.search_path(u.get_destination(), destination));
+							} else {
+								u.move_on( map.search_path( u.get_position(), vector2df( destination )) );
+							}
+						}
+					}
+				);
+
+			}
+		} else { // Regular click
+
+			const vector2df destination = window.ConvertCoords(window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview);
+
+			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
+
+				std::for_each( units.begin(), units.end(),
+					[this, &event, &destination](unit& u) {
+						if ( u.is_selected() ) {
+							u.move_on( map.search_path( u.get_position(), vector2df( destination )) );
+						}
+					}
+				);
+			}
+
 		}
 		break;
 	}
@@ -215,13 +231,13 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	const float h = rect.GetHeight(); 
 
 	if ( event.MouseWheel.Delta > 0){
-		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) )
+		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) ) {
 			mapview.Zoom(zoominfactor); // Zoom in
-	}
-
-	else{		
-		if ( w < map.get_dimension().x || h < map.get_dimension().y)  // Do not allow infinite zoom out
+		}
+	} else {
+		if ( w < map.get_dimension().x || h < map.get_dimension().y) {  // Do not allow infinite zoom out
 			mapview.Zoom(zoomoutfactor); // Zoom out
+		}
 	}
 
 }
@@ -231,7 +247,7 @@ void gamemanager::advance(const float frame_rate) {
 	const float speed = 100.f;
 
 	for ( unsigned i = 0; i < units.size(); ++i ) {
-#if 1
+
 
 
 		if ( units[i].get_state() == unit::MOVING ) {
@@ -283,71 +299,12 @@ void gamemanager::advance(const float frame_rate) {
 
 				//TODO what if we're already in the obstacle?
 				//TODO put it a little bit farther away (epsilon problem)
-				units[i].set_position(
-						units[i].get_position() + (units[i].get_position() - point_of_impact).normalize()
-						* (units[i].get_radius() - std::sqrt(closest.first)) );
+				units[i].move((units[i].get_position() - point_of_impact).normalize() * (units[i].get_radius() - std::sqrt(closest.first) ) );
 
 			}
 
 		}
 
-#elif 0
-		u.advance( frame_rate * speed );
-#else
-			if ( units[i].get_state() == unit::MOVING ) {
-				const vector2df& destination = units[i].get_destination();
-
-				vector2df moving_vector = units[i].desired_movement( speed*frame_rate ).normalize();
-
-				if ( moving_vector.length_squared() < get_epsilon()*get_epsilon() ) { //We arrived
-					u.set_state( unit::STANDING );
-				} else {
-
-					const VisiLibity::distance_point_t closest = VisiLibity::closest_boundary_distance_and_point_squared(
-								units[i].get_position().to_visilibity_point(),
-								map.get_vis_enviroment() );
-
-					if ( closest.first < units[i].get_radius() * units[i].get_radius() ) {
-						const vector2df point_of_impact = vector2df(closest.second);
-
-						vector2df desired_movement = (units[i].get_center() - point_of_impact).normalize();
-
-						moving_vector += desired_movement;
-						moving_vector.normalize();
-
-					}
-
-				    for ( unsigned i = 0; i < units.size(); ++i ) {
-				        for ( unsigned j = i+1; j < units.size(); ++j ) {
-
-				        	const float radius_sum = units[i].get_radius() + units[j].get_radius();
-
-				            if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) {
-
-				                vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
-
-
-				                const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
-
-				                if ( move_vector.length() >= max_distance ) {
-				                    move_vector *= max_distance/2.f;
-				                } else {
-				                    //**//
-				                }
-
-				                moving_vector += move_vector;
-				                units[j].pos += -1.f*move_vector;
-
-				            }
-				        }
-				    }
-
-					moving_vector *= speed * frame_rate;
-
-					u.set_position( u.get_center() + moving_vector );
-				}
-			}
-#endif
 	}
 
 }

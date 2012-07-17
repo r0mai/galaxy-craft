@@ -1,6 +1,9 @@
 
 #include "object.hpp"
 
+#include <iostream>
+
+#include <boost/math/constants/constants.hpp>
 
 namespace gc {
 
@@ -28,12 +31,15 @@ object::object(const vector2df& c, const float r, const sf::Image& img) : center
 	*/
 	const float diameter = 2.f * radius; // diameter of coll. ring.
 	const float d = std::sqrt( x*x + y*y ); // Goal is to ensure d = diameter
- 	const float lambda = ( std::sqrt(2.f)*diameter / d ); // WTF IS THAT?
+
+	const float lambda = ( boost::math::constants::root_two<float>()*diameter / d ); // WTF IS THAT?
 	
 	sprite.SetCenter(sprite.GetSize() / 2.f);
 	sprite.Scale(lambda, lambda);
+
 	
 	sprite.SetPosition( (center ).to_sfml_vector());
+
 	// Work should be done!
 }
 

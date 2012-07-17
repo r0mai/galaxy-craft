@@ -30,6 +30,7 @@ public:
 	const std::vector<polygonf>& get_obstacles() const;
 
 	const VisiLibity::Environment& get_vis_enviroment() const;
+	const VisiLibity::Environment& get_vis_enviroment_offset() const;
 
 private:
 	vector2df dimension;

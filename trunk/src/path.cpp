@@ -56,17 +56,35 @@ void path::set_position(const vector2df& pos) {
 	position.advancment_ratio = 0.f;
 }
 
+float path::get_orientation() const {
+
+	assert(path_points.size() >= 2);
+
+	vector2df orientation;
+
+	if ( is_at_end() ) {
+		orientation = path_points[path_points.size()-1] - path_points[path_points.size()-2];
+	} else {
+		orientation = path_points[position.segment+1] - path_points[position.segment];
+	}
+
+	return std::atan2( orientation.y, orientation.x );
+}
+
 bool path::move_forward(float distance) {
 
 	assert(distance >= 0.f);
+	assert(path_points.size() >= 2);
+
 	bool b = false;
+
 	if ( is_at_end() ) {
-		return b;
+		return false;
 	}
 
 	float current_segment_length = path_points[position.segment].distance_to( path_points[position.segment + 1] );
 
-	b = distance >= current_segment_length;
+	b = distance >= current_segment_length * ( 1.f - position.advancment_ratio );
 
 	distance -= current_segment_length * ( 1.f - position.advancment_ratio );
 
@@ -93,7 +111,7 @@ bool path::move_forward(float distance) {
 
 void path::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < path_points.size() - 1; ++i ) {
-		window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 4.f, color ) );
+		window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 2.f, color ) );
 	}
 }
 
