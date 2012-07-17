@@ -56,7 +56,7 @@ void gamemap::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);
 	}
-#if 1
+#if 0
 	for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
 		offset_obstacles[i].draw(window);
 	}
@@ -73,6 +73,10 @@ const std::vector<polygonf>& gamemap::get_obstacles() const {
 
 const VisiLibity::Environment& gamemap::get_vis_enviroment() const {
 	return vis_enviroment;
+}
+
+const VisiLibity::Environment& gamemap::get_vis_enviroment_offset() const {
+	return vis_enviroment_offset;
 }
 
 void gamemap::init_visilibity(float offset_delta) {
@@ -126,6 +130,11 @@ void gamemap::init_enviroment(float offset_delta) {
 	vis_enviroment = VisiLibity::Environment(vis_enviroment_polygons);
 	vis_enviroment.enforce_standard_form();
 
+	if ( !vis_enviroment.is_valid( get_epsilon() ) ) {
+		std::cout << "vis_enviroment is not " << get_epsilon() << " valid" << std::endl;
+	}
+
+
 	//FOR OBSTACLES_OFFSET :
 	std::vector<VisiLibity::Polygon> vis_enviroment_offset_polygons; //will be <=> obstacles_offset
 	vis_enviroment_offset_polygons.reserve( obstacles.size() + 1 );
@@ -141,6 +150,10 @@ void gamemap::init_enviroment(float offset_delta) {
 
 	vis_enviroment_offset = VisiLibity::Environment(vis_enviroment_offset_polygons);
 	vis_enviroment_offset.enforce_standard_form();
+
+	if ( !vis_enviroment_offset.is_valid( get_epsilon() ) ) {
+		std::cout << "vis_enviroment_offset is not " << get_epsilon() << " valid" << std::endl;
+	}
 
 }
 

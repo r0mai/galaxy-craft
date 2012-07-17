@@ -28,6 +28,11 @@ public:
 
 	void set_position(const vector2df& pos);
 
+	//returns the current direction in radians
+	float get_orientation() const;
+
+	//Returns true, if we get to a new line segment advancing distance
+	//This is useful for orientation calculation
 	bool move_forward(float distance);
 	void append(const path&);
 
