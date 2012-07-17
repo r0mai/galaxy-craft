@@ -1,6 +1,7 @@
 
 
 #include "unit.hpp"
+#include <boost/math/constants/constants.hpp>
 
 namespace gc {
 
@@ -18,15 +19,22 @@ vector2df unit::desired_movement(float distance) {
 
 void unit::advance(float distance) {
 	if ( state == MOVING ) {
-		moving_path.move_forward( distance );
+		bool b = moving_path.move_forward( distance );
+		
 		vector2df currentpos = get_position();
 		vector2df nextpos = moving_path.get_position();
 
-		const float deltaX = nextpos.x - currentpos.x;
-		const float deltaY = nextpos.y - currentpos.y;
+		if( b ){
 
-		set_orientation(std::atan2f(deltaY, deltaX) + M_PI / 2 );
-		set_position( nextpos );
+			const float deltaX = nextpos.x - currentpos.x;
+			const float deltaY = nextpos.y - currentpos.y;
+
+			set_orientation(std::atan2f(deltaY, deltaX) + boost::math::constants::pi<float>() / 2.f);
+			std::cout<<"Angle calculated" << std::endl;
+		}
+
+		set_position( nextpos );	
+		
 
 		if ( moving_path.is_at_end() ) {
 			set_orientation(0.0f);
@@ -38,6 +46,16 @@ void unit::advance(float distance) {
 void unit::move_on(const path& p) {
 	state = MOVING;
 	moving_path = p;
+	// Angle calculation here
+		moving_path.move_forward( 0.0001f );
+		vector2df currentpos = moving_path.get_start();
+		vector2df nextpos = moving_path.get_position();
+		const float deltaX = nextpos.x - currentpos.x;
+		const float deltaY = nextpos.y - currentpos.y;
+
+		set_orientation(std::atan2f(deltaY, deltaX) + boost::math::constants::pi<float>() / 2.f);
+		std::cout<<"Angle calculated" << std::endl;
+
 }
 
 void unit::set_orientation(const float angle){

@@ -56,17 +56,21 @@ void path::set_position(const vector2df& pos) {
 	position.advancment_ratio = 0.f;
 }
 
-void path::move_forward(float distance) {
+bool path::move_forward(float distance) {
 
 	assert(distance >= 0.f);
-
+	bool b = false;
 	if ( is_at_end() ) {
-		return;
+		return b;
 	}
 
 	float current_segment_length = path_points[position.segment].distance_to( path_points[position.segment + 1] );
 
+	b = distance >= current_segment_length;
+
 	distance -= current_segment_length * ( 1.f - position.advancment_ratio );
+
+	
 
 	while ( distance >= 0.f && position.segment < path_points.size() - 1 ) {
 		++position.segment;
@@ -74,13 +78,15 @@ void path::move_forward(float distance) {
 		distance -= current_segment_length;
 	}
 
+
 	if ( position.segment == path_points.size() - 1 ) {
 		//We reached the end
-		return;
+		return b;
 	}
 
 	//distance is negative now
 	position.advancment_ratio = (current_segment_length + distance) / current_segment_length;
+	return b;
 
 
 }
