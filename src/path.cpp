@@ -27,6 +27,7 @@ const vector2df& path::get_start() const {
 }
 
 const vector2df& path::get_end() const {
+
 	assert( !path_points.empty() );
 
 	return path_points.back();
@@ -110,14 +111,19 @@ bool path::move_forward(float distance) {
 }
 
 void path::draw(sf::RenderWindow& window) const {
-	for ( unsigned i = 0; i < path_points.size() - 1; ++i ) {
-		window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 2.f, color ) );
+	if ( !is_at_end() ) {
+		window.Draw( sf::Shape::Line( get_position().to_sfml_vector(), path_points[position.segment+1].to_sfml_vector(), 2.f, color ) );
+
+		for ( unsigned i = position.segment + 1; i < path_points.size() - 1; ++i ) {
+			window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 2.f, color ) );
+		}
 	}
 }
 
 void path::append(const path& p){
 	path_points.pop_back(); // remove last;
 	std::copy(p.path_points.begin(), p.path_points.end(), std::back_inserter(path_points));
+
 }
 
 path::position_t::position_t() : segment(0), advancment_ratio(0.f) {}
