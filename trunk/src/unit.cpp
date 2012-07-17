@@ -25,7 +25,7 @@ void unit::advance(float distance) {
 		const float deltaX = nextpos.x - currentpos.x;
 		const float deltaY = nextpos.y - currentpos.y;
 
-		set_orientation(std::atan2f(deltaY, deltaX));
+		set_orientation(std::atan2f(deltaY, deltaX) + M_PI / 2 );
 		set_position( nextpos );
 
 		if ( moving_path.is_at_end() ) {
@@ -42,10 +42,9 @@ void unit::move_on(const path& p) {
 
 void unit::set_orientation(const float angle){
 	// angle is in radians.
-	const float deltadegrees = (angle - orientation) * 180 / M_PI;
-	sprite.SetCenter(sprite.GetSize() / std::sqrtf(2));  // To rotate around center.
+	const float deltadegrees = (orientation - angle) * 180 / M_PI;
+	
 	sprite.Rotate(deltadegrees);
-	sprite.SetCenter(sprite.GetSize() / std::sqrtf(2));  // To rotate around center.
 	orientation = angle;
 }
 
