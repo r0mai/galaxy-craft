@@ -28,7 +28,7 @@ public:
 
 	void set_position(const vector2df& pos);
 
-	void move_forward(float distance);
+	bool move_forward(float distance);
 
 	virtual void draw(sf::RenderWindow& window) const;
 
