@@ -11,12 +11,12 @@ object::object(const vector2df& c, const float r, const sf::Image& img) : center
 
 	
 	sprite.SetImage(img);
-
+	
 	// At this point, if image loading was successful at least, image could still be of any size/shape.
 	// While this wont result in the tightest collision ring, should be good enough(TM)
 
 	//FIXME this could stay as int for as long as possible, for faster calculation
-	float x = static_cast<float>(img.GetWidth());  // static cast because vs doesn't like implicit
+	float x = static_cast<float>(img.GetWidth());  // static cast because VS doesn't like implicit
 	float y = static_cast<float>(img.GetHeight()); // promotion from float to unsigned..
 
 	/*
@@ -28,10 +28,12 @@ object::object(const vector2df& c, const float r, const sf::Image& img) : center
 	*/
 	const float diameter = 2.f * radius; // diameter of coll. ring.
 	const float d = std::sqrt( x*x + y*y ); // Goal is to ensure d = diameter
-	const float lambda = ( std::sqrt(2.f)*diameter / d ); // WTF IS THAT?
+ 	const float lambda = ( std::sqrt(2.f)*diameter / d ); // WTF IS THAT?
 	
+	sprite.SetCenter(sprite.GetSize() / 2.f);
 	sprite.Scale(lambda, lambda);
-	sprite.SetPosition( (center - vector2df(radius, radius)).to_sfml_vector());
+	
+	sprite.SetPosition( (center ).to_sfml_vector());
 	// Work should be done!
 }
 
@@ -46,7 +48,7 @@ const vector2df& object::get_position() const {
 
 void object::set_position(const vector2df& p) {
 	center = p;
-	sprite.SetPosition( (center - vector2df(radius, radius)).to_sfml_vector());
+	sprite.SetPosition( (center).to_sfml_vector());
 }
 
 void object::move(const vector2df& offset) {
