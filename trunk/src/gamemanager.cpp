@@ -114,8 +114,16 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 		window.Close();
 		break;
 	case sf::Key::Space :
-		units.push_back( unit( vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
-				window.GetInput().GetMouseY(), &mapview )), unit_size, manager.getimage("obj.png") ) );
+		{
+
+			const vector2df destination = vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
+					window.GetInput().GetMouseY(), &mapview ));
+			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
+				if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
+					units.push_back( unit( destination, unit_size, manager.getimage("obj.png") ) );
+				}
+			}
+		}
 		break;
 	case sf::Key::R:
 		std::for_each(units.begin(), units.end(), [](unit& u){u.set_orientation(M_PI/4);} );
