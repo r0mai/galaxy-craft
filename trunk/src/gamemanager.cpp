@@ -1,6 +1,5 @@
 
 #include "gamemanager.hpp"
-#include "vector2d.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -9,28 +8,56 @@
 #include <algorithm>
 #include <SFML/Audio.hpp>
 #include <boost/lexical_cast.hpp>
+
+#include "vector2d.hpp"
 #include "object.hpp"
+#include "configreader.hpp"
+
 
 namespace gc {
 
-const float gamemanager::unit_size = 13.f; //Can be tweaked for bigger units
 
-gamemanager::gamemanager(unsigned width, unsigned height) :
-	window(sf::VideoMode(width, height, 32), "Galaxy Craft"),
-	window_size(width, height),
-	map(gamemap::from_file( "test.map", unit_size * 0.8f )), //(0.8f) : magic number, can be tweaked if path searching is buggy <1 seems to work better
-	mapview(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f)),
-	selection_in_progress(false),
-	is_mouse_in_focus(true),
-	frame_rate_str("unknown")
-{
+gamemanager::gamemanager() {
 	init();
 }
 
 
 
 void gamemanager::init() {
+	configreader config;
 
+	//Add default values
+	config.add_value("screen_width", "800");
+	config.add_value("screen_height", "600");
+	config.add_value("window_title", "Galaxy Craft");
+	config.add_value("map_file", "test.map");
+	config.add_value("unit_size", "15");
+	config.add_value("obstacle_offset_ratio", "0.8");
+	config.add_value("window_mouse_side_rim_ratio", "0.08");
+	config.add_value("view_move_speed", "400");
+
+	//This will overwrite default values
+	config.read_config( "gc.cfg" );
+
+	const unsigned window_width = config.get_value<unsigned>( "screen_width" );
+	const unsigned window_height = config.get_value<unsigned>( "screen_height" );
+	const std::string window_title = config.get_value<std::string>( "window_title" );
+	const std::string map_file = config.get_value<std::string>( "map_file" );
+	unit_size = config.get_value<float>( "unit_size" );
+	const float obstacle_offset_ratio = config.get_value<float>( "obstacle_offset_ratio" );
+	window_mouse_side_rim_ratio = config.get_value<float>( "window_mouse_side_rim_ratio" );
+	view_move_speed = config.get_value<float>( "view_move_speed" );
+
+	window.Create( sf::VideoMode(window_width, window_height, 32), window_title );
+	window_size = vector2di(window_width, window_height);
+
+	map = gamemap::from_file( map_file, unit_size * obstacle_offset_ratio );
+
+	mapview = sf::View(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f));
+
+	selection_in_progress = false;
+	is_mouse_in_focus = true;
+	frame_rate_str = "unknown";
 }
 
 void gamemanager::run() {
@@ -79,9 +106,12 @@ void gamemanager::process_events() {
 		}
 	}
 
-	float Offset = 400.f * window.GetFrameTime();
 
-	const float rim = 0.08f;
+
+	float Offset = view_move_speed * window.GetFrameTime();
+
+	//TODO maybe the rim size should be independent of the direction (up-down, or left-right)
+	const float rim = window_mouse_side_rim_ratio;
 	const float upthreshold = window.GetHeight()   * rim;
 	const float downthreshold = window.GetHeight() * (1-rim);
 	const float leftthreshold = window.GetWidth()  * rim;
@@ -245,7 +275,7 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	
 	const float zoominfactor = 1.05f;
-	const float zoomoutfactor = 0.9523f;
+	const float zoomoutfactor = 1.f/zoominfactor;
 	const float maximumzoom = 10.0f;
 	const sf::FloatRect rect = mapview.GetRect();
 	const float w = rect.GetWidth();
