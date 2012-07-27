@@ -18,7 +18,7 @@ namespace gc {
 
 class gamemanager {
 public:
-	gamemanager(unsigned width, unsigned height);
+	gamemanager();
 
 	void run();
 
@@ -53,8 +53,10 @@ private:
     void advance(const float frame_rate);
     void draw();
 
-    //Used only for initialization, so actual unit_size and gamemap init is in sync
-	static const float unit_size;
+
+	float unit_size;
+	float window_mouse_side_rim_ratio;
+	float view_move_speed;
 
 };
 

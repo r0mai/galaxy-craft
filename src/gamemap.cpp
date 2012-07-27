@@ -80,7 +80,7 @@ const VisiLibity::Environment& gamemap::get_vis_enviroment_offset() const {
 }
 
 void gamemap::init_visilibity(float offset_delta) {
-	init_enviroment(offset_delta); //These has to be called in this order
+	init_enviroment(offset_delta); //These has tocd be called in this order
 	init_visilibity_graph(); //init_visilibity_graph() relies on init_enviroment()
 }
 
@@ -131,7 +131,7 @@ void gamemap::init_enviroment(float offset_delta) {
 	vis_enviroment.enforce_standard_form();
 
 	if ( !vis_enviroment.is_valid( get_epsilon() ) ) {
-		std::cout << "vis_enviroment is not " << get_epsilon() << " valid" << std::endl;
+		std::cout << "vis_enviroment is not " << get_epsilon() << " (=epsilon) valid" << std::endl;
 	}
 
 

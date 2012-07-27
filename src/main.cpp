@@ -11,7 +11,7 @@ int main() {
 	
 	std::srand( std::time(0) );
 
-	gc::gamemanager game(800, 600);
+	gc::gamemanager game;
 
 	game.run();
 	
