@@ -8,6 +8,7 @@
 #include "vector2d.hpp"
 #include "path.hpp"
 #include "object.hpp"
+#include "particleinclude.hpp"
 
 namespace gc {
 
@@ -21,7 +22,9 @@ public:
 
 
 	vector2df desired_movement(float distance);
-	void advance(float distance);
+
+	void advance(float frame_rate);
+	void advance_movement(float distance);
 	void move_on(const path& p);
 	void set_orientation(const float angle);
 	void append_path(const path& p);
@@ -46,6 +49,27 @@ private:
 	sf::Shape selected_circle;
 
 	path moving_path; //used when MOVING
+
+
+
+	typedef combineinitializerpolicy<particle, positioninitializer_exact<particle>, velocityinitializer_rectangle<particle>> engine_particlesystem_init_1_type;
+	typedef combineinitializerpolicy<particle, colorinitializer_exact<particle>, lifeinitializer_rangerandom<particle>> engine_particlesystem_init_2_type;
+
+	typedef combineinitializerpolicy<particle,
+				engine_particlesystem_init_1_type,
+				engine_particlesystem_init_2_type
+			> engine_particlesystem_init_type;
+
+	typedef combineactionpolicy<particle, lifeaction<particle>, moveaction<particle>> engine_particlesystem_action_type;
+
+	typedef particlegroup<particle,
+				engine_particlesystem_init_type,
+				engine_particlesystem_action_type,
+				drawpolicy<particle>
+			> engine_particlesystem_type;
+
+	engine_particlesystem_type engine_particlesystem;
+
 };
 
 } //namespace gc

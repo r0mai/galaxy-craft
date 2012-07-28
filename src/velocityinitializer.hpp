@@ -40,7 +40,7 @@ template<class PT>
 velocityinitializer_exact<PT>::velocityinitializer_exact() : velocity() {}
 
 template<class PT>
-velocityinitializer_exact<PT>::velocityinitializer_exact(const vector2df& position) : velocity(velocity) {}
+velocityinitializer_exact<PT>::velocityinitializer_exact(const vector2df& velocity) : velocity(velocity) {}
 
 template<class PT>
 void velocityinitializer_exact<PT>::operator()(particle_type& p) const {
@@ -53,9 +53,9 @@ velocityinitializer_rectangle<PT>::velocityinitializer_rectangle() :
 
 template<class PT>
 velocityinitializer_rectangle<PT>::velocityinitializer_rectangle(
-		const vector2df& upper_left,
-		const vector2df& lower_right) :
-		upper_left(upper_left), lower_right(lower_right)
+		const vector2df& up_left,
+		const vector2df& low_right) :
+		upper_left(up_left), lower_right(low_right)
 		{
 			//swap the x and y values, if not the correct corners are passed
 			//(they have to be opposite corners obviously)

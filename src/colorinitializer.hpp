@@ -53,7 +53,7 @@ private:
 //Implementation
 
 template<class PT>
-colorinitializer_exact<PT>::colorinitializer_exact() : red(255), blue(255), green(255) {}
+colorinitializer_exact<PT>::colorinitializer_exact() : red(255), green(255), blue(255) {}
 
 template<class PT>
 colorinitializer_exact<PT>::colorinitializer_exact(unsigned char red, unsigned char green, unsigned char blue) :
