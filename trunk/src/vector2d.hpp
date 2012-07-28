@@ -78,8 +78,12 @@ public:
 
 };
 
+
 typedef vector2d<int> vector2di;
 typedef vector2d<float> vector2df;
+
+inline
+vector2d<float> random_vector_in_rectangle(const vector2df& upper_left, const vector2df& lower_right);
 
 //Implementation
 
@@ -226,6 +230,12 @@ template<class T>
 std::ostream& operator<<(std::ostream& os, const vector2d<T>& v) {
 	os << "(" << v.x << "," << v.y << ")";
 	return os;
+}
+
+vector2df random_vector_in_rectangle(const vector2df& upper_left, const vector2df& lower_right) {
+	return vector2df(
+			random_in_range_float( upper_left.x, lower_right.x ),
+			random_in_range_float( upper_left.y, lower_right.y ) );
 }
 
 } //namespace gc
