@@ -108,12 +108,7 @@ void polygon<T>::add_point(const vector2d<T>& p) {
 
 template<class T>
 void polygon<T>::draw(sf::RenderWindow& window) const {
-	if ( points.size() <= 1 ) {
-		return;
-	}
-
 	window.Draw(sfml_polygon);
-
 }
 
 template<class T>
