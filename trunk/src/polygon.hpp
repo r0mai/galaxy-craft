@@ -20,18 +20,22 @@
 
 namespace gc {
 
-//made to work with float (double) in the first place
+//made to work with float (or double) in the first place
 template<class T>
 class polygon : public drawable {
 public:
 	polygon();
+
+	//Call rerender(), before drawing
 	polygon(const std::vector< vector2d<T> >& points);
 
+	//Call rerender(), before drawing
 	polygon(const ClipperLib::Polygon& poly);
 
 	VisiLibity::Polygon to_visilibity_polygon() const;
 	ClipperLib::Polygon to_clipper_polygon() const;
 
+	//Call rerender(), before drawing
 	void add_point(const vector2d<T>& p);
 
 	virtual void draw(sf::RenderWindow& window) const;
@@ -47,8 +51,12 @@ public:
 	
 	void move(const vector2d<T>& direction);
 
+	//this must be called after whenever any function modifying the location of the points is called, for drawing to work properly
+	void rerender();
+
 private:
 	std::vector< vector2d<T> > points;
+	sf::Shape sfml_polygon;
 };
 
 typedef polygon<float> polygonf;
@@ -104,11 +112,8 @@ void polygon<T>::draw(sf::RenderWindow& window) const {
 		return;
 	}
 
-	for ( unsigned i = 0; i < points.size() - 1; ++i ) { // Connect all adjacent points.
-		window.Draw( sf::Shape::Line( points[i].to_sfml_vector(), points[i+1].to_sfml_vector(), 4.f, color ) );
-	}
-	// Connect last to first, to complete the polygon.
-	window.Draw( sf::Shape::Line( points.back().to_sfml_vector(), points.front().to_sfml_vector(), 4.f, color ) );
+	window.Draw(sfml_polygon);
+
 }
 
 template<class T>
@@ -170,6 +175,16 @@ void polygon<T>::move(const vector2d<T>& direction){
 	// Add direction to all points.
 
 	std::for_each( points.begin(), points.end(), [&direction](vector2d<T>& p){ p += direction; } );
+}
+
+template<class T>
+void polygon<T>::rerender() {
+	sfml_polygon = sf::Shape();
+	std::for_each( points.begin(), points.end(), [this](const vector2d<T>& p){
+		sfml_polygon.AddPoint( p.to_sfml_vector(), color );
+	} );
+	sfml_polygon.EnableFill(true);
+	sfml_polygon.EnableOutline(true);
 }
 
 } //namespace gc
