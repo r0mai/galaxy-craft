@@ -43,6 +43,7 @@ private:
 	state_t state;
 
 	bool selected;
+	sf::Shape selected_circle;
 
 	path moving_path; //used when MOVING
 };

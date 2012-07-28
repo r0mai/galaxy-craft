@@ -34,6 +34,7 @@ gamemap gamemap::from_file(const std::string& mapfile, float obstacle_offset) {
 			poly.add_point( vector2df(x, y) );
 		}
 		poly.set_color( sf::Color::Red );
+		poly.rerender();
 
 		if ( poly.get_points().size() >= 3 ) {
 			result.obstacles.push_back( poly );

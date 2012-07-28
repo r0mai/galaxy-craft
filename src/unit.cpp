@@ -9,7 +9,14 @@ unit::unit() :
 		object(vector2df(0.f, 0.f), 10.f, sf::Image()), state(STANDING), selected(false) {}
 
 unit::unit(const vector2df& position, const float radius, const sf::Image& texture) :
-		object(position, radius, texture), state(STANDING), selected(false)  {}
+		object(position, radius, texture),
+		state(STANDING),
+		selected(false),
+		selected_circle(sf::Shape::Circle(sf::Vector2f(), radius, sf::Color(0,0,0,0), 1.f, sf::Color::Green))
+{
+	//This is little bit redundant, but will make maintenance easier
+	set_position( center.to_sfml_vector() );
+}
 
 vector2df unit::desired_movement(float distance) {
 	moving_path.move_forward( distance );
@@ -79,6 +86,9 @@ void unit::set_selected(const bool val) {
 
 void unit::set_position(const vector2df& pos) {
 	object::set_position(pos);
+
+	selected_circle.SetPosition( pos.to_sfml_vector() );
+
 	//If this is called from the outside while the unit is moving on a path,
 	//then path readjusting should be done here
 }
@@ -88,7 +98,10 @@ void unit::draw(sf::RenderWindow& window) const {
 
 
 	if ( selected ) {
-		window.Draw(sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 1.f, sf::Color::Green));
+		sf::Shape circle = sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 1.f, sf::Color::Green);
+
+
+		window.Draw(selected_circle);
 	}
 
 	if ( state == MOVING ) {
