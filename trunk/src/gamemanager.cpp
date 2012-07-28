@@ -58,6 +58,9 @@ void gamemanager::init() {
 	selection_in_progress = false;
 	is_mouse_in_focus = true;
 	frame_rate_str = "unknown";
+
+
+
 }
 
 void gamemanager::run() {
@@ -299,11 +302,11 @@ void gamemanager::advance(const float frame_rate) {
 
 	for ( unsigned i = 0; i < units.size(); ++i ) {
 
-
+		units[i].advance(frame_rate);
 
 		if ( units[i].get_state() == unit::MOVING ) {
 			//Main path to move on :
-			units[i].advance( speed*frame_rate );
+			units[i].advance_movement( speed*frame_rate );
 		} else {
 
 

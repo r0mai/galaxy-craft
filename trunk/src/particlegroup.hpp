@@ -26,6 +26,8 @@ public:
 
 	void draw(sf::RenderWindow& window) const;
 
+	initialize_policy_type& get_initialize_policy();
+
 private:
 	initialize_policy_type initialize_policy;
 	action_policy_type action_policy;
@@ -48,7 +50,12 @@ template<class PT, class IP, class AP, class DP>
 void particlegroup<PT, IP, AP, DP>::emit(const unsigned amount) {
 	particles.reserve( particles.size() + amount );
 	for ( unsigned i = 0; i < amount; ++i ) {
-		particles.push_back( initialize_policy() );
+
+		particle_type p;
+
+		initialize_policy(p);
+
+		particles.push_back( p );
 	}
 }
 
@@ -70,6 +77,11 @@ void particlegroup<PT, IP, AP, DP>::draw(sf::RenderWindow& window) const {
 	for ( unsigned i = 0; i < particles.size(); ++i ) {
 		draw_policy(particles[i], window);
 	}
+}
+
+template<class PT, class IP, class AP, class DP>
+typename particlegroup<PT, IP, AP, DP>::initialize_policy_type& particlegroup<PT, IP, AP, DP>::get_initialize_policy() {
+	return initialize_policy;
 }
 
 } //namespace gc

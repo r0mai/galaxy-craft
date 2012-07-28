@@ -11,6 +11,7 @@
 #include "gamemap.hpp"
 #include "polygon.hpp"
 #include "resourcemanager.hpp"
+#include "particleinclude.hpp"
 
 
 
@@ -39,6 +40,7 @@ private:
 	bool is_mouse_in_focus;
 
 	std::string frame_rate_str;
+
 
 	void init();
 

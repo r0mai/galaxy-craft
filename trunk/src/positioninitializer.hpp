@@ -20,6 +20,8 @@ public:
 	positioninitializer_exact(const vector2df& position);
 
 	void operator()(particle_type& p) const;
+
+	void set_position(const vector2df& new_pos);
 private:
 	vector2df position;
 };
@@ -52,14 +54,19 @@ void positioninitializer_exact<PT>::operator()(particle_type& p) const {
 }
 
 template<class PT>
+void positioninitializer_exact<PT>::set_position(const vector2df& new_pos) {
+	position = new_pos;
+}
+
+template<class PT>
 positioninitializer_rectangle<PT>::positioninitializer_rectangle() :
 		upper_left(0.f, 0.f), lower_right(100.f, 100.f) {}
 
 template<class PT>
 positioninitializer_rectangle<PT>::positioninitializer_rectangle(
-		const vector2df& upper_left,
-		const vector2df& lower_right) :
-		upper_left(upper_left), lower_right(lower_right)
+		const vector2df& up_left,
+		const vector2df& low_right) :
+		upper_left(up_left), lower_right(low_right)
 		{
 			//swap the x and y values, if not the correct corners are passed
 			//(they have to be opposite corners obviously)
