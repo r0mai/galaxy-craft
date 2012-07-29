@@ -15,6 +15,7 @@ struct particle {
 
 	sf::Color color;
 
+	float full_life; //doesn't change, some actions uses it
 	float life_left;
 };
 

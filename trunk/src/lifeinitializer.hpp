@@ -44,6 +44,7 @@ lifeinitializer_exact<PT>::lifeinitializer_exact(const float life) : life(life) 
 template<class PT>
 void lifeinitializer_exact<PT>::operator()(particle_type& p) const {
 	p.life_left = life;
+	p.full_life = life;
 }
 
 template<class PT>
@@ -54,7 +55,9 @@ lifeinitializer_rangerandom<PT>::lifeinitializer_rangerandom(const float min, co
 
 template<class PT>
 void lifeinitializer_rangerandom<PT>::operator()(particle_type& p) const {
-	p.life_left = random_in_range_float( min_life, max_life );
+	const float life = random_in_range_float( min_life, max_life );
+	p.life_left = life;
+	p.full_life = life;
 }
 
 } //namespace gc

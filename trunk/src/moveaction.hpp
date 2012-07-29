@@ -19,8 +19,6 @@ public:
 template<class PT>
 bool moveaction<PT>::operator()(particle_type& p, const float frame_rate) const {
 
-	//std::cout << "pos : " << p.position << " vel : " << p.velocity << std::endl;
-
 	p.position += p.velocity * frame_rate;
 	return true;
 }
