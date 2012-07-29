@@ -20,6 +20,7 @@ public:
 private:
 	//vector2df dimension;
 
+	//Eww
 	mutable sf::Shape cached_rectangle;
 };
 

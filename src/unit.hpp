@@ -60,7 +60,13 @@ private:
 				engine_particlesystem_init_2_type
 			> engine_particlesystem_init_type;
 
-	typedef combineactionpolicy<particle, lifeaction<particle>, moveaction<particle>> engine_particlesystem_action_type;
+	typedef combineactionpolicy<particle,
+				combineactionpolicy<particle,
+					coloraction<particle>,
+					lifeaction<particle>
+				>,
+				moveaction<particle>
+			> engine_particlesystem_action_type;
 
 	typedef particlegroup<particle,
 				engine_particlesystem_init_type,
@@ -68,7 +74,8 @@ private:
 				drawpolicy<particle>
 			> engine_particlesystem_type;
 
-	engine_particlesystem_type engine_particlesystem;
+	engine_particlesystem_type engine_particlesystem_fire;
+	engine_particlesystem_type engine_particlesystem_smoke;
 
 };
 
