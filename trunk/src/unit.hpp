@@ -22,6 +22,7 @@ public:
 
 
 	vector2df desired_movement(float distance);
+//	unsigned id;
 
 	void advance(float frame_rate);
 	void advance_movement(float distance);

@@ -12,7 +12,7 @@
 #include "polygon.hpp"
 #include "resourcemanager.hpp"
 #include "particleinclude.hpp"
-
+#include "logger.hpp"
 
 
 namespace gc {
@@ -26,7 +26,7 @@ public:
 private:
 	sf::RenderWindow window;
 	vector2di window_size;
-
+	logger log;
 	resourcemanager manager;
 
 	gamemap map;
