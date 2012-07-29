@@ -15,7 +15,6 @@
 #include "positioninitializer.hpp"
 #include "velocityinitializer.hpp"
 #include "coloraction.hpp"
-#include "engineinitializer.hpp"
 
 
 #endif /* PARTICLEINCLUDE_HPP_ */
