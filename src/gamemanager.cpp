@@ -19,6 +19,7 @@ namespace gc {
 
 gamemanager::gamemanager() {
 	init();
+	log = logger(logger::all);
 }
 
 
@@ -35,6 +36,7 @@ void gamemanager::init() {
 	config.add_value("obstacle_offset_ratio", "0.8");
 	config.add_value("window_mouse_side_rim_ratio", "0.08");
 	config.add_value("view_move_speed", "400");
+	config.add_value("debug_level", "0");
 
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
@@ -47,6 +49,7 @@ void gamemanager::init() {
 	const float obstacle_offset_ratio = config.get_value<float>( "obstacle_offset_ratio" );
 	window_mouse_side_rim_ratio = config.get_value<float>( "window_mouse_side_rim_ratio" );
 	view_move_speed = config.get_value<float>( "view_move_speed" );
+	
 
 	window.Create( sf::VideoMode(window_width, window_height, 32), window_title );
 	window_size = vector2di(window_width, window_height);
@@ -286,6 +289,7 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 
 	if ( event.MouseWheel.Delta > 0){
 		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) ) {
+			log << logger::all << "Zoom in\n";
 			mapview.Zoom(zoominfactor); // Zoom in
 		}
 	} else {
@@ -386,7 +390,7 @@ void gamemanager::draw() {
 
 	//Draw GUI after this
 	window.SetView(window.GetDefaultView());
-
+	
 	sf::String sfframestr(frame_rate_str);
 	sfframestr.SetPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 	window.Draw( sfframestr );
