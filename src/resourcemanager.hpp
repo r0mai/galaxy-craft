@@ -13,9 +13,9 @@ class resourcemanager {
 public:
 	resourcemanager();
 
-	const sf::Image& getimage(const std::string& s);
+	const sf::Texture& get_texture(const std::string& s);
 private:
-	std::map<std::string, sf::Image> image_storage;
+	std::map<std::string, sf::Texture> texture_storage;
 
 };
 	

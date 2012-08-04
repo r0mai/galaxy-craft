@@ -6,23 +6,27 @@
 namespace gc {
 
 resourcemanager::resourcemanager(){
-	image_storage["invalid"] = sf::Image( 50, 50, sf::Color(255, 20, 247) ); // invalid member added.
+
+	sf::Image invalid_image;
+	invalid_image.create( 50, 50, sf::Color(255, 20, 247) );
+
+	texture_storage["invalid"].loadFromImage( invalid_image ); // invalid member added.
 }
 
-const sf::Image& resourcemanager::getimage(const std::string& s){
+const sf::Texture& resourcemanager::get_texture(const std::string& s){
 	// First, attempt to retrieve image!
-	auto it = image_storage.find(s);
-	if( it != image_storage.end() ){ // found!
+	auto it = texture_storage.find(s);
+	if( it != texture_storage.end() ){ // found!
 		return it->second;
 	}
 	else{ // not found, attempt to open!
-		sf::Image img;
-		if(img.LoadFromFile(s)){ // can open!
-			return image_storage.insert(std::pair<std::string, sf::Image>(s, img)).first->second;
+		sf::Texture img;
+		if(img.loadFromFile(s)){ // can open!
+			return texture_storage.insert(std::make_pair(s, img)).first->second;
 		}
 		else{
-			std::cout<<"Image manager failed to fetch file "<<s<<std::endl;
-			return image_storage.find("invalid")->second;
+			std::cout << "Image manager failed to fetch file " << s << std::endl;
+			return texture_storage.find("invalid")->second;
 		}
 	}
 }

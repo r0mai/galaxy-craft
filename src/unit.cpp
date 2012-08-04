@@ -6,13 +6,14 @@
 namespace gc {
 
 unit::unit() :
-		object(vector2df(0.f, 0.f), 10.f, sf::Image()), state(STANDING), selected(false) {}
+		object(vector2df(0.f, 0.f), 10.f, sf::Texture()), state(STANDING), selected(false) {}
 
-unit::unit(const vector2df& position, const float radius, const sf::Image& texture) :
+unit::unit(const vector2df& position, const float radius, const sf::Texture& texture) :
 		object(position, radius, texture),
 		state(STANDING),
 		selected(false),
-		selected_circle(sf::Shape::Circle(sf::Vector2f(), radius, sf::Color(0,0,0,0), 1.f, sf::Color::Green)),
+		selected_circle(radius),
+		path_calculating(false),
 		engine_particlesystem_fire(
 			engine_particlesystem_init_type(
 				engine_particlesystem_init_1_type(
@@ -21,7 +22,7 @@ unit::unit(const vector2df& position, const float radius, const sf::Image& textu
 				),
 				engine_particlesystem_init_2_type(
 					colorinitializer_exact<particle>(255, 165, 0),
-					lifeinitializer_rangerandom<particle>(0.3f, 1.f)
+					lifeinitializer_rangerandom<particle>(.3f, 1.f)
 				)
 			),
 			engine_particlesystem_action_type(
@@ -64,6 +65,18 @@ vector2df unit::desired_movement(float distance) {
 }
 
 void unit::advance(float frame_rate) {
+
+	//TODO handle has_exception()
+	if ( path_calculating ) {
+		if ( path_future.is_ready() ) {
+			std::cout << path_calculating << std::endl;
+			path_calculating = false;
+			move_on( path_future.get() );
+		} else {
+			++path_calculating;
+		}
+	}
+
 	engine_particlesystem_fire.advance(frame_rate);
 	engine_particlesystem_smoke.advance(frame_rate);
 	engine_particlesystem_fire.emit( 1 );
@@ -86,6 +99,11 @@ void unit::advance_movement(float distance) {
 	}
 }
 
+void unit::move_on_future(const boost::shared_future<path>& pf) {
+	path_calculating = 1;
+	path_future = pf;
+}
+
 void unit::move_on(const path& p) {
 	state = MOVING;
 	moving_path = p;
@@ -105,7 +123,7 @@ void unit::set_orientation(const float angle){
 
 	const float deltadegrees = (orientation - angle) * 180 / M_PI;
 
-	sprite.Rotate(deltadegrees);
+	sprite.rotate(deltadegrees);
 
 	orientation = angle;
 }
@@ -133,7 +151,7 @@ void unit::set_selected(const bool val) {
 void unit::set_position(const vector2df& pos) {
 	object::set_position(pos);
 
-	selected_circle.SetPosition( pos.to_sfml_vector() );
+	selected_circle.setPosition( pos.to_sfml_vector() );
 	engine_particlesystem_smoke.get_initialize_policy().set_position( pos );
 	engine_particlesystem_fire.get_initialize_policy().set_position( pos );
 
@@ -142,14 +160,12 @@ void unit::set_position(const vector2df& pos) {
 }
 
 void unit::draw(sf::RenderWindow& window) const {
-	engine_particlesystem_smoke.draw(window);
-	engine_particlesystem_fire.draw(window);
+	//engine_particlesystem_smoke.draw(window);
+	//engine_particlesystem_fire.draw(window);
 	object::draw(window);
 
 	if ( selected ) {
-		sf::Shape circle = sf::Shape::Circle(center.to_sfml_vector(), radius, sf::Color(0,0,0,0), 1.f, sf::Color::Green);
-
-		window.Draw(selected_circle);
+		window.draw(selected_circle);
 	}
 
 	if ( state == MOVING ) {

@@ -10,8 +10,6 @@
 
 namespace gc {
 
-
-
 gamemap gamemap::from_file(const std::string& mapfile, float obstacle_offset) {
 
 	gamemap result;
@@ -52,7 +50,11 @@ path gamemap::search_path(const vector2df& start, const vector2df& end) const {
 }
 
 void gamemap::draw(sf::RenderWindow& window) const {
-	window.Draw( sf::Shape::Rectangle( sf::Vector2f(0.f,0.f), dimension.to_sfml_vector(), sf::Color(20, 20, 20) ) );
+
+	sf::RectangleShape background( dimension.to_sfml_vector() );
+	background.setFillColor( sf::Color(20, 20, 20) );
+
+	window.draw( background );
 
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
 		obstacles[i].draw(window);

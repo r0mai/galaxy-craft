@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+
 #include <SFML/Graphics.hpp>
 
 #include "path.hpp"
@@ -44,7 +45,7 @@ private:
 
 	void init();
 
-	void process_events();
+	void process_events(const float frame_rate);
 	void process_keypressed_event(const sf::Event& event);
 	void process_mousemoved_event(const sf::Event& event);
 	void process_mousebuttonpressed_event(const sf::Event& event);

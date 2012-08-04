@@ -56,7 +56,7 @@ public:
 
 private:
 	std::vector< vector2d<T> > points;
-	sf::Shape sfml_polygon;
+	sf::ConvexShape sfml_polygon;
 };
 
 typedef polygon<float> polygonf;
@@ -108,7 +108,7 @@ void polygon<T>::add_point(const vector2d<T>& p) {
 
 template<class T>
 void polygon<T>::draw(sf::RenderWindow& window) const {
-	window.Draw(sfml_polygon);
+	window.draw(sfml_polygon);
 }
 
 template<class T>
@@ -174,12 +174,11 @@ void polygon<T>::move(const vector2d<T>& direction){
 
 template<class T>
 void polygon<T>::rerender() {
-	sfml_polygon = sf::Shape();
-	std::for_each( points.begin(), points.end(), [this](const vector2d<T>& p){
-		sfml_polygon.AddPoint( p.to_sfml_vector(), color );
-	} );
-	sfml_polygon.EnableFill(true);
-	sfml_polygon.EnableOutline(true);
+	sfml_polygon = sf::ConvexShape( points.size() );
+	for ( unsigned i = 0; i < points.size(); ++i ) {
+		sfml_polygon.setPoint( i, points[i].to_sfml_vector() );
+	}
+
 }
 
 } //namespace gc
