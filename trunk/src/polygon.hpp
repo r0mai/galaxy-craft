@@ -178,7 +178,7 @@ void polygon<T>::rerender() {
 	for ( unsigned i = 0; i < points.size(); ++i ) {
 		sfml_polygon.setPoint( i, points[i].to_sfml_vector() );
 	}
-
+	sfml_polygon.setFillColor( color );
 }
 
 } //namespace gc

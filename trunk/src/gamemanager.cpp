@@ -321,11 +321,11 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	const float zoominfactor = 1.05f;
 	const float zoomoutfactor = 1.f/zoominfactor;
 	const float maximumzoom = 10.0f;
-	const sf::FloatRect rect = mapview.getViewport(); //FIXME was getRect() might be worng
-	const float w = rect.width;
-	const float h = rect.height;
+	const sf::Vector2f rect = mapview.getSize();
+	const float w = rect.x;
+	const float h = rect.y;
 
-	if ( event.mouseWheel.delta > 0){
+	if ( event.mouseWheel.delta < 0){
 		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) ) {
 			log << logger::all << "Zoom in\n";
 			mapview.zoom(zoominfactor); // Zoom in
@@ -431,6 +431,9 @@ void gamemanager::draw() {
 
 	//Draw GUI after this
 	window.setView(window.getDefaultView());
+
+
+
 /*
 	sf::Text sfframestr(frame_rate_str);
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );

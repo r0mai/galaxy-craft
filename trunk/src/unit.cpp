@@ -53,6 +53,10 @@ unit::unit(const vector2df& position, const float radius, const sf::Texture& tex
 			drawpolicy<particle>(sf::Vector2f(2.f, 2.f))
 		)
 {
+	selected_circle.setOrigin( sf::Vector2f(radius, radius) );
+	selected_circle.setFillColor( sf::Color::Transparent );
+	selected_circle.setOutlineColor( sf::Color::Green );
+	selected_circle.setOutlineThickness( 1.5f );
 
 	//This is little bit redundant, but will make maintenance easier
 	set_position( center.to_sfml_vector() );
@@ -121,7 +125,7 @@ void unit::set_orientation(const float angle){
 	// angle is in radians.
 
 
-	const float deltadegrees = (orientation - angle) * 180 / M_PI;
+	const float deltadegrees = (angle - orientation) * 180 / M_PI;
 
 	sprite.rotate(deltadegrees);
 
@@ -160,8 +164,8 @@ void unit::set_position(const vector2df& pos) {
 }
 
 void unit::draw(sf::RenderWindow& window) const {
-	//engine_particlesystem_smoke.draw(window);
-	//engine_particlesystem_fire.draw(window);
+	engine_particlesystem_smoke.draw(window);
+	engine_particlesystem_fire.draw(window);
 	object::draw(window);
 
 	if ( selected ) {
