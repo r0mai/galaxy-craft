@@ -16,6 +16,9 @@
 #include "object.hpp"
 #include "configreader.hpp"
 
+#include <boost/version.hpp>
+
+
 
 namespace gc {
 
@@ -224,35 +227,33 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 
 
-				std::for_each(units.begin(), units.end(),
-					[this, &destination](unit& u) {
-						if(u.is_selected()) {
+				for(unsigned i=0; i<units.size(); ++i) { // editied from r82, due to nested lambda capture issues (N2927)
+						if(units[i].is_selected()) {
 							//Workaround : if the start and end locations are too close together,
 							//search_path returns a path with length=1, and this causes assertion faliures in path
-							if(u.get_state() == unit::MOVING) {
+							if(units[i].get_state() == unit::MOVING) {
 
-								if ( u.get_destination().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
-									u.append_path(map.search_path(u.get_destination(), destination));
+								if ( units[i].get_destination().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+									units[i].append_path(map.search_path(units[i].get_destination(), destination));
 								}
 							} else {
-								if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+								if ( units[i].get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
 
-									boost::packaged_task<path> path_task([&map, destination, u]() {
-										return map.search_path( u.get_position(), destination );
+									gc::vector2df location = units[i].get_position();
+									boost::packaged_task<path> path_task([this, destination, location]() {
+										return map.search_path( location, destination );
 									});
 
 									boost::shared_future<path> path_future = path_task.get_future();
 
-									boost::thread path_search_thread(boost::move(path_task));
+									boost::thread path_search_thread(std::move(path_task));
 
-									u.move_on_future( path_future );
+									units[i].move_on_future( path_future );
 								}
 							}
 
 						}
 					}
-				);
-
 			}
 		} else { // Regular click
 
@@ -260,27 +261,26 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 
-				std::for_each( units.begin(), units.end(),
-					[this, &event, &destination](unit& u) {
-						if ( u.is_selected() ) {
+				for(unsigned i=0; i<units.size(); ++i) { // See line 227 (N2927)
+						if ( units[i].is_selected() ) {
 							//Workaround : if the start and end locations are too close together,
 							//search_path returns a path with length=1, and this causes assertion faliures in path
 
-							if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
+							if ( units[i].get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
 
-								boost::packaged_task<path> path_task([&map, destination, u]() {
-									return map.search_path( u.get_position(), destination );
+								gc::vector2df location = units[i].get_position();
+								boost::packaged_task<path> path_task([this, destination, location]() {
+									return map.search_path(location, destination );
 								});
 
 								boost::shared_future<path> path_future = path_task.get_future();
 
-								boost::thread path_search_thread(boost::move(path_task));
+								boost::thread path_search_thread(std::move(path_task));
 
-								u.move_on_future( path_future );
+								units[i].move_on_future( path_future );
 							}
 						}
 					}
-				);
 			}
 
 		}
