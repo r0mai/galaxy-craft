@@ -112,12 +112,18 @@ bool path::move_forward(float distance) {
 
 void path::draw(sf::RenderWindow& window) const {
 	if ( !is_at_end() ) {
-		window.Draw( sf::Shape::Line( get_position().to_sfml_vector(), path_points[position.segment+1].to_sfml_vector(), 2.f, color ) );
+		sf::VertexArray line(sf::LinesStrip, path_points.size() - position.segment);
 
-		for ( unsigned i = position.segment + 1; i < path_points.size() - 1; ++i ) {
-			window.Draw( sf::Shape::Line( path_points[i].to_sfml_vector(), path_points[i+1].to_sfml_vector(), 2.f, color ) );
+		line[0] = sf::Vertex( get_position().to_sfml_vector(), color );
+		line[1] = sf::Vertex( path_points[position.segment+1].to_sfml_vector(), color );
+
+		for ( unsigned i = position.segment + 1, j = 2; i < path_points.size() - 1; ++i, ++j ) {
+			assert( j < path_points.size() - position.segment ); //just to make sure, I calculated correctly :D
+			line[j] = sf::Vertex( path_points[i+1].to_sfml_vector(), color );
 		}
+		window.draw( line );
 	}
+
 }
 
 void path::append(const path& p){

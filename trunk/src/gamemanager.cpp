@@ -6,8 +6,11 @@
 #include <sstream>
 #include <ctime>
 #include <algorithm>
+
 #include <SFML/Audio.hpp>
+
 #include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 
 #include "vector2d.hpp"
 #include "object.hpp"
@@ -51,7 +54,7 @@ void gamemanager::init() {
 	view_move_speed = config.get_value<float>( "view_move_speed" );
 	
 
-	window.Create( sf::VideoMode(window_width, window_height, 32), window_title );
+	window.create( sf::VideoMode(window_width, window_height, 32), window_title );
 	window_size = vector2di(window_width, window_height);
 
 	map = gamemap::from_file( map_file, unit_size * obstacle_offset_ratio );
@@ -68,23 +71,38 @@ void gamemanager::init() {
 
 void gamemanager::run() {
 
-	while(window.IsOpened()) {
-		const float frame_rate = window.GetFrameTime();
+	sf::Clock frame_clock;
+
+	while(window.isOpen()) {
+		const float frame_rate = frame_clock.restart().asSeconds();
 		frame_rate_str = boost::lexical_cast<std::string>( static_cast<int>(1.f/frame_rate) );
 
-        process_events();
+		std::clock_t start = std::clock();
+
+        process_events(frame_rate);
+        std::clock_t process_events_time = std::clock() - start;
+        start = std::clock();
+
         advance(frame_rate);
+        std::clock_t advance_time = std::clock() - start;
+        start = std::clock();
+
         draw();
+        std::clock_t draw_time = std::clock() - start;
+
+        //std::cout << "process_events : " << process_events_time << "\n";
+        //std::cout << "advance_time : " << advance_time << "\n";
+        //std::cout << "draw_time : " << draw_time << "\n\n";
 	}
 
 }
 
-void gamemanager::process_events() {
+void gamemanager::process_events(const float frame_rate) {
 	sf::Event event;
-	while( window.GetEvent( event ) ) {
-		switch ( event.Type ) {
+	while( window.pollEvent( event ) ) {
+		switch ( event.type ) {
 		case sf::Event::Closed :
-			window.Close();
+			window.close();
 			break;
 		case sf::Event::KeyPressed :
 			process_keypressed_event(event);
@@ -114,30 +132,32 @@ void gamemanager::process_events() {
 
 
 
-	float Offset = view_move_speed * window.GetFrameTime();
+	float Offset = view_move_speed * frame_rate;
 
 	//TODO maybe the rim size should be independent of the direction (up-down, or left-right)
 	const float rim = window_mouse_side_rim_ratio;
-	const float upthreshold = window.GetHeight()   * rim;
-	const float downthreshold = window.GetHeight() * (1-rim);
-	const float leftthreshold = window.GetWidth()  * rim;
-	const float rightthreshold = window.GetWidth() * (1-rim);
+	const float upthreshold = window.getSize().y   * rim;
+	const float downthreshold = window.getSize().y * (1-rim);
+	const float leftthreshold = window.getSize().x  * rim;
+	const float rightthreshold = window.getSize().x * (1-rim);
 
 	
     // Move the view using arrow keys or by mouse position
 	// TODO: add check for out of rangness, and is window in focus
 
-	if ( window.GetInput().IsKeyDown(sf::Key::Up)    || (window.GetInput().GetMouseY() < upthreshold    && is_mouse_in_focus  ) ) {
-		mapview.Move( 0, -Offset);
+	const sf::Vector2i mouse_position = sf::Mouse::getPosition(window);
+
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Up )   || (mouse_position.y < upthreshold    && is_mouse_in_focus  ) ) {
+		mapview.move( 0, -Offset);
 	}
-    if ( window.GetInput().IsKeyDown(sf::Key::Down)  || (window.GetInput().GetMouseY() > downthreshold  && is_mouse_in_focus  ) ) {
-		mapview.Move( 0, Offset);
+    if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Down )  || (mouse_position.y > downthreshold  && is_mouse_in_focus  ) ) {
+		mapview.move( 0, Offset);
     }
-	if ( window.GetInput().IsKeyDown(sf::Key::Left)  || (window.GetInput().GetMouseX() < leftthreshold  && is_mouse_in_focus  ) ) {
-		mapview.Move(-Offset, 0);
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Left )  || (mouse_position.x < leftthreshold  && is_mouse_in_focus  ) ) {
+		mapview.move(-Offset, 0);
 	}
-	if ( window.GetInput().IsKeyDown(sf::Key::Right) || (window.GetInput().GetMouseX() > rightthreshold && is_mouse_in_focus  ) ) {
-		mapview.Move( Offset, 0);
+	if ( sf::Keyboard::isKeyPressed( sf::Keyboard::Right ) || (mouse_position.x > rightthreshold && is_mouse_in_focus  ) ) {
+		mapview.move( Offset, 0);
 	}
 
 	
@@ -145,27 +165,26 @@ void gamemanager::process_events() {
 }
 
 void gamemanager::process_keypressed_event(const sf::Event& event) {
-	switch ( event.Key.Code ) {
-	case sf::Key::Escape :
-		window.Close();
+	switch ( event.key.code ) {
+	case sf::Keyboard::Escape :
+		window.close();
 		break;
-	case sf::Key::Space :
+	case sf::Keyboard::Space :
 		{
 
-			const vector2df destination = vector2df(window.ConvertCoords( window.GetInput().GetMouseX(),
-					window.GetInput().GetMouseY(), &mapview ));
+			const vector2df destination = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 				if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
-					units.push_back( unit( destination, unit_size, manager.getimage("obj.png") ) );
+					units.push_back( unit( destination, unit_size, manager.get_texture("obj.png") ) );
 				}
 			}
 		}
 		break;
-	case sf::Key::R:
+	case sf::Keyboard::R:
 		std::for_each(units.begin(), units.end(), [](unit& u){u.set_orientation(M_PI/4);} );
 		break;
-	case sf::Key::A:
-		if ( window.GetInput().IsKeyDown(sf::Key::LControl) ) {// CTRL A
+	case sf::Keyboard::A:
+		if ( event.key.control ) {// CTRL A
 			std::for_each(units.begin(), units.end(),
 				[](unit& u) {
 					u.set_selected(true);
@@ -193,13 +212,14 @@ void gamemanager::process_mousemoved_event(const sf::Event& event) {
 }
 
 void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
-	switch ( event.MouseButton.Button ) {
+	switch ( event.mouseButton.button ) {
 
 	case sf::Mouse::Right :
 	{
-		if ( window.GetInput().IsKeyDown(sf::Key::LShift)) { // Shift click
 
-			const vector2df destination = window.ConvertCoords(window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview);
+		if ( sf::Keyboard::isKeyPressed(sf::Keyboard::LShift)) { // Shift click
+
+			const vector2df destination = window.convertCoords(sf::Mouse::getPosition(window), mapview);
 
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 
@@ -216,7 +236,16 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 								}
 							} else {
 								if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
-									u.move_on( map.search_path( u.get_position(), destination ) );
+
+									boost::packaged_task<path> path_task([&map, destination, u]() {
+										return map.search_path( u.get_position(), destination );
+									});
+
+									boost::shared_future<path> path_future = path_task.get_future();
+
+									boost::thread path_search_thread(boost::move(path_task));
+
+									u.move_on_future( path_future );
 								}
 							}
 
@@ -227,7 +256,7 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 			}
 		} else { // Regular click
 
-			const vector2df destination = window.ConvertCoords(window.GetInput().GetMouseX(), window.GetInput().GetMouseY(), &mapview);
+			const vector2df destination = window.convertCoords(sf::Mouse::getPosition(window), mapview);
 
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 
@@ -238,7 +267,16 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 							//search_path returns a path with length=1, and this causes assertion faliures in path
 
 							if ( u.get_position().distance_to_squared(destination) > get_epsilon()*get_epsilon() ) {
-								u.move_on( map.search_path( u.get_position(), destination ) );
+
+								boost::packaged_task<path> path_task([&map, destination, u]() {
+									return map.search_path( u.get_position(), destination );
+								});
+
+								boost::shared_future<path> path_future = path_task.get_future();
+
+								boost::thread path_search_thread(boost::move(path_task));
+
+								u.move_on_future( path_future );
 							}
 						}
 					}
@@ -251,7 +289,7 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 
 	case sf::Mouse::Left :
 		selection_in_progress = true;
-		selection_start = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
+		selection_start = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 		break;
 	default:
 		break;
@@ -259,11 +297,11 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 }
 
 void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
-	switch ( event.MouseButton.Button ) {
+	switch ( event.mouseButton.button ) {
 	case sf::Mouse::Left :
 	{
 		selection_in_progress = false;
-		const vector2df selection_end = vector2df(window.ConvertCoords( event.MouseButton.X, event.MouseButton.Y, &mapview ));
+		const vector2df selection_end = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 		std::for_each( units.begin(), units.end(),
 			[this, &selection_end](unit& u) {
 
@@ -283,18 +321,18 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	const float zoominfactor = 1.05f;
 	const float zoomoutfactor = 1.f/zoominfactor;
 	const float maximumzoom = 10.0f;
-	const sf::FloatRect rect = mapview.GetRect();
-	const float w = rect.GetWidth();
-	const float h = rect.GetHeight(); 
+	const sf::FloatRect rect = mapview.getViewport(); //FIXME was getRect() might be worng
+	const float w = rect.width;
+	const float h = rect.height;
 
-	if ( event.MouseWheel.Delta > 0){
+	if ( event.mouseWheel.delta > 0){
 		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) ) {
 			log << logger::all << "Zoom in\n";
-			mapview.Zoom(zoominfactor); // Zoom in
+			mapview.zoom(zoominfactor); // Zoom in
 		}
 	} else {
 		if ( w < map.get_dimension().x || h < map.get_dimension().y) {  // Do not allow infinite zoom out
-			mapview.Zoom(zoomoutfactor); // Zoom out
+			mapview.zoom(zoomoutfactor); // Zoom out
 		}
 	}
 
@@ -368,10 +406,10 @@ void gamemanager::advance(const float frame_rate) {
 }
 
 void gamemanager::draw() {
-	window.Clear();
+	window.clear();
 
 	//Draw map related after this
-	window.SetView(mapview);
+	window.setView(mapview);
 
 	map.draw(window);
 	
@@ -382,20 +420,23 @@ void gamemanager::draw() {
 	);
 
 	if ( selection_in_progress ) {
-		window.Draw( sf::Shape::Rectangle( selection_start.to_sfml_vector(),
-				vector2df( window.ConvertCoords( window.GetInput().GetMouseX(),
-						window.GetInput().GetMouseY(), &mapview ) ).to_sfml_vector(),
-				sf::Color(200,0,0,100) ) );
+
+		sf::RectangleShape selection_rectangle( window.convertCoords( sf::Mouse::getPosition(window), mapview ) - selection_start.to_sfml_vector() );
+
+		selection_rectangle.setPosition (selection_start.to_sfml_vector() );
+		selection_rectangle.setFillColor( sf::Color(200,0,0,100) );
+
+		window.draw(selection_rectangle);;
 	}
 
 	//Draw GUI after this
-	window.SetView(window.GetDefaultView());
-	
-	sf::String sfframestr(frame_rate_str);
-	sfframestr.SetPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
-	window.Draw( sfframestr );
-
-	window.Display();
+	window.setView(window.getDefaultView());
+/*
+	sf::Text sfframestr(frame_rate_str);
+	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
+	window.draw( sfframestr );
+*/
+	window.display();
 }
 
 

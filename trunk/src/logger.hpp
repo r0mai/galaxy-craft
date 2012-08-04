@@ -16,7 +16,7 @@ public:
 		return *this;
 	}
 
-	template<> 
+
 	logger& operator<<(logger::levels level){
 		messagelevel = level;
 		return *this;

@@ -5,6 +5,8 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <boost/thread.hpp>
+
 #include "vector2d.hpp"
 #include "path.hpp"
 #include "object.hpp"
@@ -18,7 +20,7 @@ public:
 	enum state_t { STANDING = 0, MOVING };
 
 	unit();
-	unit(const vector2df& position, const float radius, const sf::Image& texture);
+	unit(const vector2df& position, const float radius, const sf::Texture& texture);
 
 
 	vector2df desired_movement(float distance);
@@ -26,6 +28,9 @@ public:
 
 	void advance(float frame_rate);
 	void advance_movement(float distance);
+
+	void move_on_future(const boost::shared_future<path>& path_future);
+
 	void move_on(const path& p);
 	void set_orientation(const float angle);
 	void append_path(const path& p);
@@ -47,11 +52,13 @@ private:
 	state_t state;
 
 	bool selected;
-	sf::Shape selected_circle;
+	sf::CircleShape selected_circle;
 
 	path moving_path; //used when MOVING
 
 
+	int path_calculating;
+	boost::shared_future<path> path_future;
 
 	typedef combineinitializerpolicy<particle, positioninitializer_exact<particle>, velocityinitializer_rectangle<particle>> engine_particlesystem_init_1_type;
 	typedef combineinitializerpolicy<particle, colorinitializer_exact<particle>, lifeinitializer_rangerandom<particle>> engine_particlesystem_init_2_type;

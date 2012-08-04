@@ -13,7 +13,7 @@ namespace gc {
 class object : public drawable { // I want to be able to draw it, duh.
 public:
 	object();
-	object(const vector2df& c, const float r, const sf::Image& img);
+	object(const vector2df& c, const float r, const sf::Texture& img);
 
 	//These two are the same.
 
