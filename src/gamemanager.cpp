@@ -94,9 +94,9 @@ void gamemanager::run() {
         draw();
         std::clock_t draw_time = std::clock() - start;
 
-        //std::cout << "process_events : " << process_events_time << "\n";
-        //std::cout << "advance_time : " << advance_time << "\n";
-        //std::cout << "draw_time : " << draw_time << "\n\n";
+        std::cout << "process_events : " << process_events_time << "\n";
+        std::cout << "advance_time : " << advance_time << "\n";
+        std::cout << "draw_time : " << draw_time << "\n\n";
 	}
 
 }
@@ -321,9 +321,8 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 }
 
 void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
-	
+
 	const sf::Vector2i pos = sf::Mouse::getPosition(window);
-	
 	
 	const float zoominfactor = 1.f/zoomoutfactor; // See comments below..
 	const float maximumzoom = 10.0f;
@@ -472,6 +471,8 @@ void gamemanager::draw() {
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 	window.draw( sfframestr );
 */
+
+	std::cout << frame_rate_str << std::endl;
 	window.display();
 }
 

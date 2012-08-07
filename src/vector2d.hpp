@@ -57,11 +57,14 @@ public:
 
 	bool operator==(const vector2d& other) const;
 
-	const vector2d& operator+=(const vector2d& rhs);
-	const vector2d& operator-=(const vector2d& rhs);
+	vector2d& operator-();
+	vector2d& operator+();
 
-	const vector2d& operator*=(const T& rhs);
-	const vector2d& operator/=(const T& rhs);
+	vector2d& operator+=(const vector2d& rhs);
+	vector2d& operator-=(const vector2d& rhs);
+
+	vector2d& operator*=(const T& rhs);
+	vector2d& operator/=(const T& rhs);
 
 	//These should only work correctly with floating point T
 	void rotate(const T& angle, const vector2d& center);
@@ -166,28 +169,40 @@ bool vector2d<T>::operator==(const vector2d<T>& other) const {
 }
 
 template<class T>
-const vector2d<T>& vector2d<T>::operator+=(const vector2d<T>& rhs) {
+vector2d<T>& vector2d<T>::operator-() {
+	x = -x;
+	y = -y;
+	return *this;
+}
+
+template<class T>
+vector2d<T>& vector2d<T>::operator+() {
+	return *this;
+}
+
+template<class T>
+vector2d<T>& vector2d<T>::operator+=(const vector2d<T>& rhs) {
 	x += rhs.x;
 	y += rhs.y;
 	return *this;
 }
 
 template<class T>
-const vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
+vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 	x -= rhs.x;
 	y -= rhs.y;
 	return *this;
 }
 
 template<class T>
-const vector2d<T>& vector2d<T>::operator*=(const T& rhs) {
+vector2d<T>& vector2d<T>::operator*=(const T& rhs) {
 	x *= rhs;
 	y *= rhs;
 	return *this;
 }
 
 template<class T>
-const vector2d<T>& vector2d<T>::operator/=(const T& rhs) {
+vector2d<T>& vector2d<T>::operator/=(const T& rhs) {
 	x /= rhs;
 	y /= rhs;
 	return *this;
