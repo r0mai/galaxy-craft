@@ -322,8 +322,8 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 
 void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	
-	const float pos_x = sf::Mouse.getPosition().x - window.getPosition().x;
-	const float pos_y = sf::Mouse.getPosition().y - window.getPosition().y;
+	const sf::Vector2i pos = sf::Mouse::getPosition(window);
+	
 	
 	const float zoominfactor = 1.f/zoomoutfactor; // See comments below..
 	const float maximumzoom = 10.0f;
@@ -347,10 +347,10 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 			 *	< 1 makes the view smaller (objects appear bigger)  [SIC!]
 			 */
 			// Change center of view to cursor pos
-			sf::Vector2f delta(pos_x - window.getSize().x/2.f, pos_y - window.getSize().y/2.f);
+			sf::Vector2f delta = sf::Vector2f( pos - sf::Vector2i(window.getSize()) / 2 );
 			const float magicnumber = 0.05f;
 
-			mapview.move(delta*currentzoomfactor*magicnumber);
+			mapview.move(delta * currentzoomfactor * magicnumber);
 			sf::Mouse::setPosition(
 				sf::Mouse::getPosition() + 
 				sf::Vector2i(delta * currentzoomfactor * magicnumber)
@@ -359,7 +359,7 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 
 		}
 	} else {
-		if ( w < map.get_dimension().x || h < map.get_dimension().y) {  // Do not allow infinite zoom out
+		if ( w < map.get_dimension().x || h < map.get_dimension().y) {  // Do not allow infinite zoom out 
 			log << logger::all << "Zoom out\n";
 			mapview.zoom(zoomoutfactor); // Zoom out
 		}
