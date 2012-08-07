@@ -19,7 +19,6 @@
 #include <boost/version.hpp>
 
 
-
 namespace gc {
 
 
@@ -318,20 +317,33 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 
 void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	
-	const float zoominfactor = 1.05f;
-	const float zoomoutfactor = 1.f/zoominfactor;
+	const float zoomoutfactor = 1.05f;
+	const float zoominfactor = 1.f/zoomoutfactor; // See comments below..
 	const float maximumzoom = 10.0f;
 	const sf::Vector2f rect = mapview.getSize();
 	const float w = rect.x;
 	const float h = rect.y;
-
-	if ( event.mouseWheel.delta < 0){
-		if ( w > (map.get_dimension().x / maximumzoom) && h > (map.get_dimension().y / maximumzoom ) ) {
+	const float currentzoomfactor = (w / map.get_dimension().x + h / map.get_dimension().y) / 2.f; // Average factors
+	
+	if ( event.mouseWheel.delta > 0){ // Scroll up!
+		if ( currentzoomfactor < maximumzoom ){
 			log << logger::all << "Zoom in\n";
 			mapview.zoom(zoominfactor); // Zoom in
+		    /*  sf::View::zoom changed in SFML 2.0. 
+			 *	void sf::View::zoom	(float 	factor)	
+			 *	
+			 *	Resize the view rectangle relatively to its current size. 
+			 *
+			 *	Resizing the view simulates a zoom, as the zone displayed on screen grows or shrinks. factor is a multiplier: 
+			 *	1 keeps the size unchanged 
+			 *	> 1 makes the view bigger (objects appear smaller)  [SIC!]
+			 *	< 1 makes the view smaller (objects appear bigger)  [SIC!]
+			 */
+
 		}
 	} else {
 		if ( w < map.get_dimension().x || h < map.get_dimension().y) {  // Do not allow infinite zoom out
+			log << logger::all << "Zoom out\n";
 			mapview.zoom(zoomoutfactor); // Zoom out
 		}
 	}
