@@ -51,6 +51,7 @@ private:
 	void process_mousebuttonpressed_event(const sf::Event& event);
 	void process_mousebuttonreleased_event(const sf::Event& event);
 	void process_mousewheelmoved_event(const sf::Event& event);
+	void process_textentered_event(const sf::Event& event);
 
 
     void advance(const float frame_rate);
@@ -60,6 +61,7 @@ private:
 	float unit_size;
 	float window_mouse_side_rim_ratio;
 	float view_move_speed;
+	float zoomoutfactor;
 
 };
 
