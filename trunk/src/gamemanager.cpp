@@ -42,6 +42,7 @@ void gamemanager::init() {
 	config.add_value("window_mouse_side_rim_ratio", "0.08");
 	config.add_value("view_move_speed", "400");
 	config.add_value("debug_level", "0");
+	config.add_value("zoomoutfactor", "1.05");
 
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
@@ -54,6 +55,7 @@ void gamemanager::init() {
 	const float obstacle_offset_ratio = config.get_value<float>( "obstacle_offset_ratio" );
 	window_mouse_side_rim_ratio = config.get_value<float>( "window_mouse_side_rim_ratio" );
 	view_move_speed = config.get_value<float>( "view_move_speed" );
+	zoomoutfactor = config.get_value<float>( "zoomoutfactor" );
 	
 
 	window.create( sf::VideoMode(window_width, window_height, 32), window_title );
@@ -121,11 +123,14 @@ void gamemanager::process_events(const float frame_rate) {
 		case sf::Event::MouseWheelMoved :
 			process_mousewheelmoved_event(event);
 			break;
-		case sf::Event::MouseEntered:
+		case sf::Event::MouseEntered :
 			is_mouse_in_focus = true;
 			break;
-		case sf::Event::MouseLeft:
+		case sf::Event::MouseLeft :
 			is_mouse_in_focus = false;
+			break;
+		case sf::Event::TextEntered :
+			gamemanager::process_textentered_event(event);
 			break;
 		default:
 			break;
@@ -317,13 +322,15 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 
 void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	
-	const float zoomoutfactor = 1.05f;
+	const float pos_x = sf::Mouse.getPosition().x - window.getPosition().x;
+	const float pos_y = sf::Mouse.getPosition().y - window.getPosition().y;
+	
 	const float zoominfactor = 1.f/zoomoutfactor; // See comments below..
 	const float maximumzoom = 10.0f;
 	const sf::Vector2f rect = mapview.getSize();
 	const float w = rect.x;
 	const float h = rect.y;
-	const float currentzoomfactor = (w / map.get_dimension().x + h / map.get_dimension().y) / 2.f; // Average factors
+	const volatile float currentzoomfactor = (w / map.get_dimension().x + h / map.get_dimension().y) / 2.f; // Average factors, but should not be difference in them
 	
 	if ( event.mouseWheel.delta > 0){ // Scroll up!
 		if ( currentzoomfactor < maximumzoom ){
@@ -339,6 +346,16 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 			 *	> 1 makes the view bigger (objects appear smaller)  [SIC!]
 			 *	< 1 makes the view smaller (objects appear bigger)  [SIC!]
 			 */
+			// Change center of view to cursor pos
+			sf::Vector2f delta(pos_x - window.getSize().x/2.f, pos_y - window.getSize().y/2.f);
+			const float magicnumber = 0.05f;
+
+			mapview.move(delta*currentzoomfactor*magicnumber);
+			sf::Mouse::setPosition(
+				sf::Mouse::getPosition() + 
+				sf::Vector2i(delta * currentzoomfactor * magicnumber)
+			);  // move mouse to where desired object moved.
+			
 
 		}
 	} else {
@@ -348,6 +365,10 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 		}
 	}
 
+}
+
+void gamemanager::process_textentered_event(const sf::Event& event){
+	// Captures non caught keys?
 }
 
 void gamemanager::advance(const float frame_rate) {
