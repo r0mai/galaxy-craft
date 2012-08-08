@@ -43,6 +43,8 @@ void gamemanager::init() {
 	config.add_value("view_move_speed", "400");
 	config.add_value("debug_level", "0");
 	config.add_value("zoomoutfactor", "1.05");
+	config.add_value("unit_engine_particle_density", "20");
+
 
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
@@ -56,7 +58,7 @@ void gamemanager::init() {
 	window_mouse_side_rim_ratio = config.get_value<float>( "window_mouse_side_rim_ratio" );
 	view_move_speed = config.get_value<float>( "view_move_speed" );
 	zoomoutfactor = config.get_value<float>( "zoomoutfactor" );
-	
+	unit_engine_particle_density = config.get_value<float>( "unit_engine_particle_density" );
 
 	window.create( sf::VideoMode(window_width, window_height, 32), window_title );
 	window_size = vector2di(window_width, window_height);
@@ -64,6 +66,10 @@ void gamemanager::init() {
 	map = gamemap::from_file( map_file, unit_size * obstacle_offset_ratio );
 
 	mapview = sf::View(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f));
+
+	if ( !default_font.loadFromFile("Sanchezregular.otf") ) {
+		std::cout << "Couldn't load font file" << std::endl;
+	}
 
 	selection_in_progress = false;
 	is_mouse_in_focus = true;
@@ -94,9 +100,9 @@ void gamemanager::run() {
         draw();
         std::clock_t draw_time = std::clock() - start;
 
-        std::cout << "process_events : " << process_events_time << "\n";
-        std::cout << "advance_time : " << advance_time << "\n";
-        std::cout << "draw_time : " << draw_time << "\n\n";
+//        std::cout << "process_events : " << process_events_time << "\n";
+//        std::cout << "advance_time : " << advance_time << "\n";
+//        std::cout << "draw_time : " << draw_time << "\n\n";
 	}
 
 }
@@ -182,7 +188,7 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 			const vector2df destination = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 				if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
-					units.push_back( unit( destination, unit_size, manager.get_texture("obj.png") ) );
+					units.push_back( unit( destination, unit_size, manager.get_texture("obj.png"), unit_engine_particle_density ) );
 				}
 			}
 		}
@@ -466,13 +472,12 @@ void gamemanager::draw() {
 
 
 
-/*
-	sf::Text sfframestr(frame_rate_str);
+
+	sf::Text sfframestr(frame_rate_str, default_font);
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 	window.draw( sfframestr );
-*/
 
-	std::cout << frame_rate_str << std::endl;
+
 	window.display();
 }
 

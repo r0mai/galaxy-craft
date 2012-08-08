@@ -8,11 +8,12 @@ namespace gc {
 unit::unit() :
 		object(vector2df(0.f, 0.f), 10.f, sf::Texture()), state(STANDING), selected(false) {}
 
-unit::unit(const vector2df& position, const float radius, const sf::Texture& texture) :
+unit::unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density) :
 		object(position, radius, texture),
 		state(STANDING),
 		selected(false),
 		selected_circle(radius),
+		particle_density(particle_density),
 		path_calculating(false),
 		engine_particlesystem_fire(
 			engine_particlesystem_init_type(
@@ -83,8 +84,8 @@ void unit::advance(float frame_rate) {
 
 	engine_particlesystem_fire.advance(frame_rate);
 	engine_particlesystem_smoke.advance(frame_rate);
-	engine_particlesystem_fire.emit( 1 );
-	engine_particlesystem_smoke.emit( 1 );
+	engine_particlesystem_fire.emit( particle_density*frame_rate );
+	engine_particlesystem_smoke.emit( particle_density*frame_rate );
 }
 
 void unit::advance_movement(float distance) {

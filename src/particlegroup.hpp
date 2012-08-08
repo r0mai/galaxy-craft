@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <vector>
+#include <cmath>
+#include <cassert>
 
 #include <SFML/Graphics.hpp>
 
@@ -20,7 +22,7 @@ public:
 	particlegroup();
 	particlegroup(const initialize_policy_type& initpolicy, const action_policy_type& actionpolicy, const draw_policy_type& drawpolicy);
 
-	void emit(const unsigned amount);
+	void emit(const float amount);
 
 	void advance(const float frame_rate);
 
@@ -32,6 +34,8 @@ private:
 	initialize_policy_type initialize_policy;
 	action_policy_type action_policy;
 	draw_policy_type draw_policy;
+
+	float emit_remainder; //in range [0..1)
 
 	std::vector<particle_type> particles;
 
@@ -47,9 +51,20 @@ particlegroup<PT, IP, AP, DP>::particlegroup(const initialize_policy_type& initp
 	initialize_policy(initpolicy), action_policy(actionpolicy), draw_policy(drawpolicy) {}
 
 template<class PT, class IP, class AP, class DP>
-void particlegroup<PT, IP, AP, DP>::emit(const unsigned amount) {
-	particles.reserve( particles.size() + amount );
-	for ( unsigned i = 0; i < amount; ++i ) {
+void particlegroup<PT, IP, AP, DP>::emit(const float amount) {
+
+	assert(amount >= 0.f);
+
+	emit_remainder += amount;
+
+	float intpart;
+
+	emit_remainder = std::modf( emit_remainder, &intpart );
+
+	unsigned amount_int = static_cast<unsigned>(intpart);
+
+	particles.reserve( particles.size() + amount_int );
+	for ( unsigned i = 0; i < amount_int; ++i ) {
 
 		particle_type p;
 
