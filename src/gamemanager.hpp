@@ -6,6 +6,7 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
+#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "path.hpp"
 #include "unit.hpp"
@@ -36,6 +37,9 @@ private:
 
 	sf::View mapview;
 
+	sf::RenderTexture minimap_texture;
+
+
 	sf::Font default_font;
 
 	vector2df selection_start;
@@ -64,6 +68,7 @@ private:
 	float window_mouse_side_rim_ratio;
 	float view_move_speed;
 	float zoomoutfactor;
+	float minimap_scale;
 	float unit_engine_particle_density;
 
 };

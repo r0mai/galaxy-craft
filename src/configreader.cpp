@@ -2,6 +2,7 @@
 #include "configreader.hpp"
 
 #include <fstream>
+#include <iostream>
 
 #include <boost/algorithm/string.hpp>
 

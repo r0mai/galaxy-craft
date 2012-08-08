@@ -22,9 +22,9 @@
 namespace gc {
 
 
-gamemanager::gamemanager() {
+gamemanager::gamemanager() : minimap_texture() {
 	init();
-	log = logger(logger::all);
+	log = logger(logger::error);
 }
 
 
@@ -43,9 +43,10 @@ void gamemanager::init() {
 	config.add_value("view_move_speed", "400");
 	config.add_value("debug_level", "0");
 	config.add_value("zoomoutfactor", "1.05");
+	config.add_value("minimap_width", "160");
+	config.add_value("minimap_height", "120");
 	config.add_value("unit_engine_particle_density", "20");
 	config.add_value("font_file", "Sanchezregular.otf");
-
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
 
@@ -66,7 +67,7 @@ void gamemanager::init() {
 
 	map = gamemap::from_file( map_file, unit_size * obstacle_offset_ratio );
 
-	mapview = sf::View(sf::Vector2f((map.get_dimension()/2.f).to_sfml_vector()), sf::Vector2f((window_size/2.f).to_sfml_vector()));
+	mapview = sf::View(sf::Vector2f((map.get_dimension()/2.f).to_sfml_vector()), sf::Vector2f((window_size/2).to_sfml_vector()));
 
 	if ( !default_font.loadFromFile(font_file) ) {
 		std::cout << "Couldn't load font file \"" << font_file << "\"" << std::endl;
@@ -76,7 +77,9 @@ void gamemanager::init() {
 	is_mouse_in_focus = true;
 	frame_rate_str = "unknown";
 
-
+	minimap_texture.create(config.get_value<unsigned>("minimap_width"), config.get_value<unsigned>("minimap_height") );
+	minimap_texture.clear(sf::Color::Blue);
+	minimap_scale = std::min( minimap_texture.getSize().x / map.get_dimension().x , minimap_texture.getSize().y / map.get_dimension().y );
 
 }
 
@@ -100,10 +103,6 @@ void gamemanager::run() {
 
         draw();
         std::clock_t draw_time = std::clock() - start;
-
-//        std::cout << "process_events : " << process_events_time << "\n";
-//        std::cout << "advance_time : " << advance_time << "\n";
-//        std::cout << "draw_time : " << draw_time << "\n\n";
 	}
 
 }
@@ -354,7 +353,7 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 			 */
 			// Change center of view to cursor pos
 			sf::Vector2f delta = sf::Vector2f( pos - sf::Vector2i(window.getSize()) / 2 );
-			const float magicnumber = 0.05f;
+			const float magicnumber = 0.01f;
 
 			mapview.move(delta * currentzoomfactor * magicnumber);
 			sf::Mouse::setPosition(
@@ -461,12 +460,20 @@ void gamemanager::draw() {
 
 	map.draw(window);
 	
+	minimap_texture.clear(sf::Color::Blue);
+
 	std::for_each( units.begin(), units.end(),
 		[this](const unit& u) {
 			u.draw(window);
+			sf::CircleShape blip(1.f);
+			blip.setFillColor(u.get_color());
+			sf::Vector2f newpos(u.get_position().to_sfml_vector() * minimap_scale);
+			blip.setPosition(newpos);
+			minimap_texture.draw(blip);
 		}
 	);
 
+	
 	if ( selection_in_progress ) {
 
 		sf::RectangleShape selection_rectangle( window.convertCoords( sf::Mouse::getPosition(window), mapview ) - selection_start.to_sfml_vector() );
@@ -481,12 +488,15 @@ void gamemanager::draw() {
 	window.setView(window.getDefaultView());
 
 
-
+	//Draw minimap
+	
+	minimap_texture.display();
+	sf::Sprite sprite(minimap_texture.getTexture());
+	window.draw(sprite);
 
 	sf::Text sfframestr(frame_rate_str, default_font);
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
 	window.draw( sfframestr );
-
 
 	window.display();
 }
