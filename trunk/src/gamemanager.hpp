@@ -36,6 +36,8 @@ private:
 
 	sf::View mapview;
 
+	sf::Font default_font;
+
 	vector2df selection_start;
 	bool selection_in_progress;
 	bool is_mouse_in_focus;
@@ -62,6 +64,7 @@ private:
 	float window_mouse_side_rim_ratio;
 	float view_move_speed;
 	float zoomoutfactor;
+	float unit_engine_particle_density;
 
 };
 

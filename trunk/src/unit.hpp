@@ -20,7 +20,7 @@ public:
 	enum state_t { STANDING = 0, MOVING };
 
 	unit();
-	unit(const vector2df& position, const float radius, const sf::Texture& texture);
+	unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density);
 
 
 	vector2df desired_movement(float distance);
@@ -56,6 +56,7 @@ private:
 
 	path moving_path; //used when MOVING
 
+	float particle_density;
 
 	int path_calculating;
 	boost::shared_future<path> path_future;
