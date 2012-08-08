@@ -44,7 +44,7 @@ void gamemanager::init() {
 	config.add_value("debug_level", "0");
 	config.add_value("zoomoutfactor", "1.05");
 	config.add_value("unit_engine_particle_density", "20");
-
+	config.add_value("font_file", "Sanchezregular.otf");
 
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
@@ -59,16 +59,17 @@ void gamemanager::init() {
 	view_move_speed = config.get_value<float>( "view_move_speed" );
 	zoomoutfactor = config.get_value<float>( "zoomoutfactor" );
 	unit_engine_particle_density = config.get_value<float>( "unit_engine_particle_density" );
+	const std::string font_file = config.get_value<std::string>("font_file");
 
 	window.create( sf::VideoMode(window_width, window_height, 32), window_title );
 	window_size = vector2di(window_width, window_height);
 
 	map = gamemap::from_file( map_file, unit_size * obstacle_offset_ratio );
 
-	mapview = sf::View(sf::Vector2f(map.get_dimension().x/2.f, map.get_dimension().y/2.f), sf::Vector2f(window_size.x/2.f, window_size.y/2.f));
+	mapview = sf::View(sf::Vector2f((map.get_dimension()/2.f).to_sfml_vector()), sf::Vector2f((window_size/2.f).to_sfml_vector()));
 
-	if ( !default_font.loadFromFile("Sanchezregular.otf") ) {
-		std::cout << "Couldn't load font file" << std::endl;
+	if ( !default_font.loadFromFile(font_file) ) {
+		std::cout << "Couldn't load font file \"" << font_file << "\"" << std::endl;
 	}
 
 	selection_in_progress = false;
