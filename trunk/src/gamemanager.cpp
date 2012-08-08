@@ -402,21 +402,30 @@ void gamemanager::advance(const float frame_rate) {
 						units[i].move( (2.f * get_epsilon() ) * vector2df::random_unit_vector() );
 					}
 
-					if ( units[i].get_position().distance_to_squared(units[j].get_position()) < radius_sum*radius_sum ) { //They're closer than they should be
-						vector2df move_vector = speed*frame_rate*( units[i].get_position() - units[j].get_position() ).normalize();
+					//TODO the following algorithm is not yet capable of handling units with different traveling speeds
 
-						/*
-						const float max_distance = units[i].radius + units[j].radius - units[i].get_position().distance_to_squared(units[j].get_position());
+					const float distance_ij_squared = units[i].get_position().distance_to_squared(units[j].get_position());
 
-						if ( move_vector.length() >= max_distance ) {
-							move_vector *= max_distance/2.f;
+					if ( distance_ij_squared < radius_sum*radius_sum ) { //They're closer than they should be
+						const vector2df move_direction = units[i].get_position() - units[j].get_position();
+						const float travel_distance = speed * frame_rate;
+
+						vector2df move_vector;
+
+						const float distance_ij = std::sqrt(distance_ij_squared);
+						const float max_travel_distance = radius_sum - distance_ij;
+
+						if ( max_travel_distance < 2.f*travel_distance ) {
+
+//							std::cout << "r1 = " << units[i].get_radius() << ", r2 = " << units[j].get_radius() << ", d = " << std::sqrt(distance_ij_squared) << '"';
+//							std::cout << "displacement = " << (radius_sum - std::sqrt(distance_ij_squared)) << "\n\n\n";
+
+							//Add get_epsilon(), because some units get stuck moving away each other by a really small amount, which gets rounded away
+							move_vector = (max_travel_distance / 2.f + get_epsilon()) * move_direction.normalize();
 						} else {
-
+							move_vector = travel_distance * move_direction.normalize();
 						}
 
-						moving_vector += move_vector;
-						units[j].pos += -1.f*move_vector;
-						*/
 
 						units[i].set_position( units[i].get_position() + move_vector );
 						units[j].set_position( units[j].get_position() - move_vector );
