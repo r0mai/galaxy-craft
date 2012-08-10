@@ -110,7 +110,7 @@ bool path::move_forward(float distance) {
 
 }
 
-void path::draw(sf::RenderWindow& window) const {
+void path::draw(sf::RenderTarget& window) const {
 	if ( !is_at_end() ) {
 		sf::VertexArray line(sf::LinesStrip, path_points.size() - position.segment);
 

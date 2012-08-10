@@ -36,7 +36,7 @@ public:
 	bool move_forward(float distance);
 	void append(const path&);
 
-	virtual void draw(sf::RenderWindow& window) const;
+	virtual void draw(sf::RenderTarget& window) const;
 
 private:
 	struct position_t {

@@ -9,23 +9,33 @@ minimap::minimap() {}
 
 minimap::minimap(const vector2df& original_map_size, const vector2df& position, const vector2di& draw_space_size) :
 		original_map_size(original_map_size), position(position), draw_space_size(draw_space_size),
-		foreground_texture(new sf::RenderTexture), background_texture(new sf::RenderTexture) {}
+		foreground_texture(new sf::RenderTexture), background_texture(new sf::RenderTexture)
+{
+	background_texture->create( draw_space_size.x, draw_space_size.y );
+	foreground_texture->create( draw_space_size.x, draw_space_size.y );
+}
 
 
 
 void minimap::render_background(const std::vector<polygonf>& obstacles) {
 
-	background_texture->create( draw_space_size.x, draw_space_size.y );
 	background_texture->clear( sf::Color::Blue );
+
+	const vector2df multiplier = vector2df(draw_space_size) / original_map_size;
+
+	std::for_each( obstacles.begin(), obstacles.end(), [this, &multiplier](polygonf poly) {
+		poly.scale( multiplier );
+		poly.rerender();
+		poly.draw( *background_texture );
+	});
+
 	background_texture->display();
 	background = sf::Sprite(background_texture->getTexture());
 
 	background.setPosition( position.to_sfml_vector() );
 }
 
-void minimap::render_units(const std::vector<unit>& units) {
-
-	foreground_texture->create( draw_space_size.x, draw_space_size.y );
+void minimap::render_foreground(const std::vector<unit>& units, const sf::View& view) {
 
 	foreground_texture->clear( sf::Color::Transparent );
 
@@ -39,6 +49,18 @@ void minimap::render_units(const std::vector<unit>& units) {
 		blip.setPosition( (u.get_position() * multiplier - blip_size/2.f).to_sfml_vector() );
 		foreground_texture->draw(blip);
 	});
+
+	const vector2df scaled_view_size = vector2df(view.getSize()) * multiplier;
+	const vector2df scaled_center = vector2df(view.getCenter()) * multiplier;
+
+	sf::RectangleShape view_rectangle( scaled_view_size.to_sfml_vector() );
+	view_rectangle.setOutlineColor( sf::Color::White );
+	view_rectangle.setOutlineThickness(1.f);
+	view_rectangle.setFillColor( sf::Color::Transparent );
+	view_rectangle.setPosition( (scaled_center - scaled_view_size/2.f).to_sfml_vector() );
+
+	foreground_texture->draw( view_rectangle );
+
 	foreground_texture->display();
 
 	foreground = sf::Sprite(foreground_texture->getTexture());
@@ -47,8 +69,6 @@ void minimap::render_units(const std::vector<unit>& units) {
 }
 
 void minimap::draw(sf::RenderWindow& window) const {
-
-
 	window.draw( background );
 	window.draw( foreground );
 }

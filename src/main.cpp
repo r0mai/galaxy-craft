@@ -2,10 +2,10 @@
 #include <cstdlib>
 #include <ctime>
 
-#include "gamemanager.hpp"
-
-#include "vector2d.hpp"
 #include <SFML/Graphics.hpp>
+
+#include "gamemanager.hpp"
+#include "vector2d.hpp"
 
 int main() {
 	

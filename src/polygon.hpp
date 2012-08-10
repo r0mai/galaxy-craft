@@ -38,13 +38,16 @@ public:
 	//Call rerender(), before drawing
 	void add_point(const vector2d<T>& p);
 
-	virtual void draw(sf::RenderWindow& window) const;
+	virtual void draw(sf::RenderTarget& window) const;
 
 	std::vector< vector2d<T> >& get_points();
 	const std::vector< vector2d<T> >& get_points() const;
 
 	const vector2d<T> centroid() const;
 	const T area() const;
+
+	void scale(const T ratio);
+	void scale(const vector2d<T>& ratio);
 
 	void rotate(const T angle);
 //	void rotate(const T angle, const vector2d<T>& center);
@@ -107,7 +110,7 @@ void polygon<T>::add_point(const vector2d<T>& p) {
 }
 
 template<class T>
-void polygon<T>::draw(sf::RenderWindow& window) const {
+void polygon<T>::draw(sf::RenderTarget& window) const {
 	window.draw(sfml_polygon);
 }
 
@@ -153,6 +156,20 @@ const vector2d<T> polygon<T>::centroid() const {
 		y_num += points[i].y;
 	}
 	return vector2d<T>(x_num/x_den, y_num/y_den);
+}
+
+template<class T>
+void polygon<T>::scale(const T ratio) {
+	std::for_each( points.begin(), points.end(), [&ratio](vector2d<T>& p) {
+		p *= ratio;
+	});
+}
+
+template<class T>
+void polygon<T>::scale(const vector2d<T>& ratio) {
+	std::for_each( points.begin(), points.end(), [&ratio](vector2d<T>& p) {
+		p *= ratio;
+	});
 }
 
 template<class T>

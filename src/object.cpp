@@ -67,7 +67,7 @@ float object::get_radius() const {
 object::~object(){
 }
 
-void object::draw(sf::RenderWindow& window) const{
+void object::draw(sf::RenderTarget& window) const{
 	window.draw(sprite);
 } // That should be it.
 
