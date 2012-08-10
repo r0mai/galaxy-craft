@@ -40,7 +40,7 @@ void configreader::read_config(const std::string& file) {
 			boost::trim( value );
 
 			if ( key == "$include" ) {
-				std::cout << "reading file=\""<< value << "\"\n";
+				std::cout << "reading file=\"" << value << "\"\n";
 				read_config(value); //TODO infinite recursion possible : check if we've read this file already
 			} else {
 				std::cout << "key=\"" << key << "\", \"" << value << "\"\n";

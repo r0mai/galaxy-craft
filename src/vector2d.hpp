@@ -25,8 +25,9 @@ template<class T>
 class vector2d :
 	boost::equality_comparable<vector2d<T>,
 	boost::additive<vector2d<T>,
-	boost::multiplicative<vector2d<T>, T>
-	> > {
+	boost::multiplicative<vector2d<T>, T,
+	boost::multiplicative<vector2d<T>
+	> > > > {
 public:
 	vector2d();
 
@@ -62,6 +63,9 @@ public:
 
 	vector2d& operator+=(const vector2d& rhs);
 	vector2d& operator-=(const vector2d& rhs);
+
+	vector2d& operator*=(const vector2d& rhs);
+	vector2d& operator/=(const vector2d& rhs);
 
 	vector2d& operator*=(const T& rhs);
 	vector2d& operator/=(const T& rhs);
@@ -191,6 +195,20 @@ template<class T>
 vector2d<T>& vector2d<T>::operator-=(const vector2d<T>& rhs) {
 	x -= rhs.x;
 	y -= rhs.y;
+	return *this;
+}
+
+template<class T>
+vector2d<T>& vector2d<T>::operator*=(const vector2d<T>& rhs) {
+	x *= rhs.x;
+	y *= rhs.y;
+	return *this;
+}
+
+template<class T>
+vector2d<T>& vector2d<T>::operator/=(const vector2d<T>& rhs) {
+	x /= rhs.x;
+	y /= rhs.y;
 	return *this;
 }
 

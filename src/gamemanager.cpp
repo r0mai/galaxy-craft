@@ -22,7 +22,7 @@
 namespace gc {
 
 
-gamemanager::gamemanager() : minimap_texture() {
+gamemanager::gamemanager() {
 	init();
 	log = logger(logger::error);
 }
@@ -47,6 +47,7 @@ void gamemanager::init() {
 	config.add_value("minimap_height", "120");
 	config.add_value("unit_engine_particle_density", "20");
 	config.add_value("font_file", "Sanchezregular.otf");
+
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
 
@@ -61,6 +62,8 @@ void gamemanager::init() {
 	zoomoutfactor = config.get_value<float>( "zoomoutfactor" );
 	unit_engine_particle_density = config.get_value<float>( "unit_engine_particle_density" );
 	const std::string font_file = config.get_value<std::string>("font_file");
+	const unsigned minimap_width = config.get_value<unsigned>("minimap_width");
+	const unsigned minimap_height = config.get_value<unsigned>("minimap_height");
 
 	window.create( sf::VideoMode(window_width, window_height, 32), window_title );
 	window_size = vector2di(window_width, window_height);
@@ -77,10 +80,8 @@ void gamemanager::init() {
 	is_mouse_in_focus = true;
 	frame_rate_str = "unknown";
 
-	minimap_texture.create(config.get_value<unsigned>("minimap_width"), config.get_value<unsigned>("minimap_height") );
-	minimap_texture.clear(sf::Color::Blue);
-	minimap_scale = std::min( minimap_texture.getSize().x / map.get_dimension().x , minimap_texture.getSize().y / map.get_dimension().y );
-
+	game_minimap = minimap( map.get_dimension(), vector2df(20, 50), vector2di(minimap_width, minimap_height) );
+	game_minimap.render_background( map.get_obstacles() );
 }
 
 void gamemanager::run() {
@@ -91,18 +92,10 @@ void gamemanager::run() {
 		const float frame_rate = frame_clock.restart().asSeconds();
 		frame_rate_str = boost::lexical_cast<std::string>( static_cast<int>(1.f/frame_rate) );
 
-		std::clock_t start = std::clock();
-
         process_events(frame_rate);
-        std::clock_t process_events_time = std::clock() - start;
-        start = std::clock();
 
         advance(frame_rate);
-        std::clock_t advance_time = std::clock() - start;
-        start = std::clock();
-
         draw();
-        std::clock_t draw_time = std::clock() - start;
 	}
 
 }
@@ -453,27 +446,20 @@ void gamemanager::advance(const float frame_rate) {
 }
 
 void gamemanager::draw() {
+
 	window.clear();
 
 	//Draw map related after this
 	window.setView(mapview);
 
 	map.draw(window);
-	
-	minimap_texture.clear(sf::Color::Blue);
 
 	std::for_each( units.begin(), units.end(),
 		[this](const unit& u) {
 			u.draw(window);
-			sf::CircleShape blip(1.f);
-			blip.setFillColor(u.get_color());
-			sf::Vector2f newpos(u.get_position().to_sfml_vector() * minimap_scale);
-			blip.setPosition(newpos);
-			minimap_texture.draw(blip);
 		}
 	);
 
-	
 	if ( selection_in_progress ) {
 
 		sf::RectangleShape selection_rectangle( window.convertCoords( sf::Mouse::getPosition(window), mapview ) - selection_start.to_sfml_vector() );
@@ -481,7 +467,7 @@ void gamemanager::draw() {
 		selection_rectangle.setPosition (selection_start.to_sfml_vector() );
 		selection_rectangle.setFillColor( sf::Color(200,0,0,100) );
 
-		window.draw(selection_rectangle);;
+		window.draw(selection_rectangle);
 	}
 
 	//Draw GUI after this
@@ -489,10 +475,8 @@ void gamemanager::draw() {
 
 
 	//Draw minimap
-	
-	minimap_texture.display();
-	sf::Sprite sprite(minimap_texture.getTexture());
-	window.draw(sprite);
+	game_minimap.render_units(units);
+	game_minimap.draw(window);
 
 	sf::Text sfframestr(frame_rate_str, default_font);
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );

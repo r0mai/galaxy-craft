@@ -36,7 +36,7 @@ T configreader::get_value(const std::string& key) const {
 	} else {
 		try {
 			return boost::lexical_cast<T>( it->second );
-		} catch ( const boost::bad_lexical_cast& ex ) {
+		} catch ( const boost::bad_lexical_cast& ) {
 			throw std::invalid_argument("The value for \"" + key + "\" is not convertible to desired type");
 		}
 	}
