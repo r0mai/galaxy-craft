@@ -26,7 +26,7 @@ public:
 
 	void advance(const float frame_rate);
 
-	void draw(sf::RenderWindow& window) const;
+	void draw(sf::RenderTarget& window) const;
 
 	initialize_policy_type& get_initialize_policy();
 
@@ -88,7 +88,7 @@ void particlegroup<PT, IP, AP, DP>::advance(const float frame_rate) {
 }
 
 template<class PT, class IP, class AP, class DP>
-void particlegroup<PT, IP, AP, DP>::draw(sf::RenderWindow& window) const {
+void particlegroup<PT, IP, AP, DP>::draw(sf::RenderTarget& window) const {
 	for ( unsigned i = 0; i < particles.size(); ++i ) {
 		draw_policy(particles[i], window);
 	}

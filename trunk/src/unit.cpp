@@ -164,7 +164,7 @@ void unit::set_position(const vector2df& pos) {
 	//then path readjusting should be done here
 }
 
-void unit::draw(sf::RenderWindow& window) const {
+void unit::draw(sf::RenderTarget& window) const {
 	engine_particlesystem_smoke.draw(window);
 	engine_particlesystem_fire.draw(window);
 	object::draw(window);

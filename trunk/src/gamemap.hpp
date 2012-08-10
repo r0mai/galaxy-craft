@@ -24,7 +24,7 @@ public:
 
 	path search_path(const vector2df& start, const vector2df& end) const;
 
-	virtual void draw(sf::RenderWindow& window) const;
+	virtual void draw(sf::RenderTarget& window) const;
 
 	const vector2df& get_dimension() const;
 	const std::vector<polygonf>& get_obstacles() const;

@@ -46,7 +46,7 @@ public:
 
 	virtual void set_position(const vector2df& pos);
 
-	virtual void draw(sf::RenderWindow& window) const;
+	virtual void draw(sf::RenderTarget& window) const;
 
 private:
 	state_t state;

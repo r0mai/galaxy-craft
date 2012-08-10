@@ -27,7 +27,7 @@ public:
 
 	float get_radius() const;
 
-	virtual void draw(sf::RenderWindow& window) const;
+	virtual void draw(sf::RenderTarget& window) const;
 	virtual ~object();
 	
 protected:

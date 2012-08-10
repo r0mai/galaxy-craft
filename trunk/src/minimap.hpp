@@ -21,7 +21,8 @@ public:
 	//Should be called only once, or when obstacles change
 	void render_background(const std::vector<polygonf>& obstacles);
 
-	void render_units(const std::vector<unit>& units);
+	//Called every frame
+	void render_foreground(const std::vector<unit>& units, const sf::View& view);
 
 	void draw(sf::RenderWindow& window) const;
 

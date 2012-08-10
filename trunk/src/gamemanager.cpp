@@ -475,7 +475,7 @@ void gamemanager::draw() {
 
 
 	//Draw minimap
-	game_minimap.render_units(units);
+	game_minimap.render_foreground(units, mapview);
 	game_minimap.draw(window);
 
 	sf::Text sfframestr(frame_rate_str, default_font);

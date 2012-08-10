@@ -17,7 +17,7 @@ public:
 
 	virtual ~drawable() {}
 
-	virtual void draw(sf::RenderWindow&) const = 0;
+	virtual void draw(sf::RenderTarget&) const = 0;
 
 protected:
 
