@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <SFML/Graphics.hpp>
-#include "SFML/Graphics/RenderTarget.hpp"
 
 #include "path.hpp"
 #include "unit.hpp"
@@ -15,7 +14,7 @@
 #include "resourcemanager.hpp"
 #include "particleinclude.hpp"
 #include "logger.hpp"
-
+#include "minimap.hpp"
 
 namespace gc {
 
@@ -31,13 +30,13 @@ private:
 	logger log;
 	resourcemanager manager;
 
+	minimap game_minimap;
+
 	gamemap map;
 
 	std::vector<unit> units;
 
 	sf::View mapview;
-
-	sf::RenderTexture minimap_texture;
 
 
 	sf::Font default_font;

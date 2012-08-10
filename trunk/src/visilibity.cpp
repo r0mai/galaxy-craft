@@ -48,11 +48,11 @@ namespace
 //<line number,counter>
 std::map<int, int> sqrt_counter_map;
 
-void print_map() {
-	std::for_each( sqrt_counter_map.begin(), sqrt_counter_map.end(), [](std::pair<int,int> p) {
-		std::cout << p.first << " : " << p.second << std::endl;
-	} );
-}
+//void print_map() {
+//	std::for_each( sqrt_counter_map.begin(), sqrt_counter_map.end(), [](std::pair<int,int> p) {
+//		std::cout << p.first << " : " << p.second << std::endl;
+//	} );
+//}
 
 #define counter_sqrt(X) /*++sqrt_counter_map[__LINE__], print_map(),*/ std::sqrt(X)
 
