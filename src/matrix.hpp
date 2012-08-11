@@ -37,11 +37,13 @@ public:
 public:
     matrix();
     matrix(const matrix& o);
+    matrix(matrix&& o);
     matrix(size_type width, size_type height, const T& init_value = T());
 
     matrix& operator=(const matrix& o);
+    matrix& operator=(matrix&& o);
 
-    virtual ~matrix();
+    ~matrix();
 
     bool operator==(const matrix& o) const;
     bool operator!=(const matrix& o) const;
@@ -82,6 +84,14 @@ matrix<T>::matrix(const matrix<T>& o) : width_(o.width_), height_(o.height_) {
 }
 
 template<class T>
+
+matrix<T>::matrix(matrix&& o) : width_(o.width_), height_(o.height_), data_(o.data_) {
+	o.width_ = 0;
+	o.height_ = 0;
+	o.data_ = 0;
+}
+
+template<class T>
 matrix<T>::matrix(size_type width, size_type height, const T& init_value) :
     width_(width),
     height_(height) {
@@ -110,6 +120,24 @@ matrix<T>& matrix<T>::operator=(const matrix<T>& o) {
         data_ = 0;
     }
     return *this;
+}
+
+template<class T>
+matrix<T>& matrix<T>::operator=(matrix&& o) {
+    if ( this == &o ) {
+        return *this;
+    }
+
+    delete[] data_;
+
+    width_ = o.width_;
+    height_ = o.height_;
+
+    data_ = o.data_;
+
+    o.data_ = 0;
+    o.width_ = 0;
+    o.height_ = 0;
 }
 
 template<class T>
