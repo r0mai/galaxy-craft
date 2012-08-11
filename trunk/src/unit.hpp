@@ -18,6 +18,7 @@ class unit : public object {
 public:
 
 	enum state_t { STANDING = 0, MOVING };
+	enum selection_state_t { UNSELECTED, SELECTED, POTENTIALLY_SELECTED };
 
 	unit();
 	unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density);
@@ -41,7 +42,8 @@ public:
 	void set_state(const state_t s);
 
 	bool is_selected() const;
-	void set_selected(const bool val);
+	void set_selection_state(const selection_state_t val);
+	selection_state_t get_selection_state() const;
 	
 
 	virtual void set_position(const vector2df& pos);
@@ -52,7 +54,7 @@ protected:
 private:
 	state_t state;
 
-	bool selected;
+	selection_state_t selection_state;
 	sf::CircleShape selected_circle;
 
 	path moving_path; //used when MOVING
