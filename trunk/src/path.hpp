@@ -8,11 +8,11 @@
 
 #include "polygon.hpp"
 #include "vector2d.hpp"
-#include "drawable.hpp"
+#include "colored.hpp"
 
 namespace gc {
 
-class path : public drawable {
+class path : public sf::Drawable, public colored {
 public:
 
 	path();
@@ -36,7 +36,8 @@ public:
 	bool move_forward(float distance);
 	void append(const path&);
 
-	virtual void draw(sf::RenderTarget& window) const;
+protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 	struct position_t {
@@ -48,6 +49,7 @@ private:
 		//in [0, 1)
 		float advancment_ratio;
 	} position;
+
 
 	std::vector<vector2df> path_points;
 };

@@ -16,7 +16,7 @@ public:
 	drawpolicy();
 	drawpolicy(const vector2df& dimension);
 
-	void operator()(const particle_type& p, sf::RenderTarget& window) const;
+	void operator()(const particle_type& p, sf::RenderTarget& window, sf::RenderStates states) const;
 private:
 	//vector2df dimension;
 
@@ -35,10 +35,10 @@ drawpolicy<PT>::drawpolicy(const vector2df& dimension) :
 	cached_rectangle(dimension.to_sfml_vector()) {}
 
 template<class PT>
-void drawpolicy<PT>::operator()(const particle_type& p, sf::RenderTarget& window) const {
+void drawpolicy<PT>::operator()(const particle_type& p, sf::RenderTarget& window, sf::RenderStates states) const {
 	cached_rectangle.setPosition( p.position.to_sfml_vector() );
 	cached_rectangle.setFillColor( p.color );
-	window.draw( cached_rectangle );
+	window.draw( cached_rectangle, states );
 }
 
 } //namespace gc

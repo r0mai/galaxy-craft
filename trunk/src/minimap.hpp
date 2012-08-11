@@ -12,7 +12,7 @@
 
 namespace gc {
 
-class minimap {
+class minimap : public sf::Drawable {
 public:
 	minimap();
 
@@ -24,7 +24,8 @@ public:
 	//Called every frame
 	void render_foreground(const std::vector<unit>& units, const sf::View& view);
 
-	void draw(sf::RenderWindow& window) const;
+protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 

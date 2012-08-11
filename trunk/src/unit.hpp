@@ -46,7 +46,8 @@ public:
 
 	virtual void set_position(const vector2df& pos);
 
-	virtual void draw(sf::RenderTarget& window) const;
+protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 	state_t state;

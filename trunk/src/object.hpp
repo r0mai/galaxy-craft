@@ -3,14 +3,13 @@
 #define OBJECT_HPP_
 
 #include "vector2d.hpp"
-#include "drawable.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <string>
 
 namespace gc {
 
-class object : public drawable { // I want to be able to draw it, duh.
+class object : public sf::Drawable { // I want to be able to draw it, duh.
 public:
 	object();
 	object(const vector2df& c, const float r, const sf::Texture& img);
@@ -27,10 +26,12 @@ public:
 
 	float get_radius() const;
 
-	virtual void draw(sf::RenderTarget& window) const;
 	virtual ~object();
-	
+
+
 protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates) const;
+	
 	// collision model stuff:
 	vector2df center;
 	float radius;

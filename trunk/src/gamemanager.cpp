@@ -16,11 +16,7 @@
 #include "object.hpp"
 #include "configreader.hpp"
 
-#include <boost/version.hpp>
-
-
 namespace gc {
-
 
 gamemanager::gamemanager() {
 	init();
@@ -452,11 +448,11 @@ void gamemanager::draw() {
 	//Draw map related after this
 	window.setView(mapview);
 
-	map.draw(window);
+	window.draw(map);
 
 	std::for_each( units.begin(), units.end(),
 		[this](const unit& u) {
-			u.draw(window);
+			window.draw(u);
 		}
 	);
 
@@ -473,10 +469,9 @@ void gamemanager::draw() {
 	//Draw GUI after this
 	window.setView(window.getDefaultView());
 
-
 	//Draw minimap
 	game_minimap.render_foreground(units, mapview);
-	game_minimap.draw(window);
+	window.draw(game_minimap);
 
 	sf::Text sfframestr(frame_rate_str, default_font);
 	sfframestr.setPosition( vector2df(window_size - vector2di(80, 40)).to_sfml_vector() );
