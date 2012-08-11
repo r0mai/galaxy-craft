@@ -53,7 +53,7 @@ public:
 
 	T distance_to_squared(const vector2d<T>& other) const;
 	float distance_to(const vector2d<T>& other) const;
-	float distance_to_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
+	float distance_to_rectangle_boundary( vector2d<T> corner1, vector2d<T> corner2 ) const;
 
 	bool is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
 
@@ -83,16 +83,6 @@ public:
 	static vector2d random_vector(const T& length);
 
 	T x, y;
-protected:
-	// hide me!
-	
-	float distance_aux(float p, float lower, float upper) const {
-		if(p<lower)
-			return lower-p;
-		if(p>lower)
-			return p-upper;
-		return std::min(p-lower, upper-p);
-	}
 
 };
 
@@ -162,11 +152,34 @@ float vector2d<T>::distance_to(const vector2d<T>& other) const {
 }
 
 template<class T>
-float vector2d<T>::distance_to_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const {
-	
-	float dx = distance_aux(x, std::min(corner1.x, corner2.x), std::max(corner1.x, corner2.x));
-	float dy = distance_aux(y, std::min(corner1.y, corner2.y), std::max(corner1.y, corner2.y));
-	return std::sqrt(dx * dx + dy * dy);
+float vector2d<T>::distance_to_rectangle_boundary( vector2d<T> corner1, vector2d<T> corner2 ) const {
+	//ensure corner1 is TL, corner2 is BR
+    if ( corner1.x > corner2.x ) {
+        std::swap(corner1.x, corner2.x);
+    }
+    if ( corner1.y > corner2.y ) {
+        std::swap(corner1.y, corner2.y);
+    }
+	// determine where we are!
+	if(x<corner1.x){ // left 
+		if(y<corner1.y) // up
+			return this->distance_to(corner1);
+		if(y>corner2.y) // down
+			return this ->distance_to(gc::vector2df(corner1.x, corner2.y));
+		else // middle
+			return corner1.x - x;
+	}
+	if(x>corner2.x){ // right
+		if(y<corner1.y) // up
+			return this->distance_to(gc::vector2df(corner2.x, corner1.y));
+		if(y>corner2.y) // down
+			return this->distance_to(corner2);
+		else // middle
+			return x - corner2.x;
+	}
+	else{ // middle
+		return std::min(std::abs(y-corner1.y), std::abs(y-corner2.y));
+	}
 }
 
 template<class T>

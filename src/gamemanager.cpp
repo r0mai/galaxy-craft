@@ -317,7 +317,7 @@ void gamemanager::process_mousewheelmoved_event(const sf::Event& event) {
 	const sf::Vector2f rect = mapview.getSize();
 	const float w = rect.x;
 	const float h = rect.y;
-	const volatile float currentzoomfactor = (w / map.get_dimension().x + h / map.get_dimension().y) / 2.f; // Average factors, but should not be difference in them
+	const volatile float currentzoomfactor = (map.get_dimension().x / w + map.get_dimension().y / h) / 2.f; // Average factors, but should not be difference in them
 	
 	if ( event.mouseWheel.delta > 0){ // Scroll up!
 		if ( currentzoomfactor < maximumzoom ){
@@ -440,7 +440,7 @@ void gamemanager::advance(const float frame_rate) {
 		std::for_each( units.begin(), units.end(),
 			[this, &selection_end](unit& u) {
 				if ( u.get_position().is_in_rectangle( selection_start, selection_end ) || // regular, is center in box.
-						u.get_position().distance_to_rectangle(selection_start, selection_end) < u.get_radius() ) {
+						u.get_position().distance_to_rectangle_boundary(selection_start, selection_end) < u.get_radius() ) {
 					u.set_selection_state( unit::POTENTIALLY_SELECTED );
 				} else {
 					u.set_selection_state( unit::UNSELECTED );
