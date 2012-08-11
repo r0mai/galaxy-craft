@@ -6,12 +6,12 @@
 namespace gc {
 
 unit::unit() :
-		object(vector2df(0.f, 0.f), 10.f, sf::Texture()), state(STANDING), selected(false) {}
+		object(vector2df(0.f, 0.f), 10.f, sf::Texture()), state(STANDING), selection_state(UNSELECTED) {}
 
 unit::unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density) :
 		object(position, radius, texture),
 		state(STANDING),
-		selected(false),
+		selection_state(UNSELECTED),
 		selected_circle(radius),
 		particle_density(particle_density),
 		path_calculating(false),
@@ -146,11 +146,30 @@ void unit::set_state(const state_t s) {
 }
 
 bool unit::is_selected() const {
-	return selected;
+	return selection_state == SELECTED;
 }
 
-void unit::set_selected(const bool val) {
-	selected = val;
+void unit::set_selection_state(const selection_state_t new_state) {
+	if ( new_state != selection_state ) {
+		selection_state = new_state;
+
+		//Update circle thickness
+		switch(selection_state) {
+		case SELECTED:
+			selected_circle.setOutlineThickness( 1.5f );
+			break;
+		case POTENTIALLY_SELECTED:
+			selected_circle.setOutlineThickness( 0.8f );
+			break;
+		default:
+			break;
+		}
+	}
+
+}
+
+unit::selection_state_t unit::get_selection_state() const {
+	return selection_state;
 }
 
 void unit::set_position(const vector2df& pos) {
@@ -170,7 +189,7 @@ void unit::draw(sf::RenderTarget& window, sf::RenderStates states) const {
 
 	object::draw(window, states);
 
-	if ( selected ) {
+	if ( selection_state == SELECTED || selection_state == POTENTIALLY_SELECTED ) {
 		window.draw(selected_circle);
 	}
 

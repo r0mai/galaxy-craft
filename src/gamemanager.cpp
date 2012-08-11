@@ -6,6 +6,7 @@
 #include <sstream>
 #include <ctime>
 #include <algorithm>
+#include <memory>
 
 #include <SFML/Audio.hpp>
 
@@ -189,7 +190,7 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 		if ( event.key.control ) {// CTRL A
 			std::for_each(units.begin(), units.end(),
 				[](unit& u) {
-					u.set_selected(true);
+					u.set_selection_state( unit::SELECTED );
 				}
 			);
 		}
@@ -200,16 +201,6 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 }
 
 void gamemanager::process_mousemoved_event(const sf::Event& event) {
-	//This line is fun! :D
-	//test_unit.move_on( map.search_path( test_unit.get_position(),	vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) )) );
-#if 0
-	test_unit.set_position( vector2df(window.ConvertCoords( event.MouseMove.X, event.MouseMove.Y, &mapview ) ) );
-
-	VisiLibity::distance_point_t closest =
-			VisiLibity::closest_boundary_distance_and_point_squared( test_unit.get_position().to_visilibity_point(), map.get_vis_enviroment() );
-
-	test_point = closest.second;
-#endif
 
 }
 
@@ -298,21 +289,20 @@ void gamemanager::process_mousebuttonpressed_event(const sf::Event& event) {
 void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 	switch ( event.mouseButton.button ) {
 	case sf::Mouse::Left :
-	{
-		selection_in_progress = false;
-		const vector2df selection_end = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
-		std::for_each( units.begin(), units.end(),
-			[this, &selection_end](unit& u) {
 
-				u.set_selected( 
-					u.get_position().is_in_rectangle( selection_start, selection_end ) || // regular, is center in box.
-					u.get_position().distance_to_rectangle(selection_start, selection_end) < u.get_radius()
-					);
-
-			}
-		);
+		//We could start with the mouse down?
+		if ( selection_in_progress ) {
+			selection_in_progress = false;
+			std::for_each( units.begin(), units.end(),
+				[this](unit& u) {
+					if ( u.get_selection_state() == unit::POTENTIALLY_SELECTED ) {
+						u.set_selection_state( unit::SELECTED );
+					}
+				}
+			);
+		}
 		break;
-	}
+
 	default:
 		break;
 	}
@@ -440,6 +430,23 @@ void gamemanager::advance(const float frame_rate) {
 
 		}
 
+	}
+
+
+
+
+	if ( selection_in_progress ) {
+		const vector2df selection_end = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
+		std::for_each( units.begin(), units.end(),
+			[this, &selection_end](unit& u) {
+				if ( u.get_position().is_in_rectangle( selection_start, selection_end ) || // regular, is center in box.
+						u.get_position().distance_to_rectangle(selection_start, selection_end) < u.get_radius() ) {
+					u.set_selection_state( unit::POTENTIALLY_SELECTED );
+				} else {
+					u.set_selection_state( unit::UNSELECTED );
+				}
+			}
+		);
 	}
 
 }
