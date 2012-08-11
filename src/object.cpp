@@ -64,13 +64,12 @@ float object::get_radius() const {
 }
 
 
-object::~object(){
-}
-
-void object::draw(sf::RenderTarget& window) const{
-	window.draw(sprite);
+void object::draw(sf::RenderTarget& window, sf::RenderStates states) const{
+	window.draw(sprite, states);
 } // That should be it.
 
+object::~object(){
+}
 
 } //namespce gc
 

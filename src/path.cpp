@@ -8,9 +8,9 @@
 
 namespace gc {
 
-path::path() : drawable(sf::Color::Yellow) {}
+path::path() : colored(sf::Color::Yellow) {}
 
-path::path(const VisiLibity::Polyline& polyline) : drawable(sf::Color::Yellow), path_points( polyline.size() ) {
+path::path(const VisiLibity::Polyline& polyline) : colored(sf::Color::Yellow), path_points( polyline.size() ) {
 	for ( unsigned i = 0; i < polyline.size(); ++i ) {
 		path_points[i] = polyline[i];
 	}
@@ -110,7 +110,7 @@ bool path::move_forward(float distance) {
 
 }
 
-void path::draw(sf::RenderTarget& window) const {
+void path::draw(sf::RenderTarget& window, sf::RenderStates states) const {
 	if ( !is_at_end() ) {
 		sf::VertexArray line(sf::LinesStrip, path_points.size() - position.segment);
 
@@ -121,7 +121,7 @@ void path::draw(sf::RenderTarget& window) const {
 			assert( j < path_points.size() - position.segment ); //just to make sure, I calculated correctly :D
 			line[j] = sf::Vertex( path_points[i+1].to_sfml_vector(), color );
 		}
-		window.draw( line );
+		window.draw( line, states );
 	}
 
 }

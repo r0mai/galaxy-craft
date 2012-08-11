@@ -15,14 +15,14 @@
 
 #include "clipper.hpp"
 
-#include "drawable.hpp"
+#include "colored.hpp"
 #include "vector2d.hpp"
 
 namespace gc {
 
 //made to work with float (or double) in the first place
 template<class T>
-class polygon : public drawable {
+class polygon : public sf::Drawable, public colored {
 public:
 	polygon();
 
@@ -37,8 +37,6 @@ public:
 
 	//Call rerender(), before drawing
 	void add_point(const vector2d<T>& p);
-
-	virtual void draw(sf::RenderTarget& window) const;
 
 	std::vector< vector2d<T> >& get_points();
 	const std::vector< vector2d<T> >& get_points() const;
@@ -56,6 +54,9 @@ public:
 
 	//this must be called after whenever any function modifying the location of the points is called, for drawing to work properly
 	void rerender();
+
+protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 	std::vector< vector2d<T> > points;
@@ -107,11 +108,6 @@ ClipperLib::Polygon polygon<T>::to_clipper_polygon() const {
 template<class T>
 void polygon<T>::add_point(const vector2d<T>& p) {
 	points.push_back( p );
-}
-
-template<class T>
-void polygon<T>::draw(sf::RenderTarget& window) const {
-	window.draw(sfml_polygon);
 }
 
 template<class T>
@@ -195,8 +191,14 @@ void polygon<T>::rerender() {
 	for ( unsigned i = 0; i < points.size(); ++i ) {
 		sfml_polygon.setPoint( i, points[i].to_sfml_vector() );
 	}
-	sfml_polygon.setFillColor( color );
+	sfml_polygon.setFillColor( sf::Color::Red );
 }
+
+template<class T>
+void polygon<T>::draw(sf::RenderTarget& window, sf::RenderStates states) const {
+	window.draw(sfml_polygon, states);
+}
+
 
 } //namespace gc
 

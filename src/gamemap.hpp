@@ -9,14 +9,13 @@
 
 #include "visilibity.hpp"
 
-#include "drawable.hpp"
 #include "path.hpp"
 #include "polygon.hpp"
 
 
 namespace gc {
 
-class gamemap : public drawable {
+class gamemap : public sf::Drawable {
 public:
 	//obstacle_offset : The distance between the original obstacles,
 	//and the little bit larger polygon enclosing it, which is used for path searching
@@ -24,13 +23,14 @@ public:
 
 	path search_path(const vector2df& start, const vector2df& end) const;
 
-	virtual void draw(sf::RenderTarget& window) const;
-
 	const vector2df& get_dimension() const;
 	const std::vector<polygonf>& get_obstacles() const;
 
 	const VisiLibity::Environment& get_vis_enviroment() const;
 	const VisiLibity::Environment& get_vis_enviroment_offset() const;
+
+protected:
+	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 	vector2df dimension;

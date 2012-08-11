@@ -164,17 +164,18 @@ void unit::set_position(const vector2df& pos) {
 	//then path readjusting should be done here
 }
 
-void unit::draw(sf::RenderTarget& window) const {
-	engine_particlesystem_smoke.draw(window);
-	engine_particlesystem_fire.draw(window);
-	object::draw(window);
+void unit::draw(sf::RenderTarget& window, sf::RenderStates states) const {
+	window.draw(engine_particlesystem_smoke);
+	window.draw(engine_particlesystem_fire);
+
+	object::draw(window, states);
 
 	if ( selected ) {
 		window.draw(selected_circle);
 	}
 
 	if ( state == MOVING ) {
-		moving_path.draw(window);
+		window.draw(moving_path);
 	}
 }
 

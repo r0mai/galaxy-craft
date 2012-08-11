@@ -26,7 +26,7 @@ void minimap::render_background(const std::vector<polygonf>& obstacles) {
 	std::for_each( obstacles.begin(), obstacles.end(), [this, &multiplier](polygonf poly) {
 		poly.scale( multiplier );
 		poly.rerender();
-		poly.draw( *background_texture );
+		background_texture->draw(poly);
 	});
 
 	background_texture->display();
@@ -68,9 +68,9 @@ void minimap::render_foreground(const std::vector<unit>& units, const sf::View& 
 	foreground.setPosition( position.to_sfml_vector() );
 }
 
-void minimap::draw(sf::RenderWindow& window) const {
-	window.draw( background );
-	window.draw( foreground );
+void minimap::draw(sf::RenderTarget& window, sf::RenderStates states) const {
+	window.draw( background, states );
+	window.draw( foreground, states );
 }
 
 } //namespace gc

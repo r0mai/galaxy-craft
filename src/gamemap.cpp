@@ -49,7 +49,7 @@ path gamemap::search_path(const vector2df& start, const vector2df& end) const {
 	return path(vis_enviroment_offset.shortest_path( start.to_visilibity_point(), end.to_visilibity_point(), vis_visibility_graph_offset, get_epsilon() ));
 }
 
-void gamemap::draw(sf::RenderTarget& window) const {
+void gamemap::draw(sf::RenderTarget& window, sf::RenderStates states) const {
 
 	sf::RectangleShape background( dimension.to_sfml_vector() );
 	background.setFillColor( sf::Color(20, 20, 20) );
@@ -57,7 +57,7 @@ void gamemap::draw(sf::RenderTarget& window) const {
 	window.draw( background );
 
 	for ( unsigned i = 0; i < obstacles.size(); ++i ) {
-		obstacles[i].draw(window);
+		window.draw(obstacles[i]);
 	}
 #if 0
 	for ( unsigned i = 0; i < offset_obstacles.size(); ++i ) {
