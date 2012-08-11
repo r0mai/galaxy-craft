@@ -53,9 +53,9 @@ public:
 
 	T distance_to_squared(const vector2d<T>& other) const;
 	float distance_to(const vector2d<T>& other) const;
-	float distance_to_rectangle_boundary( vector2d<T> corner1, vector2d<T> corner2 ) const;
+	float distance_to_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const;
 
-	bool is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
+	bool is_in_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const;
 
 	bool operator==(const vector2d& other) const;
 
@@ -152,7 +152,7 @@ float vector2d<T>::distance_to(const vector2d<T>& other) const {
 }
 
 template<class T>
-float vector2d<T>::distance_to_rectangle_boundary( vector2d<T> corner1, vector2d<T> corner2 ) const {
+float vector2d<T>::distance_to_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const {
 	//ensure corner1 is TL, corner2 is BR
     if ( corner1.x > corner2.x ) {
         std::swap(corner1.x, corner2.x);
@@ -178,25 +178,26 @@ float vector2d<T>::distance_to_rectangle_boundary( vector2d<T> corner1, vector2d
 			return x - corner2.x;
 	}
 	else{ // middle
-		return std::min(std::abs(y-corner1.y), std::abs(y-corner2.y));
+		if(y<corner1.y) // up
+			return corner1.y - y;
+		if(y>corner2.y) // down
+			return y - corner2.y;
+		else //middle => in the rectangle
+			return 0.f;
 	}
 }
 
 template<class T>
-bool vector2d<T>::is_in_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const {
-    T minx = corner1.x;
-    T miny = corner1.y;
-    T maxx = corner2.x;
-    T maxy = corner2.y;
+bool vector2d<T>::is_in_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const {
 
-    if ( minx > maxx ) {
-        std::swap(minx, maxx);
+    if ( corner1.x > corner2.x ) {
+        std::swap(corner1.x, corner2.x);
     }
-    if ( miny > maxy ) {
-        std::swap(miny, maxy);
+    if ( corner1.y > corner2.y ) {
+        std::swap(corner1.y, corner2.y);
     }
 
-    return minx <= x && maxx >= x && miny <= y && maxy >= y;
+    return corner1.x <= x && corner2.x >= x && corner1.y <= y && corner2.y >= y;
 }
 
 template<class T>
