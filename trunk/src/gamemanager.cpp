@@ -439,7 +439,8 @@ void gamemanager::advance(const float frame_rate) {
 		const vector2df selection_end = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 		std::for_each( units.begin(), units.end(),
 			[this, &selection_end](unit& u) {
-				if ( u.get_position().distance_to_rectangle(selection_start, selection_end) < u.get_radius() ) {
+				const float radius = u.get_radius();
+				if ( u.get_position().distance_to_rectangle_squared(selection_start, selection_end) < radius*radius ) {
 					u.set_selection_state( unit::POTENTIALLY_SELECTED );
 				} else {
 					u.set_selection_state( unit::UNSELECTED );

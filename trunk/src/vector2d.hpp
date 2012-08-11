@@ -53,7 +53,9 @@ public:
 
 	T distance_to_squared(const vector2d<T>& other) const;
 	float distance_to(const vector2d<T>& other) const;
-	float distance_to_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const;
+
+	float distance_to_rectangle_squared( vector2d<T> corner1, vector2d<T> corner2 ) const;
+	float distance_to_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const;
 
 	bool is_in_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const;
 
@@ -152,7 +154,7 @@ float vector2d<T>::distance_to(const vector2d<T>& other) const {
 }
 
 template<class T>
-float vector2d<T>::distance_to_rectangle( vector2d<T> corner1, vector2d<T> corner2 ) const {
+float vector2d<T>::distance_to_rectangle_squared( vector2d<T> corner1, vector2d<T> corner2 ) const {
 	//ensure corner1 is TL, corner2 is BR
     if ( corner1.x > corner2.x ) {
         std::swap(corner1.x, corner2.x);
@@ -161,30 +163,42 @@ float vector2d<T>::distance_to_rectangle( vector2d<T> corner1, vector2d<T> corne
         std::swap(corner1.y, corner2.y);
     }
 	// determine where we are!
-	if(x<corner1.x){ // left 
-		if(y<corner1.y) // up
-			return this->distance_to(corner1);
-		if(y>corner2.y) // down
-			return this ->distance_to(gc::vector2df(corner1.x, corner2.y));
-		else // middle
-			return corner1.x - x;
-	}
-	if(x>corner2.x){ // right
-		if(y<corner1.y) // up
-			return this->distance_to(gc::vector2df(corner2.x, corner1.y));
-		if(y>corner2.y) // down
-			return this->distance_to(corner2);
-		else // middle
-			return x - corner2.x;
-	}
-	else{ // middle
-		if(y<corner1.y) // up
-			return corner1.y - y;
-		if(y>corner2.y) // down
-			return y - corner2.y;
-		else //middle => in the rectangle
+	if (x<corner1.x) { // left
+		if (y<corner1.y) { // up
+			return distance_to_squared(corner1);
+		} else if (y>corner2.y) { // down
+			return distance_to_squared(gc::vector2df(corner1.x, corner2.y));
+		} else {// middle
+			const float dx = corner1.x - x;
+			return dx * dx;
+		}
+	} else 	if (x>corner2.x) { // right
+		if (y<corner1.y) { // up
+			return distance_to_squared(gc::vector2df(corner2.x, corner1.y));
+		} else if (y>corner2.y) { // down
+			return distance_to_squared(corner2);
+		} else {// middle
+			const float dx = x - corner2.x;
+			return dx * dx;
+		}
+	} else { // middle
+		if (y<corner1.y) { // up
+			const float dy = corner1.y - y;
+			return dy * dy;
+		} else if (y>corner2.y) { // down
+			const float dy = y - corner2.y;
+			return dy * dy;
+		} else { //middle => in the rectangle
 			return 0.f;
+		}
 	}
+}
+
+template<class T>
+float vector2d<T>::distance_to_rectangle( const vector2d<T>& corner1, const vector2d<T>& corner2 ) const {
+	//TODO this could be a little bit more optimized, since we return values in a*a format from distance_to_rectangle_squared()
+	//but if someone wants to call std::sqrt, then he doesn't care about performance anyway
+	return std::sqrt( distance_to_rectangle_squared(corner1, corner2) );
 }
 
 template<class T>
