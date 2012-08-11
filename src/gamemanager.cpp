@@ -304,7 +304,10 @@ void gamemanager::process_mousebuttonreleased_event(const sf::Event& event) {
 		std::for_each( units.begin(), units.end(),
 			[this, &selection_end](unit& u) {
 
-				u.set_selected( u.get_position().is_in_rectangle( selection_start, selection_end ) );
+				u.set_selected( 
+					u.get_position().is_in_rectangle( selection_start, selection_end ) || // regular, is center in box.
+					u.get_position().distance_to_rectangle(selection_start, selection_end) < u.get_radius()
+					);
 
 			}
 		);
