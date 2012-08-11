@@ -43,7 +43,7 @@ void minimap::render_foreground(const std::vector<unit>& units, const sf::View& 
 
 	const vector2df blip_size = sf::Vector2f(3.f, 3.f);
 
-	std::for_each( units.begin(), units.end(), [this, &multiplier, &foreground_texture, &blip_size](const unit& u) {
+	std::for_each( units.begin(), units.end(), [this, &multiplier, &blip_size](const unit& u) {
 		sf::RectangleShape blip( blip_size.to_sfml_vector() );
 		blip.setFillColor( sf::Color::Black );
 		blip.setPosition( (u.get_position() * multiplier - blip_size/2.f).to_sfml_vector() );
