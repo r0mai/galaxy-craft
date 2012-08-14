@@ -69,6 +69,7 @@ private:
 	float zoomoutfactor;
 	float minimap_scale;
 	float unit_engine_particle_density;
+	unsigned unit_health;
 
 };
 

@@ -17,11 +17,11 @@ namespace gc {
 class unit : public object {
 public:
 
-	enum state_t { STANDING = 0, MOVING };
+	enum state_t { STANDING = 0, MOVING, ATTACKING, PATROLLING, DEFENDING, IDLE, DYING };
 	enum selection_state_t { UNSELECTED, SELECTED, POTENTIALLY_SELECTED };
 
 	unit();
-	unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density);
+	unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density, const unsigned health);
 
 
 	vector2df desired_movement(float distance);
@@ -45,14 +45,15 @@ public:
 	void set_selection_state(const selection_state_t val);
 	selection_state_t get_selection_state() const;
 	
-
 	virtual void set_position(const vector2df& pos);
+	virtual void set_health(const unsigned h);
 
 protected:
 	virtual void draw(sf::RenderTarget& window, sf::RenderStates states) const;
 
 private:
 	state_t state;
+	sf::Text statustext;
 
 	selection_state_t selection_state;
 	sf::CircleShape selected_circle;
