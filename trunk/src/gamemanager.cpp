@@ -44,6 +44,7 @@ void gamemanager::init() {
 	config.add_value("minimap_height", "120");
 	config.add_value("unit_engine_particle_density", "20");
 	config.add_value("font_file", "Sanchezregular.otf");
+	config.add_value("unit_health", "100");
 
 	//This will overwrite default values
 	config.read_config( "gc.cfg" );
@@ -58,6 +59,7 @@ void gamemanager::init() {
 	view_move_speed = config.get_value<float>( "view_move_speed" );
 	zoomoutfactor = config.get_value<float>( "zoomoutfactor" );
 	unit_engine_particle_density = config.get_value<float>( "unit_engine_particle_density" );
+	unit_health = config.get_value<unsigned>( "unit_health" );
 	const std::string font_file = config.get_value<std::string>("font_file");
 	const unsigned minimap_width = config.get_value<unsigned>("minimap_width");
 	const unsigned minimap_height = config.get_value<unsigned>("minimap_height");
@@ -178,7 +180,7 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 			const vector2df destination = vector2df(window.convertCoords( sf::Mouse::getPosition(window), mapview ));
 			if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
 				if ( destination.to_visilibity_point().in( map.get_vis_enviroment_offset() ) ) {
-					units.push_back( unit( destination, unit_size, manager.get_texture("obj.png"), unit_engine_particle_density ) );
+					units.push_back( unit( destination, unit_size, manager.get_texture("obj.png"), unit_engine_particle_density, unit_health ) );
 				}
 			}
 		}
@@ -194,6 +196,15 @@ void gamemanager::process_keypressed_event(const sf::Event& event) {
 				}
 			);
 		}
+		break;
+	case sf::Keyboard::Delete:
+		std::for_each(units.begin(), units.end(),
+			[](unit& u) {
+				if(u.get_selection_state() == unit::SELECTED ){
+					u.set_health(u.get_health() * 0.75f);
+				}
+			}
+		);
 		break;
 	default:
 		break;

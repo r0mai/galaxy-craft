@@ -25,7 +25,8 @@ public:
 	void move(const vector2df& offset);
 
 	float get_radius() const;
-
+	virtual unsigned get_health() const;
+	virtual void set_health(unsigned h);
 	virtual ~object();
 
 
@@ -35,9 +36,11 @@ protected:
 	// collision model stuff:
 	vector2df center;
 	float radius;
+	unsigned health;
 
 	float orientation; // radians hopefully.
 	sf::Sprite sprite; 
+	sf::RectangleShape healthbar;
 
 };
 

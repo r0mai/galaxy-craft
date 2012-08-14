@@ -8,13 +8,14 @@ namespace gc {
 unit::unit() :
 		object(vector2df(0.f, 0.f), 10.f, sf::Texture()), state(STANDING), selection_state(UNSELECTED) {}
 
-unit::unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density) :
+unit::unit(const vector2df& position, const float radius, const sf::Texture& texture, const float particle_density, const unsigned h) :
 		object(position, radius, texture),
 		state(STANDING),
 		selection_state(UNSELECTED),
 		selected_circle(radius),
 		particle_density(particle_density),
 		path_calculating(false),
+		statustext("I"),
 		engine_particlesystem_fire(
 			engine_particlesystem_init_type(
 				engine_particlesystem_init_1_type(
@@ -61,6 +62,12 @@ unit::unit(const vector2df& position, const float radius, const sf::Texture& tex
 
 	//This is little bit redundant, but will make maintenance easier
 	set_position( center.to_sfml_vector() );
+	health = h;
+	statustext.setCharacterSize(10);
+	statustext.setColor(sf::Color::Green);
+	statustext.setPosition(center.to_sfml_vector() + sf::Vector2f(0, -radius));
+	statustext.setOrigin(sf::Vector2f(statustext.getGlobalBounds().width, statustext.getGlobalBounds().height) / 2.f);
+	
 }
 
 vector2df unit::desired_movement(float distance) {
@@ -99,8 +106,9 @@ void unit::advance_movement(float distance) {
 		set_position( moving_path.get_position() );
 
 		if ( moving_path.is_at_end() ) {
-			state = STANDING;
+			set_state(STANDING);
 		}
+
 	}
 }
 
@@ -110,7 +118,8 @@ void unit::move_on_future(const boost::shared_future<path>& pf) {
 }
 
 void unit::move_on(const path& p) {
-	state = MOVING;
+	// state = MOVING; // Cannot catch state changes if we don't use set_state()!
+	set_state(MOVING);
 	moving_path = p;
 
 	set_orientation(moving_path.get_orientation() + boost::math::constants::pi<float>() / 2.f);
@@ -143,6 +152,29 @@ unit::state_t unit::get_state() const {
 
 void unit::set_state(const state_t s) {
 	state = s;
+	switch (s){
+	case unit::IDLE:
+		statustext.setString("I");
+		break;
+	case unit::ATTACKING:
+		statustext.setString("A");
+		break;
+	case unit::DEFENDING:
+		statustext.setString("D");
+		break;
+	case unit::MOVING:
+		statustext.setString("M");
+		break;
+	case unit::PATROLLING:
+		statustext.setString("P");
+		break;
+	case unit::STANDING:
+		statustext.setString("S");
+		break;
+	default:
+		statustext.setString("??");
+		break;			
+	}
 }
 
 bool unit::is_selected() const {
@@ -179,6 +211,8 @@ void unit::set_position(const vector2df& pos) {
 	engine_particlesystem_smoke.get_initialize_policy().set_position( pos );
 	engine_particlesystem_fire.get_initialize_policy().set_position( pos );
 
+	statustext.setPosition(pos.to_sfml_vector() + sf::Vector2f(0, -radius));
+
 	//If this is called from the outside while the unit is moving on a path,
 	//then path readjusting should be done here
 }
@@ -196,6 +230,14 @@ void unit::draw(sf::RenderTarget& window, sf::RenderStates states) const {
 	if ( state == MOVING ) {
 		window.draw(moving_path);
 	}
+
+	window.draw(statustext, states);
 }
+
+void unit::set_health(const unsigned h){
+	object::set_health(h);
+	// death animation here! :D
+}
+
 
 } //namespace gc
